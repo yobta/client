@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "outDir": "lib",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2019",
+    "types": ["vitest/globals"]
+  },
+  "include": ["src"],
+  "exclude": ["lib"]
+}
