@@ -1,1 +1,2 @@
-export * from './internetConnectionYobta/index.js'
+export * from './internetConnectionYobta/internetConnectionYobta.js'
+export * from './websocketYobta/websocketYobta.js'

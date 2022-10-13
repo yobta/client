@@ -1,6 +1,6 @@
 import { vi, expect } from 'vitest'
 
-import { internetConnectionYobta } from './index.js'
+import { internetConnectionYobta } from './internetConnectionYobta.js'
 
 it('is true when navigator is online', () => {
   vi.stubGlobal('navigator', { onLine: true })
