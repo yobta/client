@@ -1,0 +1,24 @@
+{
+  "name": "web-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "lint": "eslint src",
+    "size-limit": "size-limit",
+    "test": "vitest src --coverage --run",
+    "test:watch": "vitest src --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/ws": "^8.5.4",
+    "@yobta/protocol": "workspace:*",
+    "@yobta/stores": "^0.1.10"
+  }
+}
