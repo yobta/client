@@ -5,7 +5,6 @@ import {
   YobtaCollectionDelete,
 } from '@yobta/protocol'
 
-import { log } from '../logger'
 import { messageBroker } from '../messageBroker'
 
 interface CollectionFactory {
@@ -35,7 +34,7 @@ interface CollectionFactory {
 export const collectionYobta: CollectionFactory = ({ channel }) => {
   let destroy = () =>
     messageBroker.subscribe(channel, message => {
-      log(message)
+      console.log('message: ', message)
     })
   return destroy
 }

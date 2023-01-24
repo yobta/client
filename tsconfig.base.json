@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2019",
+    "types": ["vitest/globals"]
+  },
+  "include": ["@yobta/*/src", "dev/api/logger.js"],
+  "exclude": ["@yobta/*/lib", "**/*.test.ts", "**/*.spec.ts"]
+}
