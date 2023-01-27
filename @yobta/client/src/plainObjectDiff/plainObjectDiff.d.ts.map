@@ -1,0 +1,1 @@
+{"version":3,"file":"plainObjectDiff.d.ts","sourceRoot":"","sources":["plainObjectDiff.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,mBAAmB,EAAE,MAAM,eAAe,CAAA;AAEnD,UAAU,eAAe;IACvB,CAAC,WAAW,SAAS,mBAAmB,EACtC,SAAS,EAAE,mBAAmB,EAC9B,SAAS,EAAE,OAAO,CAAC,WAAW,CAAC,GAC9B,OAAO,CAAC,WAAW,CAAC,GAAG,IAAI,CAAA;CAC/B;AAED,eAAO,MAAM,eAAe,EAAE,eAQ7B,CAAA"}
