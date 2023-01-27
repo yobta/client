@@ -1,13 +1,16 @@
-export const intervalYobta = () => {
+export const timeoutYobta = () => {
     let heap = new Map();
     let stop = (callback) => {
-        clearInterval(heap.get(callback));
+        clearTimeout(heap.get(callback));
         heap.delete(callback);
     };
     return {
         start(callback, timeout, ...overloads) {
             if (!heap.has(callback)) {
-                let timeoutId = setInterval(callback, timeout, ...overloads);
+                let timeoutId = setTimeout(() => {
+                    callback(...overloads);
+                    stop(callback);
+                }, timeout);
                 heap.set(callback, timeoutId);
             }
         },
