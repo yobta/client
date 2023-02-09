@@ -3,15 +3,17 @@ import {
   YobtaDataOperation,
   YobtaError,
   YobtaRemoteOperation,
+  YobtaSubscribe,
+  YobtaUnsubscribe,
 } from '@yobta/protocol'
 import { pubSubYobta } from '@yobta/stores'
 
-import { ServerCallbacks } from '../server/index.js'
+import { ServerCallbacks } from '../createServer/createServer.js'
 
 interface ConnectionManager {
   (callback: (operation: YobtaRemoteOperation) => void): {
-    add(channel: string): void
-    remove(channel: string): void
+    add(operation: YobtaSubscribe): void
+    remove(operation: YobtaUnsubscribe): void
     clear(): void
   }
 }
@@ -44,7 +46,7 @@ export const registerConnection: ConnectionManager = (
   let map: Record<string, number> = {}
   const unsubsribe = outgoing.subscribe(errorChannel, callback)
   return {
-    add(channel: string) {
+    add({ channel }) {
       if (!map[channel]) {
         map[channel] = 1
         outgoing.subscribe(channel, callback)
@@ -52,7 +54,7 @@ export const registerConnection: ConnectionManager = (
         map[channel]++
       }
     },
-    remove(channel: string) {
+    remove({ channel }) {
       if (map[channel]) {
         map[channel]--
         if (!map[channel]) {

@@ -1,5 +1,5 @@
 export * from './clientOperation/index.js'
-export * from './collection/index.js'
+export * from './createCollection/createCollection.js'
 export * from './messageBroker/index.js'
-export * from './server/index.js'
+export * from './createServer/createServer.js'
 export * from './serverOperation/index.js'

@@ -1,7 +1,8 @@
 import { WebSocketServer } from 'ws'
-import { serverYobta } from '@yobta/server'
 
-import { log } from './logger'
+import { createServer } from '../../@yobta/server/src/index.js'
+import { log } from './logger.js'
+import './modules/todos/todos'
 
 // https://blog.jayway.com/2015/04/13/600k-concurrent-websocket-connections-on-aws-using-node-js/
 
@@ -34,6 +35,6 @@ const wss = new WebSocketServer({
   },
 })
 
-serverYobta(wss)
+createServer(wss)
 
 log('Server started on port 8080')

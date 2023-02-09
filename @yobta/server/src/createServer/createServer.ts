@@ -3,8 +3,8 @@ import { nanoid } from 'nanoid'
 import {
   YobtaCommit,
   YobtaReject,
-  YOBTA_SUBSCRIBE,
-  YOBTA_UNSUBSCRIBE,
+  YobtaSubscribe,
+  YobtaUnsubscribe,
 } from '@yobta/protocol'
 
 import { createServerOperation } from '../serverOperation/index.js'
@@ -21,11 +21,21 @@ interface ServerFactory {
 export type ServerCallbacks = {
   commit(operation: YobtaCommit): void
   reject(operation: YobtaReject): void
+  subscribe(operation: YobtaSubscribe): void
+  unsubscribe(operation: YobtaUnsubscribe): void
 }
 
-export const serverYobta: ServerFactory = wss => {
+export const createServer: ServerFactory = wss => {
   wss.on('connection', (connection, req) => {
+<<<<<<< HEAD:@yobta/server/src/server/index.ts
     const callbacks: ServerCallbacks = {
+=======
+    let mediator = registerConnection(operation => {
+      let message = createServerOperation(operation)
+      connection.send(message)
+    })
+    let callbacks: ServerCallbacks = {
+>>>>>>> 179d7c0 (wip server collection):@yobta/server/src/createServer/createServer.ts
       commit(operation) {
         const message: string = createServerOperation(operation)
         connection.send(message)
@@ -34,11 +44,16 @@ export const serverYobta: ServerFactory = wss => {
         const message: string = createServerOperation(operation)
         connection.send(message)
       },
+      subscribe: mediator.add,
+      unsubscribe: mediator.remove,
     }
+<<<<<<< HEAD:@yobta/server/src/server/index.ts
     const mediator = registerConnection(operation => {
       const message = createServerOperation(operation)
       connection.send(message)
     })
+=======
+>>>>>>> 179d7c0 (wip server collection):@yobta/server/src/createServer/createServer.ts
     connection.on('message', (message: string) => {
       const { operation, headers } = parseClientOperation(message)
       const receivedOp = createServerOperation({
@@ -48,21 +63,11 @@ export const serverYobta: ServerFactory = wss => {
         type: 'received',
       })
       connection.send(receivedOp)
-      switch (operation.type) {
-        case YOBTA_SUBSCRIBE:
-          mediator.add(operation.channel)
-          break
-        case YOBTA_UNSUBSCRIBE:
-          mediator.remove(operation.channel)
-          break
-        default:
-          broadcastClientMessage(
-            operation.channel,
-            { headers, operation },
-            callbacks,
-          )
-          break
-      }
+      broadcastClientMessage(
+        operation.channel,
+        { headers, operation },
+        callbacks,
+      )
     })
     connection.on('close', mediator.clear)
   })

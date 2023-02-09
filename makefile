@@ -16,7 +16,7 @@ dev-next:
 	cd dev/next && pnpm dev
 
 d:
-	make -j 3 dev-backend dev-next watch
+	make -j 2 dev-backend dev-next
 
 i:
 	pnpm i
