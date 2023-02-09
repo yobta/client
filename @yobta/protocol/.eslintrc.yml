@@ -1,0 +1,4 @@
+---
+extends: ['../../.eslintrc.yml']
+parserOptions:
+  project: ['./@yobta/protocol/tsconfig.json']

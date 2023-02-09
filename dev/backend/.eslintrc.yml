@@ -1,0 +1,4 @@
+---
+extends: ['../../.eslintrc.yml']
+parserOptions:
+  project: ['./dev/backend/tsconfig.json']
