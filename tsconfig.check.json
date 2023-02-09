@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@yobta/*": ["./@yobta/*/src"]
+    }
+  },
+  "extends": "./tsconfig.json",
+  "include": ["@yobta", "dev"]
+}

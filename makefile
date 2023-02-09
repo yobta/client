@@ -5,6 +5,9 @@ build: clean
 clean:
 	rm -rf @yobta/**/lib
 	rm -rf @yobta/**/tsconfig.tsbuildinfo
+	rm -rf dev/**/lib
+	rm -rf dev/**/tsconfig.tsbuildinfo
+	rm -f tsconfig.tsbuildinfo
 
 dev-backend:
 	cd dev/backend && pnpm dev
@@ -18,9 +21,11 @@ d:
 i:
 	pnpm i
 
-
 typecheck:
-	pnpm tsc --noEmit
+	pnpm tsc --noEmit -p tsconfig.check.json
+
+lint:
+	pnpm lint
 
 watch:
 	pnpm tsc --watch
