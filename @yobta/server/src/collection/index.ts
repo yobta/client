@@ -56,15 +56,15 @@ export const collectionYobta: CollectionFactory = <
   update,
   delete: remove,
 }: Props<Item>) => {
-  let destroy = () =>
+  const destroy = () =>
     onClientMessage<string, [Message<Item>, ServerCallbacks]>(
       channel,
       async ({ headers, operation }, { commit, reject }) => {
         try {
           switch (operation.type) {
             case YOBTA_COLLECTION_INSERT: {
-              let operations = await insert({ headers, operation })
-              let commitOperation: YobtaCommit = {
+              const operations = await insert({ headers, operation })
+              const commitOperation: YobtaCommit = {
                 id: nanoid(),
                 channel,
                 time: Date.now(),
@@ -76,8 +76,8 @@ export const collectionYobta: CollectionFactory = <
               break
             }
             case YOBTA_COLLECTION_UPDATE: {
-              let operations = await update({ headers, operation })
-              let updateOperation: YobtaCommit = {
+              const operations = await update({ headers, operation })
+              const updateOperation: YobtaCommit = {
                 id: nanoid(),
                 channel,
                 time: Date.now(),
@@ -89,8 +89,8 @@ export const collectionYobta: CollectionFactory = <
               break
             }
             case YOBTA_COLLECTION_DELETE: {
-              let operations = await remove({ headers, operation })
-              let updateOperation: YobtaCommit = {
+              const operations = await remove({ headers, operation })
+              const updateOperation: YobtaCommit = {
                 id: nanoid(),
                 channel,
                 time: Date.now(),
@@ -102,7 +102,7 @@ export const collectionYobta: CollectionFactory = <
               break
             }
             default: {
-              let error: YobtaError = {
+              const error: YobtaError = {
                 id: nanoid(),
                 message: 'Unknown operation type',
                 type: YOBTA_ERROR,
@@ -113,7 +113,7 @@ export const collectionYobta: CollectionFactory = <
             }
           }
         } catch (error) {
-          let rejectOperation: YobtaReject = {
+          const rejectOperation: YobtaReject = {
             id: nanoid(),
             channel,
             time: Date.now(),

@@ -21,7 +21,7 @@ export const createCollectionSnapshot: YobtaCollectionSnapshotFactory = <
   return {
     next({ committed: commited, pending }) {
       if (version !== commited.version) {
-        let op = commited.last()
+        const op = commited.last()
         if (op) {
           // note: an operation can be applied multiple times, but the result will be the same
           mergeOperation(state, op)
@@ -31,9 +31,9 @@ export const createCollectionSnapshot: YobtaCollectionSnapshotFactory = <
         }
         version = commited.version
       }
-      let pendingState = new Map(state)
+      const pendingState = new Map(state)
       mergeLog<State>(pendingState, pending)
-      let result: Map<YobtaCollectionId, State> = new Map()
+      const result: Map<YobtaCollectionId, State> = new Map()
       pendingState.forEach((value, key): void => {
         if (!value.deleted) result.set(key, value.data)
       })

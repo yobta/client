@@ -6,8 +6,8 @@ export const compensateTimeDifference = (
   clientTime: number,
   serverTime: number,
 ): void => {
-  let latency = (Date.now() - clientTime) * 0.5
-  let localTimeOfServerResponse = clientTime + latency
+  const latency = (Date.now() - clientTime) * 0.5
+  const localTimeOfServerResponse = clientTime + latency
   serverTimeCompensator.next(localTimeOfServerResponse - serverTime)
 }
 

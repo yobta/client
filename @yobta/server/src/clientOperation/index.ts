@@ -8,7 +8,7 @@ interface ClientOperationFactory {
 }
 
 export const parseClientOperation: ClientOperationFactory = message => {
-  let { headers, operation } = JSON.parse(message)
+  const { headers, operation } = JSON.parse(message)
   return {
     headers,
     operation: {

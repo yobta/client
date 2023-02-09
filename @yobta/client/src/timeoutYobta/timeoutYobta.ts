@@ -11,15 +11,15 @@ interface TimeoutFactory {
 }
 
 export const timeoutYobta: TimeoutFactory = () => {
-  let heap = new Map<VoidFunction, NodeJS.Timeout>()
-  let stop = (callback: VoidFunction): void => {
+  const heap = new Map<VoidFunction, NodeJS.Timeout>()
+  const stop = (callback: VoidFunction): void => {
     clearTimeout(heap.get(callback))
     heap.delete(callback)
   }
   return {
     start(callback, timeout, ...overloads) {
       if (!heap.has(callback)) {
-        let timeoutId = setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           callback(...overloads)
           stop(callback)
         }, timeout)

@@ -9,7 +9,7 @@ interface HandleDataOperation {
 }
 
 export const handleDataOperation: HandleDataOperation = operation => {
-  let subscription = subscriptionsStore.get(operation.channel)
+  const subscription = subscriptionsStore.get(operation.channel)
   if (subscription) {
     subscription.pending.add(operation)
     notifySubscribers(subscription)

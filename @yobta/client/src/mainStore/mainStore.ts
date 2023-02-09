@@ -67,6 +67,6 @@ storeEffectYobta(mainStore, () => {
 })
 
 export const isMainTab = (): boolean => {
-  let isMain = mainStore.last()
+  const isMain = mainStore.last()
   return isMain
 }

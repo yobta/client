@@ -22,12 +22,12 @@ export const handleRemoteOperation = (message: YobtaRemoteOperation): void => {
     createErrorYobta(message)
     return
   }
-  let subscription = subscriptionsStore.get(message.channel)
+  const subscription = subscriptionsStore.get(message.channel)
   if (!subscription) return
-  let { committed, pending } = subscription
+  const { committed, pending } = subscription
   switch (message.type) {
     case YOBTA_COMMIT: {
-      let op = pending.remove(message.ref)
+      const op = pending.remove(message.ref)
       if (op) committed.add({ ...op, time: message.time })
       notifyOperationObservers(message)
       break

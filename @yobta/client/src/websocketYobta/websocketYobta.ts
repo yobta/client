@@ -32,8 +32,8 @@ export const websocketYobta: TransportFactory =
   ({ onMessage, onStatus }) => {
     onStatus(YOBTA_CONNECTING)
 
-    let client: WebSocket = new WebSocket(url, protocols)
-    let senDebug = (event: Event | CloseEvent | MessageEvent<string>): void => {
+    const client: WebSocket = new WebSocket(url, protocols)
+    const senDebug = (event: Event | CloseEvent | MessageEvent<string>): void => {
       if (debug) {
         debug(event)
       }

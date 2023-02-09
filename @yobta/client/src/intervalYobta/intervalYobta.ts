@@ -11,15 +11,15 @@ interface IntervalFactory {
 }
 
 export const intervalYobta: IntervalFactory = () => {
-  let heap = new Map<VoidFunction, NodeJS.Timeout>()
-  let stop = (callback: VoidFunction): void => {
+  const heap = new Map<VoidFunction, NodeJS.Timeout>()
+  const stop = (callback: VoidFunction): void => {
     clearInterval(heap.get(callback))
     heap.delete(callback)
   }
   return {
     start(callback, timeout, ...overloads) {
       if (!heap.has(callback)) {
-        let timeoutId = setInterval(callback, timeout, ...overloads)
+        const timeoutId = setInterval(callback, timeout, ...overloads)
         heap.set(callback, timeoutId)
       }
     },

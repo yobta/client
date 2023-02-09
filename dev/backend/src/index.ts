@@ -1,7 +1,7 @@
 import { WebSocketServer } from 'ws'
 import { serverYobta } from '@yobta/server'
 
-import { log } from './logger.js'
+import { log } from './logger'
 
 // https://blog.jayway.com/2015/04/13/600k-concurrent-websocket-connections-on-aws-using-node-js/
 

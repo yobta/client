@@ -28,7 +28,7 @@ export const encoderYobta: EncoderFactory = () => {
       try {
         return JSON.parse(value)
       } catch (_) {
-        let error = createOperationYobta<YobtaError>({
+        const error = createOperationYobta<YobtaError>({
           type: YOBTA_ERROR,
           message: String(value),
         })
