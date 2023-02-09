@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* #region  Paper colors */
+  /* --yobta-color-paper: #fcfcfc;
+  --yobta-color-paper-dark: #2a2d35;
+  --yobta-color-text-on-paper: #414141;
+  --yobta-color-text-on-paper-dark: #fcfcfc;
+
+  --yobta-color-paper-2: #ebebeb;
+  --yobta-color-paper-2-dark: #4f5462;
+  --yobta-color-text-on-paper-2: #414141;
+  --yobta-color-text-on-paper-2-dark: #fcfcfc;
+
+  --yobta-color-paper-3: #d0d0d0;
+  --yobta-color-paper-3-dark: #767c8b;
+  --yobta-color-text-on-paper-3: #414141;
+  --yobta-color-text-on-paper-3-dark: #fcfcfc;
+
+  --yobta-color-primary: #fadc4f;
+  --yobta-color-primary-dark: #e2c438;
+  --yobta-color-text-on-primary: #414141;
+  --yobta-color-text-on-primary-dark: #414141;
+
+  --yobta-color-secondary: #524ffa;
+  --yobta-color-secondary-dark: #5755cd;
+  --yobta-color-text-on-secondary: #fcfcfc;
+  --yobta-color-text-on-secondary-dark: #fcfcfc;
+
+  --yobta-color-error: #ec4e3d;
+  --yobta-color-error-dark: #d85243;
+  --yobta-color-text-on-error: #fcfcfc;
+  --yobta-color-text-on-error-dark: #fcfcfc;
+
+  --yobta-color-success: #4fa762;
+  --yobta-color-success-dark: #458052;
+  --yobta-color-text-on-success: #fcfcfc;
+  --yobta-color-text-on-success-dark: #fcfcfc;
+
+  --yobta-color-warning: #e87c06;
+  --yobta-color-warning-dark: #c6751c;
+  --yobta-color-text-on-warning: #fcfcfc;
+  --yobta-color-text-on-warning-dark: #fcfcfc;
+
+  --yobta-color-info: #4c9be4;
+  --yobta-color-info-dark: #3b72a5;
+  --yobta-color-text-on-info: #fcfcfc;
+  --yobta-color-text-on-info-dark: #fcfcfc; */
+  /* #endregion */
+
+  /* #region  Ink colors */
+  /* --yobta-color-ink: #414141;
+  --yobta-color-ink-dark: #fcfcfc;
+  --yobta-color-ink-2: #7b8b99;
+  --yobta-color-ink-2-dark: #5b6772;
+  --yobta-color-ink-primary: #c7a713;
+  --yobta-color-ink-primary-dark: #dcca76;
+  --yobta-color-ink-secondary: #4f4cea;
+  --yobta-color-ink-secondary-dark: #8583ff;
+  --yobta-color-ink-error: #d74030;
+  --yobta-color-ink-error-dark: #d45d50;
+  --yobta-color-ink-success: #3b7d49;
+  --yobta-color-ink-success-dark: #6d9f78;
+  --yobta-color-ink-warning: #e48d2e;
+  --yobta-color-ink-warning-dark: #b98a56;
+  --yobta-color-ink-info: #3784cb;
+  --yobta-color-ink-info-dark: #5a86af;
+  --yobta-color-ink-border: #29292916;
+  --yobta-color-ink-border-dark: #ffffff16; */
+  /* #endregion */
+
+  /* #region  Link colors */
+  /* --yobta-color-link: #120eed;
+  --yobta-color-link: #9c9aff;
+  --yobta-color-link-hover: #5f5cff;
+  --yobta-color-link-hover-dark: #acaaf0;
+  --yobta-color-link-active: #b92afd;
+  --yobta-color-link-active-dark: #cd63ff;
+  --yobta-color-link-visited: #8b2e9a;
+  --yobta-color-link-visited-dark: #bd9fc1; */
+  /* #endregion */
+
+  /* #region  Pale colors */
+  /* --yobta-color-1: #fad8c2;
+  --yobta-color-1-dark: #4c474b;
+  --yobta-color-2: #ffe7ce;
+  --yobta-color-2-dark: #48474b;
+  --yobta-color-3: #fff6c0;
+  --yobta-color-3-dark: #4d4f4a;
+  --yobta-color-4: #fffdf1;
+  --yobta-color-4-dark: #373a3f;
+  --yobta-color-5: #e9f2ce;
+  --yobta-color-5-dark: #474e4f;
+  --yobta-color-6: #d6e8cf;
+  --yobta-color-6-dark: #424b4f;
+  --yobta-color-7: #c3c9c4;
+  --yobta-color-7-dark: #3d424c;
+  --yobta-color-8: #e8eee9;
+  --yobta-color-8-dark: #474d58;
+  --yobta-color-9: #d8edef;
+  --yobta-color-9-dark: #424d5a;
+  --yobta-color-10: #ecf5f7;
+  --yobta-color-10-dark: #3d434f;
+  --yobta-color-11: #f8fdfe;
+  --yobta-color-11-dark: #2d323b;
+  --yobta-color-12: #c5e7f7;
+  --yobta-color-12-dark: #3d4b5c;
+  --yobta-color-13: #c6e0f4;
+  --yobta-color-13-dark: #3d495b;
+  --yobta-color-14: #b0b9bf;
+  --yobta-color-14-dark: #373e4a;
+  --yobta-color-15: #e9ddeb;
+  --yobta-color-15-dark: #474858;
+  --yobta-color-16: #f8e0eb;
+  --yobta-color-16-dark: #4b4958; */
+  /* #endregion */
+
+  /* #region  Tooltip colors */
+  /* --yobta-color-tooltip-bg: #2a2d35;
+  --yobta-color-tooltip-bg-dark: #fcfcfc;
+  --yobta-color-tooltip-text: #fcfcfc;
+  --yobta-color-tooltip-text-dark: #414141; */
+  /* #endregion */
+
+  /* #region  Selected colors */
+  /* --yobta-color-selected: #cbe6ff;
+  --yobta-color-selected-dark: #4b6278;
+  --yobta-color-selected-text: #414141;
+  --yobta-color-selected-text-dark: #fcfcfc;
+
+  --yobta-color-selected-2: #aed5fa;
+  --yobta-color-selected-2-dark: #5b81a5;
+  --yobta-color-selected-2-text: #414141;
+  --yobta-color-selected-2-text-dark: #fcfcfc;
+
+  --yobta-color-selected-3: #a8c2dc;
+  --yobta-color-selected-3-dark: #4b7194;
+  --yobta-color-selected-3-text: #414141;
+  --yobta-color-selected-3-text-dark: #fcfcfc;
+
+  --yobta-color-primary-selected: #fff0ab;
+  --yobta-color-primary-selected-dark: #f0de8b;
+  --yobta-color-primary-selected-text: #414141;
+  --yobta-color-primary-selected-text-dark: #414141;
+
+  --yobta-color-secondary-selected: #716cff;
+  --yobta-color-secondary-selected-dark: #7f7df1;
+  --yobta-color-secondary-selected-text: #fcfcfc;
+  --yobta-color-secondary-selected-text-dark: #fcfcfc; */
+  /* #endregion */
+}
+
+body {
+  @apply yobta-paper;
+}
