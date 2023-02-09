@@ -46,14 +46,14 @@ export const lwwCollection: LWWCollection = <
   operations?: YobtaDataOperation[]
 }) => {
   let unsubscribe: VoidFunction
-  let { next, last, observe, on } = storeYobta<Collection<State>>(
+  const { next, last, observe, on } = storeYobta<Collection<State>>(
     new Map(),
     ({ addMiddleware }) => {
       addMiddleware(YOBTA_READY, () => {
-        let subscription = getSubscription(channel, operations)
-        let snapshot = createCollectionSnapshot<State>()
+        const subscription = getSubscription(channel, operations)
+        const snapshot = createCollectionSnapshot<State>()
         unsubscribe = subscribe(channel, logs => {
-          let state = snapshot.next(logs)
+          const state = snapshot.next(logs)
           next(state)
         })
         return snapshot.next(subscription)
@@ -67,12 +67,12 @@ export const lwwCollection: LWWCollection = <
 
   return {
     async update(ref, unfiltereledData: Payload<State>) {
-      let item = last().get(ref)
+      const item = last().get(ref)
       // TODO: throw error if item not found
       if (!item) return
-      let data = plainObjectDiff(item, unfiltereledData)
+      const data = plainObjectDiff(item, unfiltereledData)
       if (!data) return
-      let operation = createOperationYobta<YobtaCollectionUpdate<State>>({
+      const operation = createOperationYobta<YobtaCollectionUpdate<State>>({
         channel,
         type: YOBTA_COLLECTION_UPDATE,
         data,
@@ -83,7 +83,7 @@ export const lwwCollection: LWWCollection = <
     },
     async delete(ref) {
       // NOTE: delete should not throw error if item not found
-      let operation = createOperationYobta<YobtaCollectionDelete>({
+      const operation = createOperationYobta<YobtaCollectionDelete>({
         channel,
         type: YOBTA_COLLECTION_DELETE,
         ref,
@@ -92,13 +92,13 @@ export const lwwCollection: LWWCollection = <
       return operationResult(operation.id)
     },
     insert(item: Data<State>, ref) {
-      let data = {
+      const data = {
         id: nanoid(),
         ...item,
       } as State
 
       // TODO: throw error if ref not found
-      let operation = createOperationYobta<YobtaCollectionInsert<State>>({
+      const operation = createOperationYobta<YobtaCollectionInsert<State>>({
         channel,
         type: YOBTA_COLLECTION_INSERT,
         data,

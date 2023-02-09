@@ -10,15 +10,15 @@ export const subscribe = (
   channel: string,
   callback: Subscriber,
 ): VoidFunction => {
-  let subscription = getSubscription(channel, [])
+  const subscription = getSubscription(channel, [])
   subscription.subscribers.add(callback)
-  let operartion = getSubscribeOperation(channel, subscription.committed)
+  const operartion = getSubscribeOperation(channel, subscription.committed)
   queueOperation(operartion)
   return () => {
     subscription.subscribers.delete(callback)
     if (subscription.subscribers.size === 0) {
       subscriptionsStore.delete(channel)
-      let unsubscribe = createOperationYobta<YobtaUnsubscribe>({
+      const unsubscribe = createOperationYobta<YobtaUnsubscribe>({
         id: `${channel}/unsubscribe`,
         channel,
         type: YOBTA_UNSUBSCRIBE,

@@ -12,8 +12,8 @@ export const getSubscribeOperation: SubscribeOperationGetter = (
   committed,
 ) => {
   let version = 0
-  for (let op of committed.values()) version = op.time
-  let message = createOperationYobta<YobtaSubscribe>({
+  for (const op of committed.values()) version = op.time
+  const message = createOperationYobta<YobtaSubscribe>({
     id: `${channel}/subscribe`,
     channel,
     type: YOBTA_SUBSCRIBE,

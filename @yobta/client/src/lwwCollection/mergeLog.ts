@@ -21,5 +21,5 @@ type SnapshotValue<State extends YobtaCollectionItem> = {
 }
 
 export const mergeLog: MergeLog = (state, log) => {
-  for (let operation of log.values()) mergeOperation(state, operation)
+  for (const operation of log.values()) mergeOperation(state, operation)
 }

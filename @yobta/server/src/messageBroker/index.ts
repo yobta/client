@@ -42,7 +42,7 @@ export const registerConnection: ConnectionManager = (
   callback: (operation: YobtaRemoteOperation) => void,
 ) => {
   let map: Record<string, number> = {}
-  let unsubsribe = outgoing.subscribe(errorChannel, callback)
+  const unsubsribe = outgoing.subscribe(errorChannel, callback)
   return {
     add(channel: string) {
       if (!map[channel]) {
@@ -62,7 +62,7 @@ export const registerConnection: ConnectionManager = (
       }
     },
     clear() {
-      for (let channel in map) {
+      for (const channel in map) {
         outgoing.unsubscribe(channel, callback)
       }
       map = {}

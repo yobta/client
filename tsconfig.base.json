@@ -12,6 +12,5 @@
     "target": "es2019",
     "types": ["vitest/globals"]
   },
-  "include": ["@yobta/*/src", "dev/api/logger.js"],
-  "exclude": ["@yobta/*/lib", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["**/lib", "**/*.test.ts", "**/*.spec.ts", "node_modules"]
 }

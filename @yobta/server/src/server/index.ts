@@ -25,23 +25,23 @@ export type ServerCallbacks = {
 
 export const serverYobta: ServerFactory = wss => {
   wss.on('connection', (connection, req) => {
-    let callbacks: ServerCallbacks = {
+    const callbacks: ServerCallbacks = {
       commit(operation) {
-        let message: string = createServerOperation(operation)
+        const message: string = createServerOperation(operation)
         connection.send(message)
       },
       reject(operation) {
-        let message: string = createServerOperation(operation)
+        const message: string = createServerOperation(operation)
         connection.send(message)
       },
     }
-    let mediator = registerConnection(operation => {
-      let message = createServerOperation(operation)
+    const mediator = registerConnection(operation => {
+      const message = createServerOperation(operation)
       connection.send(message)
     })
     connection.on('message', (message: string) => {
-      let { operation, headers } = parseClientOperation(message)
-      let receivedOp = createServerOperation({
+      const { operation, headers } = parseClientOperation(message)
+      const receivedOp = createServerOperation({
         id: nanoid(),
         ref: operation.id,
         time: Date.now(),

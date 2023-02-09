@@ -26,7 +26,7 @@ export const queueOperation = (operation: YobtaClientOperation): void => {
 }
 
 export const dequeueOperationAndFixTime = (operation: YobtaReceived): void => {
-  let clientOperation = operationsQueue.get(operation.ref)
+  const clientOperation = operationsQueue.get(operation.ref)
   if (clientOperation) {
     compensateTimeDifference(clientOperation.time, operation.time)
   }

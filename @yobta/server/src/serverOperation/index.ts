@@ -1,4 +1,5 @@
 import { YobtaRemoteOperation } from '@yobta/protocol'
+
 interface ServerOperationFactory {
   (operation: YobtaRemoteOperation): string
 }

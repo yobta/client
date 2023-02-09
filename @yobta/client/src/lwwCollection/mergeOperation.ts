@@ -23,7 +23,7 @@ export const mergeOperation = <State extends YobtaCollectionItem>(
   switch (operation.type) {
     case YOBTA_COLLECTION_INSERT: {
       if (operation.ref) {
-        let tail: Snapshot<State> = new Map()
+        const tail: Snapshot<State> = new Map()
         let shouldCut = false
         state.forEach((value, key) => {
           if (key === operation.ref) shouldCut = true
@@ -48,16 +48,16 @@ export const mergeOperation = <State extends YobtaCollectionItem>(
       break
     }
     case YOBTA_COLLECTION_DELETE: {
-      let item = state.get(operation.ref)
+      const item = state.get(operation.ref)
       if (item) {
         state.set(operation.ref, { ...item, deleted: true })
       }
       break
     }
     case YOBTA_COLLECTION_UPDATE: {
-      let item = state.get(operation.ref)
+      const item = state.get(operation.ref)
       if (item) {
-        let data = { ...item.data, ...operation.data }
+        const data = { ...item.data, ...operation.data }
         state.set(operation.ref, { ...item, data })
       }
       break

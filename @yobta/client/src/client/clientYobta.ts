@@ -1,6 +1,5 @@
 import { YobtaOnlineStore } from '@yobta/stores'
 import { YobtaClientOperation } from '@yobta/protocol'
-
 import {
   YobtaTransport,
   YobtaTransportConnection,
@@ -39,12 +38,12 @@ export const clientYobta: ClientFactory = ({
   messageTimeoutMs = 3600,
 }) => {
   let connection: YobtaTransportConnection | null = null
-  let timer = timeoutYobta()
-  let connect: VoidFunction = () => {
+  const timer = timeoutYobta()
+  const connect: VoidFunction = () => {
     if (!connection && isMainTab() && internetObserver.last()) {
       connection = transport({
         onMessage(message) {
-          let decoded = encoder.decode(message)
+          const decoded = encoder.decode(message)
           remoteStore.next(decoded)
           timer.stopAll()
         },
@@ -52,19 +51,19 @@ export const clientYobta: ClientFactory = ({
       })
     }
   }
-  let disconnect: VoidFunction = () => {
+  const disconnect: VoidFunction = () => {
     if (connection) {
       connection.close()
       connection = null
     }
   }
-  let reconnect: VoidFunction = () => {
+  const reconnect: VoidFunction = () => {
     disconnect()
     connect()
   }
-  let send = (operation: YobtaClientOperation): void => {
+  const send = (operation: YobtaClientOperation): void => {
     if (connection?.isOpen()) {
-      let encoded = encoder.encode({
+      const encoded = encoder.encode({
         headers: getHeaders?.(),
         operation,
       })
@@ -73,7 +72,7 @@ export const clientYobta: ClientFactory = ({
     }
   }
   return () => {
-    let unmount: VoidFunction[] = [
+    const unmount: VoidFunction[] = [
       connectionStore.observe(state => {
         timer.stopAll()
         if (state === YOBTA_OPEN) {
@@ -95,7 +94,7 @@ export const clientYobta: ClientFactory = ({
       }),
       remoteStore.observe(handleRemoteOperation),
     ]
-    let teardown: VoidFunction = () => {
+    const teardown: VoidFunction = () => {
       disconnect()
       timer.stopAll()
       unmount.forEach(u => {

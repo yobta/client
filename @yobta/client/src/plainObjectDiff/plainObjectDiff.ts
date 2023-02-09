@@ -8,8 +8,8 @@ interface PlainObjectDiff {
 }
 
 export const plainObjectDiff: PlainObjectDiff = (oldObject, newObject) => {
-  let diff: any = {}
-  for (let key in oldObject) {
+  const diff: any = {}
+  for (const key in oldObject) {
     if (oldObject[key] !== newObject[key]) {
       diff[key] = newObject[key]
     }
