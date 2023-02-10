@@ -1,6 +1,6 @@
 import { Clock, Cross, Toast } from '@yobta/ui'
 
-import { useError, popError } from '../../../stores/errorsStore'
+import { useError, popError } from '../../../stores/errorsStore.js'
 
 export const ErrorToast = (): JSX.Element => {
   const [error] = useError()

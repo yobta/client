@@ -18,7 +18,7 @@ import { nanoid } from 'nanoid'
 
 import { getErrorMessage } from '../getErrorMessage/index.js'
 import { sendBack, onClientMessage, throwBack } from '../messageBroker/index.js'
-import { ServerCallbacks } from '../server/index.js'
+import { ServerCallbacks } from '../createServer/createServer.js'
 
 interface CollectionFactory {
   <Item extends YobtaCollectionItem>(props: Props<Item>): {
