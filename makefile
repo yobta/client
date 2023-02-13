@@ -21,7 +21,7 @@ d:
 i:
 	pnpm i
 
-typecheck: clean
+typecheck:
 	pnpm tsc -p tsconfig.check.json
 
 lint:

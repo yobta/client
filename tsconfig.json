@@ -10,9 +10,6 @@
     },
     {
       "path": "@yobta/server/tsconfig.json"
-    },
-    {
-      "path": "dev/backend/tsconfig.json"
     }
   ]
 }
