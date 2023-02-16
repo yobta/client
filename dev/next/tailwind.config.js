@@ -1,3 +1,4 @@
+/* eslint-disable n/global-require */
 /** @type {import('tailwindcss').Config} */
 
 module.exports = {

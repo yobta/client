@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+
 import { useTodos } from '../stores/todosStore'
 
 const Home: NextPage = () => {

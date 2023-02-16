@@ -1,0 +1,16 @@
+---
+extends:
+  - '../../.eslintrc.yml'
+  - '@logux/eslint-config/ts'
+  - 'next/core-web-vitals'
+rules:
+  import/extensions: 'off'
+  prefer-let/prefer-let: 'off'
+  prefer-const: 'error'
+ignorePatterns:
+  - 'public/*'
+  - '**/*.md'
+  - '**/*.mdx'
+  - '**/*.css'
+parserOptions:
+  project: ['./dev/next/tsconfig.json']

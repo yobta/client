@@ -86,8 +86,8 @@ export const createCollection: CollectionFactory = <
             break
           }
           case YOBTA_COLLECTION_INSERT: {
-            let operations = await onInsert({ headers, operation })
-            let commitOperation: YobtaCommit = {
+            const operations = await onInsert({ headers, operation })
+            const commitOperation: YobtaCommit = {
               id: nanoid(),
               channel,
               time: Date.now(),
@@ -99,8 +99,8 @@ export const createCollection: CollectionFactory = <
             break
           }
           case YOBTA_COLLECTION_UPDATE: {
-            let operations = await onUpdate({ headers, operation })
-            let updateOperation: YobtaCommit = {
+            const operations = await onUpdate({ headers, operation })
+            const updateOperation: YobtaCommit = {
               id: nanoid(),
               channel,
               time: Date.now(),
@@ -112,8 +112,8 @@ export const createCollection: CollectionFactory = <
             break
           }
           case YOBTA_COLLECTION_DELETE: {
-            let operations = await onDelete({ headers, operation })
-            let updateOperation: YobtaCommit = {
+            const operations = await onDelete({ headers, operation })
+            const updateOperation: YobtaCommit = {
               id: nanoid(),
               channel,
               time: Date.now(),
@@ -125,7 +125,7 @@ export const createCollection: CollectionFactory = <
             break
           }
           default: {
-            let error: YobtaError = {
+            const error: YobtaError = {
               id: nanoid(),
               message: 'Unknown operation type',
               type: YOBTA_ERROR,
@@ -136,7 +136,7 @@ export const createCollection: CollectionFactory = <
           }
         }
       } catch (error) {
-        let rejectOperation: YobtaReject = {
+        const rejectOperation: YobtaReject = {
           id: nanoid(),
           channel,
           time: Date.now(),
