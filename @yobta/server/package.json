@@ -21,7 +21,7 @@
     "./package.json": "./package.json"
   },
   "engines": {
-    "node": "^16.0.0 || >=18.0.0"
+    "node": ">=16.0.0"
   },
   "dependencies": {
     "@types/ws": "^8.5.4",
