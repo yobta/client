@@ -1,5 +1,6 @@
 import { YobtaJsonValue } from '@yobta/stores'
-import { YobtaOperationId } from './unsorted'
+
+import { YobtaOperationId } from './unsorted.js'
 
 export type YobtaCollectionId = string | number
 type Key = string | number
