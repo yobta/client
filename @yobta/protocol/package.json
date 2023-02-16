@@ -12,5 +12,8 @@
   "exports": {
     ".": "./lib/index.js",
     "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@yobta/stores": "^0.2.1"
   }
 }

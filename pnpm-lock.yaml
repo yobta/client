@@ -85,7 +85,7 @@ importers:
       '@types/react-dom': ^18.0.10
       '@vitest/coverage-c8': ^0.28.1
       '@yobta/protocol': workspace:*
-      '@yobta/stores': ^0.1.10
+      '@yobta/stores': ^0.2.1
       c8: ^7.12.0
       check-dts: ^0.6.7
       clean-publish: ^4.1.1
@@ -101,7 +101,7 @@ importers:
       vitest: ^0.28.1
     dependencies:
       '@yobta/protocol': link:../protocol
-      '@yobta/stores': 0.1.10
+      '@yobta/stores': 0.2.1
       nanoid: 4.0.0
     devDependencies:
       '@size-limit/preset-small-lib': 8.1.2_size-limit@8.1.2
@@ -126,18 +126,21 @@ importers:
       vitest: 0.28.1_happy-dom@8.1.5
 
   '@yobta/protocol':
-    specifiers: {}
+    specifiers:
+      '@yobta/stores': ^0.2.1
+    dependencies:
+      '@yobta/stores': 0.2.1
 
   '@yobta/server':
     specifiers:
       '@types/ws': ^8.5.4
       '@yobta/protocol': workspace:*
-      '@yobta/stores': ^0.1.12
+      '@yobta/stores': ^0.2.1
       nanoid: ^4.0.0
     dependencies:
       '@types/ws': 8.5.4
       '@yobta/protocol': link:../protocol
-      '@yobta/stores': 0.1.12
+      '@yobta/stores': 0.2.1
       nanoid: 4.0.0
 
   dev/backend:
@@ -174,7 +177,7 @@ importers:
       '@yobta/client': workspace:*
       '@yobta/protocol': workspace:*
       '@yobta/server': workspace:*
-      '@yobta/stores': 0.1.12
+      '@yobta/stores': 0.2.1
       '@yobta/ui': ^0.0.49
       '@yobta/validator': ^0.0.38
       autoprefixer: ^10.4.13
@@ -204,7 +207,7 @@ importers:
       '@yobta/client': link:../../@yobta/client
       '@yobta/protocol': link:../../@yobta/protocol
       '@yobta/server': link:../../@yobta/server
-      '@yobta/stores': 0.1.12
+      '@yobta/stores': 0.2.1
       '@yobta/ui': 0.0.49
       '@yobta/validator': 0.0.38
       clsx: 1.2.1
@@ -1609,14 +1612,9 @@ packages:
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: false
 
-  /@yobta/stores/0.1.10:
-    resolution: {integrity: sha512-gGPDo33nseSpXXV6D8lHu+/smAudxjYrL2UBTlPy36VY+DMAGCiZRuZvtkz83mprOF2WmYg98Q0bhqPAZj1bFg==}
-    engines: {node: ^14.0.0 || >=16.0.0}
-    dev: false
-
-  /@yobta/stores/0.1.12:
-    resolution: {integrity: sha512-bKJRAra+lWZJ0I1UgZk+Nl6qGUJ86qbrTbHQz1RSN8aU5pYyiW6ECfgboIAFn/Eu268o+wqJJHOYrIUuyfIucQ==}
-    engines: {node: ^14.0.0 || >=16.0.0}
+  /@yobta/stores/0.2.1:
+    resolution: {integrity: sha512-m7qW0dmPoV6FI++S2qvkUqW+kN+PeA0qOxOtSVOAbgY2etMy5Oy9ylpXbanZjfId6xLbIaepwjCkFaidRwUHDw==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     dev: false
 
   /@yobta/ui/0.0.49:

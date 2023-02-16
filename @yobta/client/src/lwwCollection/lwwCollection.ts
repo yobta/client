@@ -1,14 +1,12 @@
-import { storeYobta, YobtaStore, YOBTA_IDLE, YOBTA_READY } from '@yobta/stores'
+import { createStore, YobtaStore, YOBTA_IDLE, YOBTA_READY } from '@yobta/stores'
 import { nanoid } from 'nanoid'
 import {
-  YobtaCollectionItem,
+  YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YobtaDataOperation,
-  YobtaCollectionInsert,
+  YobtaCollectionInsertOperation,
   YOBTA_COLLECTION_INSERT,
-  YobtaCollectionDelete,
-  YOBTA_COLLECTION_DELETE,
-  YobtaCollectionUpdate,
+  YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
@@ -25,19 +23,18 @@ type Data<State> = Omit<State, 'id'>
 type Payload<State> = Partial<Data<State>>
 
 interface LWWCollection {
-  <State extends YobtaCollectionItem>(props: {
+  <State extends YobtaCollectionAnySnapshot>(props: {
     channel: string
     operations?: YobtaDataOperation[]
   }): {
     update: (id: YobtaCollectionId, data: Payload<State>) => Promise<void>
-    delete: (id: YobtaCollectionId) => Promise<void>
     insert: (data: Data<State>, before?: YobtaCollectionId) => Promise<void>
     last(): Collection<State>
   } & Omit<YobtaStore<Collection<State>>, 'next'>
 }
 
 export const lwwCollection: LWWCollection = <
-  State extends YobtaCollectionItem,
+  State extends YobtaCollectionAnySnapshot,
 >({
   channel,
   operations = [],
@@ -46,7 +43,7 @@ export const lwwCollection: LWWCollection = <
   operations?: YobtaDataOperation[]
 }) => {
   let unsubscribe: VoidFunction
-  const { next, last, observe, on } = storeYobta<Collection<State>>(
+  const { next, last, observe, on } = createStore<Collection<State>>(
     new Map(),
     ({ addMiddleware }) => {
       addMiddleware(YOBTA_READY, () => {
@@ -72,7 +69,9 @@ export const lwwCollection: LWWCollection = <
       if (!item) return
       const data = plainObjectDiff(item, unfiltereledData)
       if (!data) return
-      const operation = createOperationYobta<YobtaCollectionUpdate<State>>({
+      const operation = createOperationYobta<
+        YobtaCollectionUpdateOperation<State>
+      >({
         channel,
         type: YOBTA_COLLECTION_UPDATE,
         data,
@@ -81,28 +80,21 @@ export const lwwCollection: LWWCollection = <
       handleDataOperation(operation)
       return operationResult(operation.id)
     },
-    async delete(ref) {
-      // NOTE: delete should not throw error if item not found
-      const operation = createOperationYobta<YobtaCollectionDelete>({
-        channel,
-        type: YOBTA_COLLECTION_DELETE,
-        ref,
-      })
-      handleDataOperation(operation)
-      return operationResult(operation.id)
-    },
-    insert(item: Data<State>, ref) {
+    insert(item: Data<State>, before) {
       const data = {
         id: nanoid(),
         ...item,
       } as State
 
       // TODO: throw error if ref not found
-      const operation = createOperationYobta<YobtaCollectionInsert<State>>({
+      const operation = createOperationYobta<
+        YobtaCollectionInsertOperation<State>
+      >({
         channel,
         type: YOBTA_COLLECTION_INSERT,
         data,
-        ref,
+        ref: data.id,
+        before,
       })
       handleDataOperation(operation)
       return operationResult(operation.id)

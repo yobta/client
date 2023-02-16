@@ -1,6 +1,6 @@
-import { storeYobta } from '@yobta/stores'
+import { createStore } from '@yobta/stores'
 
-export const serverTimeCompensator = storeYobta(0)
+export const serverTimeCompensator = createStore(0)
 
 export const compensateTimeDifference = (
   clientTime: number,

@@ -1,8 +1,7 @@
 import {
-  YobtaCollectionItem,
+  YobtaCollectionAnySnapshot,
   YobtaDataOperation,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
@@ -16,7 +15,7 @@ import { Snapshot } from './mergeLog.js'
  * @param {YobtaDataOperation} operation - The operation to merge into the state.
  */
 
-export const mergeOperation = <State extends YobtaCollectionItem>(
+export const mergeOperation = <State extends YobtaCollectionAnySnapshot>(
   state: Snapshot<State>,
   operation: YobtaDataOperation,
 ): void => {
@@ -44,13 +43,6 @@ export const mergeOperation = <State extends YobtaCollectionItem>(
           data: operation.data as State,
           deleted: false,
         })
-      }
-      break
-    }
-    case YOBTA_COLLECTION_DELETE: {
-      const item = state.get(operation.ref)
-      if (item) {
-        state.set(operation.ref, { ...item, deleted: true })
       }
       break
     }

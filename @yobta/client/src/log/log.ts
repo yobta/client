@@ -29,9 +29,9 @@ export const logYobta: YobtaLogFactory = initialState => {
     operations.forEach(op => {
       const tail: Tail = new Set()
       wasSorted = false
-      if (Number(log.get(lastOperationId)?.time) > op.time) {
+      if (Number(log.get(lastOperationId)?.committed) > op.committed) {
         log.forEach(stored => {
-          if (stored.time > op.time) {
+          if (stored.committed > op.committed) {
             tail.add(stored)
             log.delete(stored.id)
           }

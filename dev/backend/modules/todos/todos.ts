@@ -18,7 +18,4 @@ const todos = createCollection<Todo>({
   async onUpdate({ operation }) {
     return [operation]
   },
-  async onDelete({ operation }) {
-    return [operation]
-  },
 })

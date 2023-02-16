@@ -24,7 +24,7 @@
     "@yobta/client": "workspace:*",
     "@yobta/protocol": "workspace:*",
     "@yobta/server": "workspace:*",
-    "@yobta/stores": "0.1.12",
+    "@yobta/stores": "0.2.1",
     "@yobta/ui": "^0.0.49",
     "@yobta/validator": "^0.0.38",
     "clsx": "^1.2.1",

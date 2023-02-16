@@ -6,7 +6,7 @@ import {
   YobtaSubscribe,
   YobtaUnsubscribe,
 } from '@yobta/protocol'
-import { pubSubYobta } from '@yobta/stores'
+import { createPubSub } from '@yobta/stores'
 
 import { ServerCallbacks } from '../createServer/createServer.js'
 
@@ -24,7 +24,7 @@ interface ThrowBack {
   (error: YobtaError): void
 }
 
-const incoming = pubSubYobta<{
+const incoming = createPubSub<{
   [key: string]: [
     { headers: Headers; operation: YobtaClientOperation },
     ServerCallbacks,
@@ -32,7 +32,7 @@ const incoming = pubSubYobta<{
 }>()
 
 const errorChannel = Symbol('errorChannel')
-const outgoing = pubSubYobta<{
+const outgoing = createPubSub<{
   [key: string]: [YobtaRemoteOperation]
   [key: symbol]: [YobtaError]
 }>()

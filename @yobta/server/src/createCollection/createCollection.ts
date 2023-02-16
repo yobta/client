@@ -1,8 +1,7 @@
 import {
-  YobtaCollectionInsert,
-  YobtaCollectionItem,
-  YobtaCollectionUpdate,
-  YobtaCollectionDelete,
+  YobtaCollectionInsertOperation,
+  YobtaCollectionAnySnapshot,
+  YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_INSERT,
   YobtaReject,
   YobtaCommit,
@@ -10,7 +9,6 @@ import {
   YOBTA_REJECT,
   YobtaDataOperation,
   YOBTA_COLLECTION_UPDATE,
-  YOBTA_COLLECTION_DELETE,
   YobtaError,
   YOBTA_ERROR,
   YOBTA_SUBSCRIBE,
@@ -25,46 +23,40 @@ import { sendBack, onClientMessage, throwBack } from '../messageBroker/index.js'
 import { ServerCallbacks } from '../createServer/createServer.js'
 
 interface CollectionFactory {
-  <Item extends YobtaCollectionItem>(props: Props<Item>): {
+  <Item extends YobtaCollectionAnySnapshot>(props: Props<Item>): {
     name: string
   }
 }
-type Props<Item extends YobtaCollectionItem> = {
+type Props<Item extends YobtaCollectionAnySnapshot> = {
   name: string
   onInsert(event: {
     headers: Headers
-    operation: YobtaCollectionInsert<Item>
-  }): Promise<[YobtaCollectionInsert<Item>, ...YobtaDataOperation[]]>
+    operation: YobtaCollectionInsertOperation<Item>
+  }): Promise<[YobtaCollectionInsertOperation<Item>, ...YobtaDataOperation[]]>
   onUpdate(event: {
     headers: Headers
-    operation: YobtaCollectionUpdate<Item>
-  }): Promise<[YobtaCollectionUpdate<Item>, ...YobtaDataOperation[]]>
-  onDelete(event: {
-    headers: Headers
-    operation: YobtaCollectionDelete
-  }): Promise<[YobtaCollectionDelete, ...YobtaDataOperation[]]>
+    operation: YobtaCollectionUpdateOperation<Item>
+  }): Promise<[YobtaCollectionUpdateOperation<Item>, ...YobtaDataOperation[]]>
   onSubscribe(event: {
     headers: Headers
     operation: YobtaSubscribe
   }): Promise<void>
 }
-type Message<Item extends YobtaCollectionItem> = {
+type Message<Item extends YobtaCollectionAnySnapshot> = {
   headers: Headers
   operation:
-    | YobtaCollectionInsert<Item>
-    | YobtaCollectionUpdate<Item>
-    | YobtaCollectionDelete
+    | YobtaCollectionInsertOperation<Item>
+    | YobtaCollectionUpdateOperation<Item>
     | YobtaSubscribe
     | YobtaUnsubscribe
 }
 
 export const createCollection: CollectionFactory = <
-  Item extends YobtaCollectionItem,
+  Item extends YobtaCollectionAnySnapshot,
 >({
   name: channel,
   onInsert,
   onUpdate,
-  onDelete,
   onSubscribe,
 }: Props<Item>) => {
   console.log('mount: ', channel)
@@ -86,11 +78,11 @@ export const createCollection: CollectionFactory = <
             break
           }
           case YOBTA_COLLECTION_INSERT: {
-            let operations = await onInsert({ headers, operation })
-            let commitOperation: YobtaCommit = {
+            const operations = await onInsert({ headers, operation })
+            const commitOperation: YobtaCommit = {
               id: nanoid(),
               channel,
-              time: Date.now(),
+              committed: Date.now(),
               ref: operation.id,
               type: YOBTA_COMMIT,
             }
@@ -99,24 +91,11 @@ export const createCollection: CollectionFactory = <
             break
           }
           case YOBTA_COLLECTION_UPDATE: {
-            let operations = await onUpdate({ headers, operation })
-            let updateOperation: YobtaCommit = {
+            const operations = await onUpdate({ headers, operation })
+            const updateOperation: YobtaCommit = {
               id: nanoid(),
               channel,
-              time: Date.now(),
-              ref: operation.id,
-              type: YOBTA_COMMIT,
-            }
-            commit(updateOperation)
-            sendBack(operations)
-            break
-          }
-          case YOBTA_COLLECTION_DELETE: {
-            let operations = await onDelete({ headers, operation })
-            let updateOperation: YobtaCommit = {
-              id: nanoid(),
-              channel,
-              time: Date.now(),
+              committed: Date.now(),
               ref: operation.id,
               type: YOBTA_COMMIT,
             }
@@ -125,21 +104,21 @@ export const createCollection: CollectionFactory = <
             break
           }
           default: {
-            let error: YobtaError = {
+            const error: YobtaError = {
               id: nanoid(),
               message: 'Unknown operation type',
               type: YOBTA_ERROR,
-              time: Date.now(),
+              committed: Date.now(),
             }
             throwBack(error)
             break
           }
         }
       } catch (error) {
-        let rejectOperation: YobtaReject = {
+        const rejectOperation: YobtaReject = {
           id: nanoid(),
           channel,
-          time: Date.now(),
+          committed: Date.now(),
           reason: getErrorMessage(error),
           ref: operation.id,
           type: YOBTA_REJECT,

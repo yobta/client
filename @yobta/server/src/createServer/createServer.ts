@@ -5,6 +5,7 @@ import {
   YobtaReject,
   YobtaSubscribe,
   YobtaUnsubscribe,
+  YOBTA_RECEIVED,
 } from '@yobta/protocol'
 
 import { createServerOperation } from '../serverOperation/index.js'
@@ -48,8 +49,8 @@ export const createServer: ServerFactory = wss => {
       const receivedOp = createServerOperation({
         id: nanoid(),
         ref: operation.id,
-        time: Date.now(),
-        type: 'received',
+        committed: Date.now(),
+        type: YOBTA_RECEIVED,
       })
       connection.send(receivedOp)
       broadcastClientMessage(

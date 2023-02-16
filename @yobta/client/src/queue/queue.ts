@@ -1,4 +1,4 @@
-import { broadcastChannelPluginYobta, storeYobta } from '@yobta/stores'
+import { broadcastChannelPlugin, createStore } from '@yobta/stores'
 import {
   YobtaOperationId,
   YobtaClientOperation,
@@ -11,9 +11,9 @@ type State = Map<YobtaOperationId, YobtaClientOperation>
 
 export const operationsQueue: State = new Map()
 
-const channel = storeYobta<YobtaClientOperation>(
+const channel = createStore<YobtaClientOperation>(
   {} as YobtaClientOperation,
-  broadcastChannelPluginYobta({
+  broadcastChannelPlugin({
     channel: 'yobta-client-op',
   }),
 )
@@ -28,7 +28,7 @@ export const queueOperation = (operation: YobtaClientOperation): void => {
 export const dequeueOperationAndFixTime = (operation: YobtaReceived): void => {
   const clientOperation = operationsQueue.get(operation.ref)
   if (clientOperation) {
-    compensateTimeDifference(clientOperation.time, operation.time)
+    compensateTimeDifference(clientOperation.committed, operation.committed)
   }
   operationsQueue.delete(operation.ref)
 }
