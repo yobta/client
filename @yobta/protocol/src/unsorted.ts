@@ -1,4 +1,4 @@
-import { YobtaClientOperation } from './clientOperations.js'
+import { YobtaClientOperation, YobtaError } from './clientOperations.js'
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionInsertOperation,
@@ -21,5 +21,6 @@ export type YobtaAnyOperation =
   | YobtaReceived
   | YobtaCommit
   | YobtaReject
+  | YobtaError
   | YobtaClientOperation
   | YobtaRemoteOperation
