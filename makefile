@@ -25,6 +25,10 @@ i:
 lint:
 	pnpm lint
 
+test:
+	cd @yobta/client && pnpm test
+	cd @yobta/server && pnpm test
+
 typecheck:
 	pnpm tsc -p tsconfig.check.json
 

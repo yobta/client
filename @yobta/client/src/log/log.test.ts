@@ -1,7 +1,5 @@
-import {
-  YobtaDataOperation,
-  YOBTA_COLLECTION_DELETE,
-} from '../protocol/protocol.js'
+import { YobtaDataOperation, YOBTA_COLLECTION_DELETE } from '@yobta/protocol'
+
 import { logYobta } from './log.js'
 
 it('adds first operation', () => {
