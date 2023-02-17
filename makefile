@@ -1,13 +1,14 @@
-
-build: clean
-	pnpm build
-
 clean:
 	rm -rf @yobta/**/lib
 	rm -rf @yobta/**/*.tsbuildinfo
 	rm -rf dev/**/lib
 	rm -rf dev/**/*.tsbuildinfo
 	rm -f *.tsbuildinfo
+
+build: clean
+	pnpm build
+
+check: lint typecheck
 
 dev-backend:
 	cd dev/backend && pnpm dev
@@ -21,13 +22,11 @@ d:
 i:
 	pnpm i
 
-typecheck:
-	pnpm tsc -p tsconfig.check.json
-
 lint:
 	pnpm lint
 
-check: lint typecheck
+typecheck:
+	pnpm tsc -p tsconfig.check.json
 
 watch:
 	pnpm tsc --watch
