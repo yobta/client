@@ -27,7 +27,7 @@ type ItemWithMeta<
 ]
 interface CollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
-    name: string,
+    initial: YobtaCollectionOperation<Snapshot>[],
     ...plugins: YobtaStorePlugin<InternalState<Snapshot>, never>[]
   ): {
     commit(operation: YobtaCollectionOperation<Snapshot>): void
@@ -72,16 +72,27 @@ const mergeOne = <Snapshot extends YobtaCollectionAnySnapshot>(
   return nextItem
 }
 
+const mergeSome = <Snapshot extends YobtaCollectionAnySnapshot>(
+  state: InternalState<Snapshot>,
+  operations: YobtaCollectionOperation<Snapshot>[],
+): InternalState<Snapshot> =>
+  operations.reduce((acc, operation) => {
+    const item = getOrCreateItem(acc, operation.ref)
+    const nextItem = mergeOne(item, operation)
+    acc.set(operation.ref, nextItem)
+    return acc
+  }, state)
+
 export const createCollection: CollectionFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
-  name: string,
+  initial: YobtaCollectionOperation<Snapshot>[],
   ...plugins: YobtaStorePlugin<InternalState<Snapshot>, never>[]
 ) => {
   const { last, next, observe, on } = createStore<
     InternalState<Snapshot>,
     never
-  >(new Map(), ...plugins)
+  >(mergeSome(new Map(), initial), ...plugins)
   const getState = (): InternalState<Snapshot> => new Map(last())
   const commit = (operation: YobtaCollectionOperation<Snapshot>): void => {
     const state = getState()
@@ -92,12 +103,7 @@ export const createCollection: CollectionFactory = <
     }
   }
   const merge = (...operations: YobtaCollectionOperation<Snapshot>[]): void => {
-    const state = getState()
-    for (const operation of operations) {
-      const item = getOrCreateItem(state, operation.ref)
-      const nextItem = mergeOne(item, operation)
-      state.set(operation.ref, nextItem)
-    }
+    const state = mergeSome(getState(), operations)
     next(state)
   }
   const get = (id: YobtaCollectionId): ResultingSnapshot<Snapshot> => {
@@ -122,6 +128,7 @@ export const createCollection: CollectionFactory = <
 }
 
 export default {
-  applyOperation: mergeOne,
   getOrCreateItem,
+  mergeOne,
+  mergeSome,
 }

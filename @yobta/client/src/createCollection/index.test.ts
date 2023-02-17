@@ -5,7 +5,7 @@ import {
 
 import locals, { createCollection } from './index.js'
 
-const { getOrCreateItem, applyOperation } = locals
+const { getOrCreateItem, mergeOne } = locals
 
 type Snapshot = {
   id: string
@@ -35,9 +35,9 @@ describe('getOrCreateItem', () => {
     ])
   })
 })
-describe('applyOperation', () => {
+describe('mergeOne', () => {
   it('should apply insert operation', () => {
-    let item = applyOperation([{ id: 'item-1' }, { id: 0 }], {
+    let item = mergeOne([{ id: 'item-1' }, { id: 0 }], {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -51,7 +51,7 @@ describe('applyOperation', () => {
     ])
   })
   it('should apply update operation', () => {
-    let item = applyOperation(
+    let item = mergeOne(
       [
         { id: 'item-1', name: 'test' },
         { id: 1, name: 1 },
@@ -75,7 +75,7 @@ describe('applyOperation', () => {
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
     ]
-    let nextItem = applyOperation(item as any, {
+    let nextItem = mergeOne(item as any, {
       id: 'op-2',
       type: 'update',
       data: { name: 'test2' },
@@ -90,7 +90,7 @@ describe('applyOperation', () => {
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
     ]
-    let nextItem = applyOperation(item as any, {
+    let nextItem = mergeOne(item as any, {
       id: 'op-2',
       type: 'update',
       data: { name: 'test2' },
@@ -117,7 +117,7 @@ describe('applyOperation', () => {
       committed: 3,
       merged: 3,
     }
-    let item = applyOperation(
+    let item = mergeOne(
       [
         { id: 'item-1', name: 'test' },
         { id: 1, name: 1 },
