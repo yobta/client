@@ -59,8 +59,6 @@ export const createCollection: CollectionFactory = <
   onUpdate,
   onSubscribe,
 }: Props<Item>) => {
-  // eslint-disable-next-line no-console
-  console.log('mount: ', channel)
   onClientMessage<string, [Message<Item>, ServerCallbacks]>(
     channel,
     async (

@@ -27,7 +27,7 @@ typecheck:
 lint:
 	pnpm lint
 
-check: clean lint typecheck
+check: lint typecheck
 
 watch:
 	pnpm tsc --watch
