@@ -27,7 +27,7 @@ export type ServerCallbacks = {
 }
 
 export const createServer: ServerFactory = wss => {
-  wss.on('connection', (connection, req) => {
+  wss.on('connection', connection => {
     const mediator = registerConnection(operation => {
       const message = createServerOperation(operation)
       connection.send(message)

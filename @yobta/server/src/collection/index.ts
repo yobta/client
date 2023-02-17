@@ -48,7 +48,7 @@ export const collectionYobta: CollectionFactory = <
   insert,
   update,
 }: Props<Item>) => {
-  const destroy = () =>
+  const destroy = (): VoidFunction =>
     onClientMessage<string, [Message<Item>, ServerCallbacks]>(
       channel,
       async ({ headers, operation }, { commit, reject }) => {

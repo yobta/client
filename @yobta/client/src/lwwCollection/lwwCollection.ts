@@ -78,7 +78,7 @@ export const lwwCollection: LWWCollection = <
         ref,
       })
       handleDataOperation(operation)
-      return operationResult(operation.id)
+      operationResult(operation.id)
     },
     insert(item: Data<State>, before) {
       const data = {

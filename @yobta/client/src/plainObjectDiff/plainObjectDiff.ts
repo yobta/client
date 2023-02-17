@@ -8,6 +8,7 @@ interface PlainObjectDiff {
 }
 
 export const plainObjectDiff: PlainObjectDiff = (oldObject, newObject) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const diff: any = {}
   for (const key in oldObject) {
     if (oldObject[key] !== newObject[key]) {

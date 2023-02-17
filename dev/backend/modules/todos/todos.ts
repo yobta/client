@@ -7,9 +7,10 @@ type Todo = {
   time: number
 }
 
-const todos = createCollection<Todo>({
+createCollection<Todo>({
   name: 'todos',
   async onSubscribe({ headers, operation }) {
+    // eslint-disable-next-line no-console
     console.log('onSubscribe: todos', { headers, operation })
   },
   async onInsert({ operation }) {
