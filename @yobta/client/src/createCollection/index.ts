@@ -10,7 +10,6 @@ import { YobtaReadable, createStore, YobtaStorePlugin } from '@yobta/stores'
 type Versions<Snapshot extends YobtaCollectionAnySnapshot> = {
   [K in keyof Snapshot]: number
 }
-
 type ResultingSnapshot<Snapshot extends YobtaCollectionAnySnapshot> =
   | Readonly<Snapshot>
   | undefined
@@ -26,7 +25,6 @@ type ItemWithMeta<
   Versions<PartialSnapshot>,
   ...YobtaCollectionOperation<Snapshot>[],
 ]
-
 interface CollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     name: string,
@@ -51,7 +49,7 @@ const getOrCreateItem = <Snapshot extends YobtaCollectionAnySnapshot>(
   return item
 }
 
-const applyOperation = <Snapshot extends YobtaCollectionAnySnapshot>(
+const mergeOne = <Snapshot extends YobtaCollectionAnySnapshot>(
   [snapshot, versions, ...pendingOperations]: ItemWithMeta<Snapshot>,
   operation: YobtaCollectionOperation<Snapshot>,
 ): ItemWithMeta<Snapshot> => {
@@ -97,7 +95,7 @@ export const createCollection: CollectionFactory = <
     const state = getState()
     for (const operation of operations) {
       const item = getOrCreateItem(state, operation.ref)
-      const nextItem = applyOperation(item, operation)
+      const nextItem = mergeOne(item, operation)
       state.set(operation.ref, nextItem)
     }
     next(state)
@@ -108,7 +106,7 @@ export const createCollection: CollectionFactory = <
     const [snapshot, versions, ...operations] = item
     const [resultingSnapshot, resultingVersions] = operations.reduce<
       ItemWithMeta<Snapshot>
-    >(applyOperation, [snapshot, versions])
+    >(mergeOne, [snapshot, versions])
     return resultingVersions.id
       ? (resultingSnapshot as ResultingSnapshot<Snapshot>)
       : undefined
@@ -124,6 +122,6 @@ export const createCollection: CollectionFactory = <
 }
 
 export default {
-  applyOperation,
+  applyOperation: mergeOne,
   getOrCreateItem,
 }

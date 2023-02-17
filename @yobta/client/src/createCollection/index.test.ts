@@ -1,8 +1,9 @@
-import locals, {
-  createCollection,
-  InsertOperation,
-  UpdateOperation,
-} from './index.js'
+import {
+  YobtaCollectionUpdateOperation,
+  YobtaCollectionInsertOperation,
+} from '@yobta/protocol'
+
+import locals, { createCollection } from './index.js'
 
 const { getOrCreateItem, applyOperation } = locals
 
@@ -100,7 +101,7 @@ describe('applyOperation', () => {
     expect(item).not.toBe(nextItem)
   })
   it('should remove pending operation', () => {
-    let operation: UpdateOperation<Snapshot> = {
+    let operation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test2' },
@@ -108,7 +109,7 @@ describe('applyOperation', () => {
       committed: 2,
       merged: 2,
     }
-    let operation2: UpdateOperation<Snapshot> = {
+    let operation2: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-3',
       type: 'update',
       data: { name: 'test3' },
@@ -135,7 +136,7 @@ describe('applyOperation', () => {
 describe('merge', () => {
   it('should merge insert operation', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -154,7 +155,7 @@ describe('merge', () => {
   })
   it('should merge multiple insert operations', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation1: InsertOperation<Snapshot> = {
+    let insertOperation1: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -162,7 +163,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let insertOperation2: InsertOperation<Snapshot> = {
+    let insertOperation2: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-2',
       type: 'insert',
       data: { id: 'item-2', name: 'test' },
@@ -186,7 +187,7 @@ describe('merge', () => {
   })
   it('should merge update operation', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: UpdateOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-1',
       type: 'update',
       data: { name: 'test 2' },
@@ -205,7 +206,7 @@ describe('merge', () => {
   })
   it('should merge multiple update operations', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation1: UpdateOperation<Snapshot> = {
+    let insertOperation1: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-1',
       type: 'update',
       data: { name: 'test 2' },
@@ -213,7 +214,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let insertOperation2: UpdateOperation<Snapshot> = {
+    let insertOperation2: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 3' },
@@ -232,7 +233,7 @@ describe('merge', () => {
   })
   it('should merge insert and update operations', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -240,7 +241,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -259,7 +260,7 @@ describe('merge', () => {
   })
   it('should merge update and insert operations', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -267,7 +268,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -286,7 +287,7 @@ describe('merge', () => {
   })
   it('is idimpotent', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -294,7 +295,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -314,7 +315,7 @@ describe('merge', () => {
   it('should not mutate state', () => {
     let collection = createCollection<Snapshot>('test')
     let state = collection.last()
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -327,7 +328,7 @@ describe('merge', () => {
   })
   it('sould remove pending operations', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -348,7 +349,7 @@ describe('merge', () => {
 describe('commit', () => {
   it('should commit insert operation', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -364,7 +365,7 @@ describe('commit', () => {
   })
   it('should commit update operation', () => {
     let collection = createCollection<Snapshot>('test')
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -380,7 +381,7 @@ describe('commit', () => {
   })
   it('sould commit insert and update operations', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -388,7 +389,7 @@ describe('commit', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -410,7 +411,7 @@ describe('commit', () => {
   })
   it('should commit insert and update operations in reverse order', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -418,7 +419,7 @@ describe('commit', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -440,7 +441,7 @@ describe('commit', () => {
   })
   it('should be idempotent', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -448,7 +449,7 @@ describe('commit', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -473,7 +474,7 @@ describe('commit', () => {
   it('should not mutate state', () => {
     let collection = createCollection<Snapshot>('test')
     let state = collection.last()
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -492,7 +493,7 @@ describe('get', () => {
   })
   it('should return item if it exists', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -505,7 +506,7 @@ describe('get', () => {
   })
   it('should return undefined if update was merged ahead of insert', () => {
     let collection = createCollection<Snapshot>('test')
-    let insertOperation: InsertOperation<Snapshot> = {
+    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -513,7 +514,7 @@ describe('get', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: UpdateOperation<Snapshot> = {
+    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -530,7 +531,7 @@ describe('get', () => {
 describe('consistency', () => {
   let store1 = createCollection<Snapshot>('test')
   let store2 = createCollection<Snapshot>('test')
-  let insert1: InsertOperation<Snapshot> = {
+  let insert1: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-1',
     type: 'insert',
     data: { id: 'item-1', name: 'test' },
@@ -538,7 +539,7 @@ describe('consistency', () => {
     committed: 1,
     merged: 1,
   }
-  let insert2: InsertOperation<Snapshot> = {
+  let insert2: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-2',
     type: 'insert',
     data: { id: 'item-2', name: 'test' },
@@ -546,7 +547,7 @@ describe('consistency', () => {
     committed: 2,
     merged: 2,
   }
-  let update1: UpdateOperation<Snapshot> = {
+  let update1: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-3',
     type: 'update',
     data: { name: 'test 2' },
@@ -554,7 +555,7 @@ describe('consistency', () => {
     committed: 3,
     merged: 3,
   }
-  let update2: UpdateOperation<Snapshot> = {
+  let update2: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-4',
     type: 'update',
     data: { name: 'test 3' },
