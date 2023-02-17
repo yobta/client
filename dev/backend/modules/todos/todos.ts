@@ -9,10 +9,7 @@ type Todo = {
 
 createCollection<Todo>({
   name: 'todos',
-  async onSubscribe({ headers, operation }) {
-    // eslint-disable-next-line no-console
-    console.log('onSubscribe: todos', { headers, operation })
-  },
+  async onSubscribe() {},
   async onInsert({ operation }) {
     return [operation]
   },

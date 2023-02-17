@@ -66,9 +66,9 @@ export const lwwCollection: LWWCollection = <
     async update(ref, unfiltereledData: Payload<State>) {
       const item = last().get(ref)
       // TODO: throw error if item not found
-      if (!item) return
+      if (!item) return undefined
       const data = plainObjectDiff(item, unfiltereledData)
-      if (!data) return
+      if (!data) return undefined
       const operation = createOperationYobta<
         YobtaCollectionUpdateOperation<State>
       >({
@@ -78,7 +78,7 @@ export const lwwCollection: LWWCollection = <
         ref,
       })
       handleDataOperation(operation)
-      operationResult(operation.id)
+      return operationResult(operation.id)
     },
     insert(item: Data<State>, before) {
       const data = {
