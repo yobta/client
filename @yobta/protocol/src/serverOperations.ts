@@ -1,4 +1,4 @@
-import { YobtaDataOperation, YobtaError, YobtaOperationId } from './unsorted.js'
+import { YobtaDataOperation, YobtaOperationId } from './unsorted.js'
 
 export const YOBTA_RECEIVED = 'yobta-received'
 export type YobtaReceived = {
@@ -39,6 +39,5 @@ export type YobtaRemoteOperation =
   | YobtaReceived
   | YobtaCommit
   | YobtaReject
-  | YobtaError
   | YobtaDataOperation
   | YobtaBatchOperation
