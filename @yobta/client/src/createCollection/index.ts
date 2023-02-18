@@ -4,7 +4,12 @@ import {
   PatchWithId,
   YobtaCollectionOperation,
 } from '@yobta/protocol'
-import { YobtaReadable, createStore, YobtaStorePlugin } from '@yobta/stores'
+import {
+  YobtaReadable,
+  createStore,
+  YobtaStorePlugin,
+  YOBTA_READY,
+} from '@yobta/stores'
 
 import { queueOperation } from '../queue/queue.js'
 
@@ -94,7 +99,21 @@ export const createCollection: CollectionFactory = <
   const { last, next, observe, on } = createStore<
     InternalState<Snapshot>,
     never
-  >(mergeSome(new Map(), initial), ...plugins)
+  >(
+    mergeSome(new Map(), initial),
+    // TODO: тест что стор отправляет коммиты в очередь
+    // TODO: тест что коммиты отправляются после того как отработают остальные миддлвары
+    ({ addMiddleware }) => {
+      addMiddleware(YOBTA_READY, state => {
+        // TODO: донастроить линтер, чтобы он не орал на переменные с _
+        state.forEach(([_snapshot, _versions, ...operations]) => {
+          operations.forEach(queueOperation)
+        })
+        return state
+      })
+    },
+    ...plugins,
+  )
   const getState = (): InternalState<Snapshot> => new Map(last())
   const commit = (operation: YobtaCollectionOperation<Snapshot>): void => {
     const state = getState()
