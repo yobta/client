@@ -6,6 +6,8 @@ import {
 } from '@yobta/protocol'
 import { YobtaReadable, createStore, YobtaStorePlugin } from '@yobta/stores'
 
+import { queueOperation } from '../queue/queue.js'
+
 // #region types
 type Versions<Snapshot extends YobtaCollectionAnySnapshot> = {
   [K in keyof Snapshot]: number
@@ -99,6 +101,7 @@ export const createCollection: CollectionFactory = <
     const item = getOrCreateItem(state, operation.ref)
     if (!item.slice(2).some(({ id }) => id === operation.id)) {
       state.set(operation.ref, [...item, operation])
+      queueOperation(operation)
       next(state)
     }
   }
