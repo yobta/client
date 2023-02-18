@@ -20,6 +20,9 @@ d:
 	make -j 2 dev-backend dev-next
 
 i:
+	rm -rf @yobta/**/node_modules
+	rm -rf dev/**/node_modules
+	rm -rf node_modules
 	pnpm i
 
 lint:
