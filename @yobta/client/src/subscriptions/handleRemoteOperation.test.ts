@@ -1,8 +1,8 @@
-import { createErrorYobta } from '../errorsStore/errorsStore.js'
+import { vi } from 'vitest'
 import {
   YobtaCommit,
   YobtaError,
-  YobtaCollectionInsert,
+  YobtaCollectionInsertOperation,
   YobtaRemoteOperation,
   YobtaReject,
   YOBTA_COLLECTION_INSERT,
@@ -12,7 +12,9 @@ import {
   YOBTA_REJECT,
   YOBTA_BATCH,
   YobtaBatchOperation,
-} from '../protocol/protocol.js'
+} from '@yobta/protocol'
+
+import { createErrorYobta } from '../errorsStore/errorsStore.js'
 import { dequeueOperationAndFixTime } from '../queue/queue.js'
 import { getSubscription } from './getSubscription.js'
 import { handleRemoteOperation } from './handleRemoteOperation.js'
@@ -31,22 +33,22 @@ beforeEach(() => {
 })
 
 it('should dequeue a received message', () => {
-  let operation: YobtaRemoteOperation = {
+  const operation: YobtaRemoteOperation = {
     type: YOBTA_RECEIVED,
     id: 'message-123',
     ref: 'operation-123',
-    time: 123,
+    committed: 1234,
   }
   handleRemoteOperation(operation)
   expect(dequeueOperationAndFixTime).toHaveBeenCalledWith(operation)
 })
 
 it('should add error', () => {
-  let operation: YobtaError = {
+  const operation: YobtaError = {
     type: YOBTA_ERROR,
     id: 'message-123',
     message: 'error-message',
-    time: 123,
+    committed: 1234,
   }
   handleRemoteOperation(operation)
 
@@ -55,8 +57,8 @@ it('should add error', () => {
 })
 
 it('should add a remote operation to the committed list for a valid channel', () => {
-  let subscription = getSubscription('channel-123', [])
-  let operation: YobtaBatchOperation = {
+  const subscription = getSubscription('channel-123', [])
+  const operation: YobtaBatchOperation = {
     type: YOBTA_BATCH,
     id: 'message-123',
     channel: 'channel-123',
@@ -65,8 +67,10 @@ it('should add a remote operation to the committed list for a valid channel', ()
         type: YOBTA_COLLECTION_INSERT,
         id: 'operation-123',
         channel: 'channel-123',
-        time: 123,
         data: { id: 'data-123' },
+        committed: 1234,
+        merged: 2345,
+        ref: 'data-123',
       },
     ],
   }
@@ -75,47 +79,54 @@ it('should add a remote operation to the committed list for a valid channel', ()
 })
 
 it('should remove a pending operation and add it to the committed list for a commit message', () => {
-  let subscription = getSubscription('channel-123', [])
-  let operation: YobtaCollectionInsert = {
+  const subscription = getSubscription('channel-123', [])
+  const operation: YobtaCollectionInsertOperation<any> = {
     type: YOBTA_COLLECTION_INSERT,
     id: 'operation-123',
     channel: 'channel-123',
-    time: 123,
+    committed: 1234,
+    merged: 1234,
+    ref: 'data-123',
     data: { id: 'data-123' },
   }
   subscription.pending.add(operation)
 
-  let commitOperation: YobtaCommit = {
+  const commitOperation: YobtaCommit = {
     type: YOBTA_COMMIT,
     id: 'operation-123',
-    time: 1234,
     channel: 'channel-123',
     ref: 'operation-123',
+    committed: 1234,
   }
   handleRemoteOperation(commitOperation)
 
   expect(subscription.pending.last()).toBeUndefined()
-  expect(subscription.committed.last()).toEqual({ ...operation, time: 1234 })
+  expect(subscription.committed.last()).toEqual({
+    ...operation,
+    committed: 1234,
+  })
 })
 
 it('should remove a pending operation for a revert message', () => {
-  let subscription = getSubscription('channel-123', [])
-  let operation: YobtaCollectionInsert = {
+  const subscription = getSubscription('channel-123', [])
+  const operation: YobtaCollectionInsertOperation<any> = {
     type: YOBTA_COLLECTION_INSERT,
     id: 'operation-123',
     channel: 'channel-123',
-    time: 123,
+    committed: 123,
+    merged: 1234,
+    ref: 'data-123',
     data: { id: 'data-123' },
   }
   subscription.pending.add(operation)
 
-  let rejectOperation: YobtaReject = {
+  const rejectOperation: YobtaReject = {
     type: YOBTA_REJECT,
     id: 'operation-123',
     channel: 'channel-123',
-    time: 1234,
     ref: 'operation-123',
     reason: 'revert',
+    committed: 1234,
   }
   handleRemoteOperation(rejectOperation)
 
@@ -123,38 +134,38 @@ it('should remove a pending operation for a revert message', () => {
 })
 
 it('should not notify subscribers after received operation', () => {
-  let subscription = getSubscription('channel-123', [])
-  let subscriber = vi.fn()
+  const subscription = getSubscription('channel-123', [])
+  const subscriber = vi.fn()
   subscription.subscribers.add(subscriber)
-  let operation: YobtaRemoteOperation = {
+  const operation: YobtaRemoteOperation = {
     type: YOBTA_RECEIVED,
     id: 'message-123',
     ref: 'operation-123',
-    time: 123,
+    committed: 1234,
   }
   handleRemoteOperation(operation)
   expect(subscriber).not.toBeCalled()
 })
 
 it('should not notify subscribers after error operation', () => {
-  let subscription = getSubscription('channel-123', [])
-  let subscriber = vi.fn()
+  const subscription = getSubscription('channel-123', [])
+  const subscriber = vi.fn()
   subscription.subscribers.add(subscriber)
-  let operation: YobtaError = {
+  const operation: YobtaError = {
     type: YOBTA_ERROR,
     id: 'message-123',
-    time: 123,
     message: 'error-message',
+    committed: 1234,
   }
   handleRemoteOperation(operation)
   expect(subscriber).not.toBeCalled()
 })
 
 it('it should notify subscribers for the rest operations', () => {
-  let subscription = getSubscription('channel-123', [])
-  let subscriber = vi.fn()
+  const subscription = getSubscription('channel-123', [])
+  const subscriber = vi.fn()
   subscription.subscribers.add(subscriber)
-  let operation: YobtaBatchOperation = {
+  const operation: YobtaBatchOperation = {
     channel: 'channel-123',
     type: YOBTA_BATCH,
     id: 'message-123',
@@ -163,8 +174,10 @@ it('it should notify subscribers for the rest operations', () => {
         type: YOBTA_COLLECTION_INSERT,
         id: 'operation-123',
         channel: 'channel-123',
-        time: 123,
+        committed: 1234,
+        merged: 2345,
         data: { id: 'data-123' },
+        ref: 'data-123',
       },
     ],
   }
@@ -176,7 +189,7 @@ it('it should notify subscribers for the rest operations', () => {
 })
 
 it('should not apply operations when the channel is not subscribed', () => {
-  let operation: YobtaBatchOperation = {
+  const operation: YobtaBatchOperation = {
     channel: 'channel-123',
     type: YOBTA_BATCH,
     id: 'message-123',
@@ -185,8 +198,10 @@ it('should not apply operations when the channel is not subscribed', () => {
         type: YOBTA_COLLECTION_INSERT,
         id: 'operation-123',
         channel: 'channel-123',
-        time: 123,
+        committed: 1234,
         data: { id: 'data-123' },
+        merged: 2345,
+        ref: 'data-123',
       },
     ],
   }

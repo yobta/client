@@ -16,16 +16,18 @@ plugins:
   - unicorn
   - import
 ignorePatterns:
-  - '**/.eslintrc.yml'
-  - '**/*.yaml'
-  - '**/*.json'
-  - '**/*.test.*'
-  - '**/*.tsbuildinfo'
   - '**/lib'
+  - '**/coverage'
+  - '**/*.test_disabled.*'
   - 'vitest.config.ts'
 rules:
   no-shadow: 'off'
   '@typescript-eslint/no-shadow': ['error']
+  '@typescript-eslint/no-unused-vars':
+    - error
+    - argsIgnorePattern: '^_'
+      varsIgnorePattern: '^_'
+      caughtErrorsIgnorePattern: '^_'
   import/extensions:
     - 'error'
     - always
