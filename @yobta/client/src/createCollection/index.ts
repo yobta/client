@@ -105,7 +105,6 @@ export const createCollection: CollectionFactory = <
     // TODO: тест что коммиты отправляются после того как отработают остальные миддлвары
     ({ addMiddleware }) => {
       addMiddleware(YOBTA_READY, state => {
-        // TODO: донастроить линтер, чтобы он не орал на переменные с _
         state.forEach(([_snapshot, _versions, ...operations]) => {
           operations.forEach(queueOperation)
         })
