@@ -31,7 +31,7 @@ lint:
 typecheck:
 	pnpm tsc -p tsconfig.check.json
 
-test:
+test: build
 	pnpm test
 
 check: lint typecheck test

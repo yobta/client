@@ -4,6 +4,5 @@
     "jsx": "preserve"
   },
   "extends": "./tsconfig.json",
-  "include": ["@yobta", "dev"],
-  "exclude": ["**/*.test_disabled.*"]
+  "include": ["@yobta", "dev"]
 }

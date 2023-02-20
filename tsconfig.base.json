@@ -15,5 +15,5 @@
       "@yobta/*": ["./@yobta/*/src"]
     }
   },
-  "exclude": ["**/lib", "**/*.test.ts", "**/*.spec.ts", "node_modules"]
+  "exclude": ["**/lib", "**/*.test_disabled.*", "node_modules"]
 }
