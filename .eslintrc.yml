@@ -16,12 +16,8 @@ plugins:
   - unicorn
   - import
 ignorePatterns:
-  - '**/.eslintrc.yml'
-  - '**/*.yaml'
-  - '**/*.json'
-  - '**/*.test.*'
-  - '**/*.tsbuildinfo'
   - '**/lib'
+  - '**/coverage'
   - 'vitest.config.ts'
 rules:
   no-shadow: 'off'

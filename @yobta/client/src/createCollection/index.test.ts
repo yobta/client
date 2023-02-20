@@ -14,12 +14,12 @@ type Snapshot = {
 
 describe('getOrCreateItem', () => {
   it('should create item if it does not exist', () => {
-    let mockState = new Map()
-    let item = getOrCreateItem(mockState, 'item-1')
+    const mockState = new Map()
+    const item = getOrCreateItem(mockState, 'item-1')
     expect(item).toEqual([{ id: 'item-1' }, { id: 0 }])
   })
   it('should get item if it exists', () => {
-    let collection = createCollection<Snapshot>([])
+    const collection = createCollection<Snapshot>([])
     collection.merge({
       id: 'op-1',
       type: 'insert',
@@ -28,7 +28,7 @@ describe('getOrCreateItem', () => {
       committed: 1,
       merged: 1,
     })
-    let item = getOrCreateItem(collection.last(), 'item-1')
+    const item = getOrCreateItem(collection.last(), 'item-1')
     expect(item).toEqual([
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
@@ -37,7 +37,7 @@ describe('getOrCreateItem', () => {
 })
 describe('mergeOne', () => {
   it('should apply insert operation', () => {
-    let item = mergeOne([{ id: 'item-1' }, { id: 0 }], {
+    const item = mergeOne([{ id: 'item-1' }, { id: 0 }], {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -51,7 +51,7 @@ describe('mergeOne', () => {
     ])
   })
   it('should apply update operation', () => {
-    let item = mergeOne(
+    const item = mergeOne(
       [
         { id: 'item-1', name: 'test' },
         { id: 1, name: 1 },
@@ -71,11 +71,11 @@ describe('mergeOne', () => {
     ])
   })
   it('should not mutate item', () => {
-    let item = [
+    const item = [
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
     ]
-    let nextItem = mergeOne(item as any, {
+    const nextItem = mergeOne(item as any, {
       id: 'op-2',
       type: 'update',
       data: { name: 'test2' },
@@ -86,11 +86,12 @@ describe('mergeOne', () => {
     expect(item).not.toBe(nextItem)
   })
   it('should not mutate versions', () => {
-    let item = [
+    const item = [
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
     ]
-    let nextItem = mergeOne(item as any, {
+
+    const nextItem = mergeOne(item as any, {
       id: 'op-2',
       type: 'update',
       data: { name: 'test2' },
@@ -101,7 +102,7 @@ describe('mergeOne', () => {
     expect(item).not.toBe(nextItem)
   })
   it('should remove pending operation', () => {
-    let operation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const operation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test2' },
@@ -109,7 +110,7 @@ describe('mergeOne', () => {
       committed: 2,
       merged: 2,
     }
-    let operation2: YobtaCollectionUpdateOperation<Snapshot> = {
+    const operation2: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-3',
       type: 'update',
       data: { name: 'test3' },
@@ -117,7 +118,8 @@ describe('mergeOne', () => {
       committed: 3,
       merged: 3,
     }
-    let item = mergeOne(
+
+    const item = mergeOne(
       [
         { id: 'item-1', name: 'test' },
         { id: 1, name: 1 },
@@ -135,7 +137,7 @@ describe('mergeOne', () => {
 })
 describe('mergeSome', () => {
   it('should apply insert operation', () => {
-    let mockState = new Map()
+    const mockState = new Map()
     mergeSome(mockState, [
       {
         id: 'op-1',
@@ -152,7 +154,7 @@ describe('mergeSome', () => {
     ])
   })
   it('should apply update operation', () => {
-    let mockState = new Map()
+    const mockState = new Map()
     mergeSome(mockState, [
       {
         id: 'op-1',
@@ -179,7 +181,7 @@ describe('mergeSome', () => {
 })
 describe('merge', () => {
   it('should merge initial state', () => {
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -187,12 +189,12 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let collection = createCollection<Snapshot>([insertOperation])
+    const collection = createCollection<Snapshot>([insertOperation])
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test' })
   })
   it('should merge insert operation', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -202,7 +204,7 @@ describe('merge', () => {
     }
     collection.merge(insertOperation)
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test' })
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
@@ -210,8 +212,8 @@ describe('merge', () => {
     expect(collection.last()).toEqual(mockState)
   })
   it('should merge multiple insert operations', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation1: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation1: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -219,7 +221,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let insertOperation2: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertOperation2: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-2',
       type: 'insert',
       data: { id: 'item-2', name: 'test' },
@@ -230,7 +232,7 @@ describe('merge', () => {
     collection.merge(insertOperation1, insertOperation2)
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test' })
     expect(collection.get('item-2')).toEqual({ id: 'item-2', name: 'test' })
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
@@ -242,8 +244,8 @@ describe('merge', () => {
     expect(collection.last()).toEqual(mockState)
   })
   it('should merge update operation', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-1',
       type: 'update',
       data: { name: 'test 2' },
@@ -253,7 +255,7 @@ describe('merge', () => {
     }
     collection.merge(insertOperation)
     expect(collection.get('item-1')).toBeUndefined()
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test 2' },
       { id: 0, name: 1 },
@@ -261,8 +263,8 @@ describe('merge', () => {
     expect(collection.last()).toEqual(mockState)
   })
   it('should merge multiple update operations', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation1: YobtaCollectionUpdateOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation1: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-1',
       type: 'update',
       data: { name: 'test 2' },
@@ -270,7 +272,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let insertOperation2: YobtaCollectionUpdateOperation<Snapshot> = {
+    const insertOperation2: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 3' },
@@ -280,7 +282,7 @@ describe('merge', () => {
     }
     collection.merge(insertOperation1, insertOperation2)
     expect(collection.get('item-1')).toBeUndefined()
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test 3' },
       { id: 0, name: 2 },
@@ -288,8 +290,8 @@ describe('merge', () => {
     expect(collection.last()).toEqual(mockState)
   })
   it('should merge insert and update operations', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -297,7 +299,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -307,7 +309,7 @@ describe('merge', () => {
     }
     collection.merge(insertOperation, updateOperation)
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test 2' })
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test 2' },
       { id: 1, name: 2 },
@@ -315,8 +317,8 @@ describe('merge', () => {
     expect(collection.last()).toEqual(mockState)
   })
   it('should merge update and insert operations', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -324,7 +326,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -334,7 +336,7 @@ describe('merge', () => {
     }
     collection.merge(updateOperation, insertOperation)
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test 2' })
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test 2' },
       { id: 1, name: 2 },
@@ -342,8 +344,8 @@ describe('merge', () => {
     expect(collection.last()).toEqual(mockState)
   })
   it('is idimpotent', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -351,7 +353,7 @@ describe('merge', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -361,7 +363,7 @@ describe('merge', () => {
     }
     collection.merge(insertOperation, updateOperation, insertOperation)
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test 2' })
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test 2' },
       { id: 1, name: 2 },
@@ -369,9 +371,9 @@ describe('merge', () => {
     expect(collection.last()).toEqual(mockState)
   })
   it('should not mutate state', () => {
-    let collection = createCollection<Snapshot>([])
-    let state = collection.last()
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const state = collection.last()
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -383,8 +385,8 @@ describe('merge', () => {
     expect(collection.last()).not.toBe(state)
   })
   it('sould remove pending operations', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -394,7 +396,7 @@ describe('merge', () => {
     }
     collection.commit(insertOperation)
     collection.merge(insertOperation)
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
@@ -404,8 +406,8 @@ describe('merge', () => {
 })
 describe('commit', () => {
   it('should commit insert operation', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -414,14 +416,14 @@ describe('commit', () => {
       merged: 1,
     }
     collection.commit(insertOperation)
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [{ id: 'item-1' }, { id: 0 }, insertOperation])
     expect(collection.last()).toEqual(mockState)
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test' })
   })
   it('should commit update operation', () => {
-    let collection = createCollection<Snapshot>([])
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -430,14 +432,14 @@ describe('commit', () => {
       merged: 2,
     }
     collection.commit(updateOperation)
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [{ id: 'item-1' }, { id: 0 }, updateOperation])
     expect(collection.last()).toEqual(mockState)
     expect(collection.get('item-1')).toBeUndefined()
   })
   it('sould commit insert and update operations', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -445,7 +447,7 @@ describe('commit', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -455,7 +457,7 @@ describe('commit', () => {
     }
     collection.commit(insertOperation)
     collection.commit(updateOperation)
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1' },
       { id: 0 },
@@ -466,8 +468,8 @@ describe('commit', () => {
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test 2' })
   })
   it('should commit insert and update operations in reverse order', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -475,7 +477,7 @@ describe('commit', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -485,7 +487,7 @@ describe('commit', () => {
     }
     collection.commit(updateOperation)
     collection.commit(insertOperation)
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1' },
       { id: 0 },
@@ -496,8 +498,8 @@ describe('commit', () => {
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test 2' })
   })
   it('should be idempotent', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -505,7 +507,7 @@ describe('commit', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -517,7 +519,7 @@ describe('commit', () => {
     collection.commit(updateOperation)
     collection.commit(insertOperation)
     collection.commit(updateOperation)
-    let mockState = new Map()
+    const mockState = new Map()
     mockState.set('item-1', [
       { id: 'item-1' },
       { id: 0 },
@@ -528,9 +530,9 @@ describe('commit', () => {
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test 2' })
   })
   it('should not mutate state', () => {
-    let collection = createCollection<Snapshot>([])
-    let state = collection.last()
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const state = collection.last()
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -544,12 +546,12 @@ describe('commit', () => {
 })
 describe('get', () => {
   it('should return undefined if no item with given id', () => {
-    let collection = createCollection<Snapshot>([])
+    const collection = createCollection<Snapshot>([])
     expect(collection.get('item-1')).toBeUndefined()
   })
   it('should return item if it exists', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -561,8 +563,8 @@ describe('get', () => {
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test' })
   })
   it('should return undefined if update was merged ahead of insert', () => {
-    let collection = createCollection<Snapshot>([])
-    let insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const collection = createCollection<Snapshot>([])
+    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: 'insert',
       data: { id: 'item-1', name: 'test' },
@@ -570,7 +572,7 @@ describe('get', () => {
       committed: 1,
       merged: 1,
     }
-    let updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
       type: 'update',
       data: { name: 'test 2' },
@@ -585,9 +587,9 @@ describe('get', () => {
   })
 })
 describe('consistency', () => {
-  let store1 = createCollection<Snapshot>([])
-  let store2 = createCollection<Snapshot>([])
-  let insert1: YobtaCollectionInsertOperation<Snapshot> = {
+  const store1 = createCollection<Snapshot>([])
+  const store2 = createCollection<Snapshot>([])
+  const insert1: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-1',
     type: 'insert',
     data: { id: 'item-1', name: 'test' },
@@ -595,7 +597,7 @@ describe('consistency', () => {
     committed: 1,
     merged: 1,
   }
-  let insert2: YobtaCollectionInsertOperation<Snapshot> = {
+  const insert2: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-2',
     type: 'insert',
     data: { id: 'item-2', name: 'test' },
@@ -603,7 +605,7 @@ describe('consistency', () => {
     committed: 2,
     merged: 2,
   }
-  let update1: YobtaCollectionUpdateOperation<Snapshot> = {
+  const update1: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-3',
     type: 'update',
     data: { name: 'test 2' },
@@ -611,7 +613,7 @@ describe('consistency', () => {
     committed: 3,
     merged: 3,
   }
-  let update2: YobtaCollectionUpdateOperation<Snapshot> = {
+  const update2: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-4',
     type: 'update',
     data: { name: 'test 3' },

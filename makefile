@@ -28,12 +28,13 @@ i:
 lint:
 	pnpm lint
 
-test:
-	cd @yobta/client && pnpm test
-	cd @yobta/server && pnpm test
-
 typecheck:
 	pnpm tsc -p tsconfig.check.json
+
+test:
+	pnpm test
+
+check: lint typecheck test
 
 watch:
 	pnpm tsc --watch

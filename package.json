@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint **/*.*",
-    "lint+fix": "eslint --fix **/*.*"
+    "lint": "eslint --ext js,ts,tsx .",
+    "lint+fix": "eslint --ext js,ts,tsx --fix .",
+    "test": "vitest --coverage --run --passWithNoTests ."
   },
   "keywords": [],
   "author": "",

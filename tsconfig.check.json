@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
     "noEmit": true,
-    "jsx": "preserve",
-    "paths": {
-      "@yobta/*": ["./@yobta/*/src"]
-    }
+    "jsx": "preserve"
   },
   "extends": "./tsconfig.json",
-  "include": ["@yobta", "dev"]
+  "include": ["@yobta", "dev"],
+  "exclude": ["**/*.test_disabled.*"]
 }

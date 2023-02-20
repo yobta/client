@@ -1,23 +1,24 @@
-import { createOperationYobta } from '../createOperation/createOperation.js'
-import { logYobta } from '../log/log.js'
 import {
   YOBTA_SUBSCRIBE,
   YobtaCollectionInsert,
   YOBTA_COLLECTION_INSERT,
-} from '../protocol/protocol.js'
+} from '@yobta/protocol'
+
+import { createOperationYobta } from '../createOperation/createOperation.js'
+import { logYobta } from '../log/log.js'
 import { getSubscribeOperation } from './getSubscribeOperation.js'
 
 describe('getSubscribeOperation', () => {
   it('should return a YobtaSubscribe object with the correct properties', () => {
-    let channel = 'myChannel'
-    let createOperation = createOperationYobta<YobtaCollectionInsert>({
+    const channel = 'myChannel'
+    const createOperation = createOperationYobta<YobtaCollectionInsert>({
       channel: 'myChannel',
       time: 42,
       type: YOBTA_COLLECTION_INSERT,
       data: { id: 'myId', value: 'myValue' },
     })
-    let log = logYobta([createOperation])
-    let subscribeOperation = getSubscribeOperation(channel, log)
+    const log = logYobta([createOperation])
+    const subscribeOperation = getSubscribeOperation(channel, log)
     expect(subscribeOperation).toEqual({
       id: expect.any(String),
       channel: 'myChannel',

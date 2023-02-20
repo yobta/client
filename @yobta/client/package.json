@@ -19,7 +19,8 @@
   "types": "./lib/index.d.ts",
   "exports": {
     ".": "./lib/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./src": "./src"
   },
   "engines": {
     "node": ">=16.0.0"

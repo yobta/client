@@ -1,5 +1,7 @@
+import { vi, it } from 'vitest'
+import { YOBTA_SUBSCRIBE } from '@yobta/protocol'
+
 import { logYobta } from '../log/log.js'
-import { YOBTA_SUBSCRIBE } from '../protocol/protocol.js'
 import { getAllSubscribeOperarions } from './getAllSubscribeOperarions.js'
 
 vi.mock('./subscriptions.js', () => ({
@@ -14,7 +16,7 @@ vi.mock('./subscriptions.js', () => ({
 }))
 
 it('returns an array of YobtaSubscribe messages', () => {
-  let result = getAllSubscribeOperarions()
+  const result = getAllSubscribeOperarions()
 
   expect(result).toEqual([
     {
