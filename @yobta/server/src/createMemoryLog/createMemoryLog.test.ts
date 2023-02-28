@@ -52,6 +52,7 @@ describe('log write', () => {
       committed: 1,
       merged: expect.any(Number),
       operationId: 'operation-id',
+      snapshotId: 'snapshot-id',
     }
     const entry2 = {
       key: 'id',
@@ -60,6 +61,7 @@ describe('log write', () => {
       committed: 1,
       merged: expect.any(Number),
       operationId: 'operation-id',
+      snapshotId: 'snapshot-id',
     }
     expect(result).toEqual([[entry1, entry2]])
     expect(result[0][0].merged).toBeGreaterThan(0)
@@ -92,6 +94,7 @@ describe('mergeOperation', () => {
         key: 'key',
         value: 'value',
         operationId: 'operation-id',
+        snapshotId: 'snapshot-id',
       },
       {
         channel: 'channel',
@@ -100,6 +103,7 @@ describe('mergeOperation', () => {
         key: 'id',
         value: 'snapshot-id',
         operationId: 'operation-id',
+        snapshotId: 'snapshot-id',
       },
     ])
     expect(log).toEqual(
@@ -129,6 +133,7 @@ describe('mergeOperation', () => {
         key: 'key',
         value: 'value',
         operationId: 'operation-id',
+        snapshotId: 'snapshot-id',
       },
     ])
     expect(log).toEqual(new Map([['channel.snapshot-id.key', item[0]]]))
@@ -166,6 +171,7 @@ describe('mergeOperation', () => {
             key: 'key',
             value: 'updated value',
             operationId: 'operation-id',
+            snapshotId: 'snapshot-id',
           },
         ],
         [
@@ -177,6 +183,7 @@ describe('mergeOperation', () => {
             key: 'id',
             value: 'snapshot-id',
             operationId: 'operation-id',
+            snapshotId: 'snapshot-id',
           },
         ],
       ]),
@@ -215,6 +222,7 @@ describe('mergeOperation', () => {
             key: 'key',
             value: 'updated value',
             operationId: 'operation-id',
+            snapshotId: 'snapshot-id',
           },
         ],
         [
@@ -226,6 +234,7 @@ describe('mergeOperation', () => {
             key: 'id',
             value: 'snapshot-id',
             operationId: 'operation-id',
+            snapshotId: 'snapshot-id',
           },
         ],
       ]),
@@ -303,6 +312,7 @@ describe('mergeOperation', () => {
       key: 'key',
       value: 'updated value 2',
       operationId: 'operation-id-3',
+      snapshotId: 'snapshot-id',
     })
   })
   it('should not mutate entry', () => {
@@ -313,6 +323,7 @@ describe('mergeOperation', () => {
       key: 'key',
       value: 'value',
       operationId: 'operation-id',
+      snapshotId: 'snapshot-id',
     }
     const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
       channel: 'channel',
