@@ -1,6 +1,8 @@
 import {
   YobtaCollectionUpdateOperation,
   YobtaCollectionInsertOperation,
+  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
 import locals, { createCollection } from './index.js'
@@ -22,7 +24,8 @@ describe('getOrCreateItem', () => {
     const collection = createCollection<Snapshot>([])
     collection.merge({
       id: 'op-1',
-      type: 'insert',
+      channel: 'test',
+      type: YOBTA_COLLECTION_INSERT,
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -39,7 +42,8 @@ describe('mergeOne', () => {
   it('should apply insert operation', () => {
     const item = mergeOne([{ id: 'item-1' }, { id: 0 }], {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -58,7 +62,8 @@ describe('mergeOne', () => {
       ],
       {
         id: 'op-2',
-        type: 'update',
+        channel: 'test',
+        type: YOBTA_COLLECTION_UPDATE,
         data: { name: 'test2' },
         ref: 'item-1',
         committed: 2,
@@ -77,7 +82,8 @@ describe('mergeOne', () => {
     ]
     const nextItem = mergeOne(item as any, {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test2' },
       ref: 'item-1',
       committed: 2,
@@ -90,10 +96,10 @@ describe('mergeOne', () => {
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
     ]
-
     const nextItem = mergeOne(item as any, {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test2' },
       ref: 'item-1',
       committed: 2,
@@ -104,7 +110,8 @@ describe('mergeOne', () => {
   it('should remove pending operation', () => {
     const operation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test2' },
       ref: 'item-1',
       committed: 2,
@@ -112,13 +119,13 @@ describe('mergeOne', () => {
     }
     const operation2: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-3',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test3' },
       ref: 'item-1',
       committed: 3,
       merged: 3,
     }
-
     const item = mergeOne(
       [
         { id: 'item-1', name: 'test' },
@@ -141,7 +148,8 @@ describe('mergeSome', () => {
     mergeSome(mockState, [
       {
         id: 'op-1',
-        type: 'insert',
+        type: YOBTA_COLLECTION_INSERT,
+        channel: 'test',
         data: { id: 'item-1', name: 'test' },
         ref: 'item-1',
         committed: 1,
@@ -158,7 +166,8 @@ describe('mergeSome', () => {
     mergeSome(mockState, [
       {
         id: 'op-1',
-        type: 'insert',
+        type: YOBTA_COLLECTION_INSERT,
+        channel: 'test',
         data: { id: 'item-1', name: 'test' },
         ref: 'item-1',
         committed: 1,
@@ -166,7 +175,8 @@ describe('mergeSome', () => {
       },
       {
         id: 'op-2',
-        type: 'update',
+        type: YOBTA_COLLECTION_UPDATE,
+        channel: 'test',
         data: { name: 'test2' },
         ref: 'item-1',
         committed: 2,
@@ -183,7 +193,8 @@ describe('merge', () => {
   it('should merge initial state', () => {
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -196,7 +207,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -215,7 +227,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation1: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -223,7 +236,8 @@ describe('merge', () => {
     }
     const insertOperation2: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-2',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-2', name: 'test' },
       ref: 'item-2',
       committed: 2,
@@ -247,7 +261,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-1',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 1,
@@ -266,7 +281,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation1: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-1',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 1,
@@ -274,7 +290,8 @@ describe('merge', () => {
     }
     const insertOperation2: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 3' },
       ref: 'item-1',
       committed: 2,
@@ -293,7 +310,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -301,7 +319,8 @@ describe('merge', () => {
     }
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -320,7 +339,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -328,7 +348,8 @@ describe('merge', () => {
     }
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -347,7 +368,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -355,7 +377,8 @@ describe('merge', () => {
     }
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -375,7 +398,8 @@ describe('merge', () => {
     const state = collection.last()
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -388,7 +412,8 @@ describe('merge', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -409,7 +434,8 @@ describe('commit', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -425,7 +451,8 @@ describe('commit', () => {
     const collection = createCollection<Snapshot>([])
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -441,7 +468,8 @@ describe('commit', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -449,7 +477,8 @@ describe('commit', () => {
     }
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -471,7 +500,8 @@ describe('commit', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -479,7 +509,8 @@ describe('commit', () => {
     }
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -501,7 +532,8 @@ describe('commit', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -509,7 +541,8 @@ describe('commit', () => {
     }
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -534,7 +567,8 @@ describe('commit', () => {
     const state = collection.last()
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -553,7 +587,8 @@ describe('get', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -566,7 +601,8 @@ describe('get', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
-      type: 'insert',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'test',
       data: { id: 'item-1', name: 'test' },
       ref: 'item-1',
       committed: 1,
@@ -574,7 +610,8 @@ describe('get', () => {
     }
     const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
       id: 'op-2',
-      type: 'update',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
       data: { name: 'test 2' },
       ref: 'item-1',
       committed: 2,
@@ -591,7 +628,8 @@ describe('consistency', () => {
   const store2 = createCollection<Snapshot>([])
   const insert1: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-1',
-    type: 'insert',
+    type: YOBTA_COLLECTION_INSERT,
+    channel: 'test',
     data: { id: 'item-1', name: 'test' },
     ref: 'item-1',
     committed: 1,
@@ -599,7 +637,8 @@ describe('consistency', () => {
   }
   const insert2: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-2',
-    type: 'insert',
+    type: YOBTA_COLLECTION_INSERT,
+    channel: 'test',
     data: { id: 'item-2', name: 'test' },
     ref: 'item-2',
     committed: 2,
@@ -607,7 +646,8 @@ describe('consistency', () => {
   }
   const update1: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-3',
-    type: 'update',
+    type: YOBTA_COLLECTION_UPDATE,
+    channel: 'test',
     data: { name: 'test 2' },
     ref: 'item-1',
     committed: 3,
@@ -615,7 +655,8 @@ describe('consistency', () => {
   }
   const update2: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-4',
-    type: 'update',
+    type: YOBTA_COLLECTION_UPDATE,
+    channel: 'test',
     data: { name: 'test 3' },
     ref: 'item-1',
     committed: 4,

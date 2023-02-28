@@ -18,7 +18,7 @@ interface ConnectionManager {
   }
 }
 interface SendBack {
-  (operations: [YobtaDataOperation, ...YobtaDataOperation[]]): void
+  (operations: YobtaDataOperation[]): void
 }
 interface ThrowBack {
   (error: YobtaError): void

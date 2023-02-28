@@ -19,6 +19,7 @@ export type YobtaSubscribe = {
   channel: string
   version: number
   committed: number
+  merged: number
   type: typeof YOBTA_SUBSCRIBE
 }
 

@@ -32,17 +32,18 @@ type ItemWithMeta<
   Versions<PartialSnapshot>,
   ...YobtaCollectionOperation<Snapshot>[],
 ]
-interface CollectionFactory {
+interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     initial: YobtaCollectionOperation<Snapshot>[],
     ...plugins: YobtaStorePlugin<InternalState<Snapshot>, never>[]
-  ): {
-    commit(operation: YobtaCollectionOperation<Snapshot>): void
-    merge(...operations: YobtaCollectionOperation<Snapshot>[]): void
-    get(id: YobtaCollectionId): ResultingSnapshot<Snapshot>
-    last(): InternalState<Snapshot>
-  } & YobtaReadable<InternalState<Snapshot>, never>
+  ): YobtaCollection<Snapshot>
 }
+export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
+  commit(operation: YobtaCollectionOperation<Snapshot>): void
+  merge(...operations: YobtaCollectionOperation<Snapshot>[]): void
+  get(id: YobtaCollectionId): ResultingSnapshot<Snapshot>
+  last(): InternalState<Snapshot>
+} & YobtaReadable<InternalState<Snapshot>, never>
 // #endregion
 
 const getOrCreateItem = <Snapshot extends YobtaCollectionAnySnapshot>(
@@ -90,7 +91,7 @@ const mergeSome = <Snapshot extends YobtaCollectionAnySnapshot>(
     return acc
   }, state)
 
-export const createCollection: CollectionFactory = <
+export const createCollection: YobtaCollectionFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
   initial: YobtaCollectionOperation<Snapshot>[],

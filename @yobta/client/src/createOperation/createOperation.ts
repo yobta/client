@@ -14,7 +14,7 @@ interface YobtaOperationFactory {
   ): Operation
 }
 
-export const createOperationYobta: YobtaOperationFactory = <
+export const createOperation: YobtaOperationFactory = <
   Operation extends YobtaAnyOperation,
 >(
   partialOperation: PartialOperartion<Operation>,

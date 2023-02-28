@@ -1,6 +1,6 @@
 import { YobtaSubscribe, YOBTA_SUBSCRIBE } from '@yobta/protocol'
 
-import { createOperationYobta } from '../createOperation/createOperation.js'
+import { createOperation } from '../createOperation/createOperation.js'
 import { YobtaLog } from '../log/log.js'
 
 interface SubscribeOperationGetter {
@@ -13,7 +13,7 @@ export const getSubscribeOperation: SubscribeOperationGetter = (
 ) => {
   let version = 0
   for (const op of committed.values()) version = op.committed
-  const message = createOperationYobta<YobtaSubscribe>({
+  const message = createOperation<YobtaSubscribe>({
     id: `${channel}/subscribe`,
     channel,
     type: YOBTA_SUBSCRIBE,

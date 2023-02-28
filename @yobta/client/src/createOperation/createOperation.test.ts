@@ -1,10 +1,10 @@
 import { YOBTA_COMMIT } from '@yobta/protocol'
 
-import { createOperationYobta } from './createOperation.js'
+import { createOperation } from './createOperation.js'
 
 it('should generate an operation with a unique ID', () => {
-  const op1 = createOperationYobta({ type: YOBTA_COMMIT })
-  const op2 = createOperationYobta({ type: YOBTA_COMMIT })
+  const op1 = createOperation({ type: YOBTA_COMMIT })
+  const op2 = createOperation({ type: YOBTA_COMMIT })
 
   expect(op1.id).not.toEqual(op2.id)
 })
@@ -15,13 +15,13 @@ it('should generate an operation with the current time', () => {
 })
 
 it('should generate an operation with the correct type', () => {
-  const op = createOperationYobta({ type: YOBTA_COMMIT })
+  const op = createOperation({ type: YOBTA_COMMIT })
 
   expect(op.type).toEqual(YOBTA_COMMIT)
 })
 
 it('should generate an operation with the provided data', () => {
-  const op = createOperationYobta({
+  const op = createOperation({
     type: YOBTA_COMMIT,
     id: 'op1',
     committed: 2,

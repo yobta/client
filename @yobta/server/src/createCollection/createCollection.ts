@@ -5,6 +5,11 @@ import {
   YobtaSubscribe,
 } from '@yobta/protocol'
 
+import { YobtaLog } from '../createMemoryLog/createMemoryLog.js'
+import { createOperationsFromEntries } from '../createOperationsFromEntries/createOperationsFromEntries.js'
+import { sendBack } from '../messageBroker/index.js'
+import { validateCommitTime } from '../validateCommitTime/validateCommitTime.js'
+
 interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     props: YobtaCollectionProps<Snapshot>,
@@ -12,6 +17,7 @@ interface YobtaCollectionFactory {
 }
 type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
+  log: YobtaLog
   read(channel: string, id: YobtaCollectionId): Promise<Snapshot>
   write(
     event: Message<Snapshot>,
@@ -28,7 +34,7 @@ type Message<Snapshot extends YobtaCollectionAnySnapshot> = {
 }
 export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
-  getSnapshot(channel: string, id: YobtaCollectionId): Promise<Snapshot>
+  // getSnapshot(channel: string, id: YobtaCollectionId): Promise<Snapshot>
   revalidate(operation: YobtaSubscribe): Promise<void>
   merge(operation: Message<Snapshot>): Promise<void>
 }
@@ -37,19 +43,29 @@ export const createCollection: YobtaCollectionFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >({
   name,
-  read,
+  log,
   write,
 }: YobtaCollectionProps<Snapshot>) => {
   return {
     get name() {
       return name
     },
-    getSnapshot(channel, id) {
-      return read(channel, id)
+    async revalidate(operation) {
+      const entries = await log.find(operation.channel, operation.merged)
+      if (entries.length) {
+        const operations = createOperationsFromEntries(entries)
+        sendBack(operations)
+      }
     },
-    async revalidate(operation) {},
-    async merge(message: Message<Snapshot>) {
-      const operations = await write(message)
+    async merge({ headers, operation }: Message<Snapshot>) {
+      const fixedOperation = {
+        ...operation,
+        committed: validateCommitTime(operation.committed),
+      }
+      const operations = await write({ headers, operation: fixedOperation })
+      const entries = await log.merge(operations)
+      const loggedOperations = entries.map(createOperationsFromEntries).flat()
+      sendBack(loggedOperations)
     },
   }
 }

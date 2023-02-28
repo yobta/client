@@ -11,7 +11,7 @@ import {
 } from '@yobta/protocol'
 
 import { operationResult } from '../operationResult/operationResult.js'
-import { createOperationYobta } from '../createOperation/createOperation.js'
+import { createOperation } from '../createOperation/createOperation.js'
 import { getSubscription } from '../subscriptions/getSubscription.js'
 import { subscribe } from '../subscriptions/subscribe.js'
 import { createCollectionSnapshot } from './createCollectionSnapshot.js'
@@ -69,9 +69,7 @@ export const lwwCollection: LWWCollection = <
       if (!item) return undefined
       const data = plainObjectDiff(item, unfiltereledData)
       if (!data) return undefined
-      const operation = createOperationYobta<
-        YobtaCollectionUpdateOperation<State>
-      >({
+      const operation = createOperation<YobtaCollectionUpdateOperation<State>>({
         channel,
         type: YOBTA_COLLECTION_UPDATE,
         data,
@@ -87,9 +85,7 @@ export const lwwCollection: LWWCollection = <
       } as State
 
       // TODO: throw error if ref not found
-      const operation = createOperationYobta<
-        YobtaCollectionInsertOperation<State>
-      >({
+      const operation = createOperation<YobtaCollectionInsertOperation<State>>({
         channel,
         type: YOBTA_COLLECTION_INSERT,
         data,
