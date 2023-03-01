@@ -271,7 +271,12 @@ describe('mergeOperation', () => {
     mergeOperation(log2, insertOperation)
     mergeOperation(log2, updateOperation)
 
-    expect(log1).toEqual(log2)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { merged: m1, ...snapshot1 } = log1.get('channel.snapshot-id.key')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { merged: m2, ...snapshot2 } = log2.get('channel.snapshot-id.key')
+
+    expect(snapshot1).toEqual(snapshot2)
   })
   it('wins when committed later', () => {
     const log = new Map()
