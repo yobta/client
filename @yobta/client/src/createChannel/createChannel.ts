@@ -20,7 +20,6 @@ interface YobtaChannelFactory {
 
 export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
   Readonly<{
-    name: string
     insert: (snapshot: Snapshot) => Promise<Snapshot | undefined>
     update: (
       id: YobtaCollectionId,
@@ -30,13 +29,13 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
 
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
-  name: string
+  route: string
 }
 
 export const createChannel: YobtaChannelFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >({
-  name,
+  route,
   collection,
 }: YobtaChannelProps<Snapshot>) => {
   const insert = async (data: Snapshot): Promise<Snapshot | undefined> => {
@@ -44,7 +43,7 @@ export const createChannel: YobtaChannelFactory = <
       {
         type: YOBTA_COLLECTION_INSERT,
         data,
-        channel: name,
+        channel: route,
         ref: data.id,
       },
     )
@@ -60,7 +59,7 @@ export const createChannel: YobtaChannelFactory = <
       {
         type: YOBTA_COLLECTION_UPDATE,
         data,
-        channel: name,
+        channel: route,
         ref,
       },
     )
@@ -69,7 +68,6 @@ export const createChannel: YobtaChannelFactory = <
     return collection.get(ref)
   }
   return {
-    name,
     insert,
     update,
   }
