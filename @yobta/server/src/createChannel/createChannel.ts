@@ -21,7 +21,7 @@ interface YobtaChannelFactory {
 
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
-  name: string
+  route: string
   access: {
     read(message: {
       headers: Headers
@@ -47,10 +47,10 @@ export const createChannel: YobtaChannelFactory = <
 >({
   access,
   collection,
-  name,
+  route,
 }: YobtaChannelProps<Snapshot>) =>
   onClientMessage<string, [Message<Snapshot>, ServerCallbacks]>(
-    name,
+    route,
     async ({ headers, operation }, { subscribe, unsubscribe }) => {
       switch (operation.type) {
         case YOBTA_SUBSCRIBE: {

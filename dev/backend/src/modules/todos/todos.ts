@@ -18,7 +18,7 @@ const todos = createCollection<Todo>({
 })
 
 createChannel({
-  name: 'all-todos',
+  route: 'all-todos',
   collection: todos,
   access: {
     async read() {},
