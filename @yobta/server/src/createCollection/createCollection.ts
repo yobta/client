@@ -1,6 +1,5 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionId,
   YobtaCollectionOperation,
   YobtaSubscribe,
 } from '@yobta/protocol'
@@ -18,9 +17,9 @@ interface YobtaCollectionFactory {
 type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
   log: YobtaLog
-  read(channel: string, id: YobtaCollectionId): Promise<Snapshot>
+  // read(channel: string, id: YobtaCollectionId): Promise<Snapshot>
   write(
-    event: Message<Snapshot>,
+    message: YobtaCollectionMessage<Snapshot>,
   ): Promise<
     [
       YobtaCollectionOperation<Snapshot>,
@@ -28,7 +27,9 @@ type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
     ]
   >
 }
-type Message<Snapshot extends YobtaCollectionAnySnapshot> = {
+export type YobtaCollectionMessage<
+  Snapshot extends YobtaCollectionAnySnapshot,
+> = {
   headers: Headers
   operation: YobtaCollectionOperation<Snapshot>
 }
@@ -36,7 +37,7 @@ export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
   // getSnapshot(channel: string, id: YobtaCollectionId): Promise<Snapshot>
   revalidate(operation: YobtaSubscribe): Promise<void>
-  merge(operation: Message<Snapshot>): Promise<void>
+  merge(operation: YobtaCollectionMessage<Snapshot>): Promise<void>
 }
 
 export const createCollection: YobtaCollectionFactory = <
@@ -57,7 +58,7 @@ export const createCollection: YobtaCollectionFactory = <
         sendBack(operations)
       }
     },
-    async merge({ headers, operation }: Message<Snapshot>) {
+    async merge({ headers, operation }: YobtaCollectionMessage<Snapshot>) {
       const fixedOperation = {
         ...operation,
         committed: validateCommitTime(operation.committed),

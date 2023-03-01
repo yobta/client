@@ -1,3 +1,5 @@
+import { createMemoryLog } from '@yobta/server'
+
 import { createCollection } from '../../../../@yobta/server/src/index.js'
 
 type Todo = {
@@ -7,13 +9,12 @@ type Todo = {
   time: number
 }
 
+const log = createMemoryLog()
+
 createCollection<Todo>({
   name: 'todos',
-  async onSubscribe() {},
-  async onInsert({ operation }) {
-    return [operation]
-  },
-  async onUpdate({ operation }) {
-    return [operation]
+  log,
+  async write(message) {
+    return [message.operation]
   },
 })
