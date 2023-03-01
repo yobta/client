@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws'
+import { createServer } from '@yobta/server'
 
-import { createServer } from '../../../@yobta/server/src/index.js'
 import { log } from './logger.js'
 import './modules/todos/todos.js'
 
