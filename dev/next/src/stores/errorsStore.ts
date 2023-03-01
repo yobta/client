@@ -1,5 +1,5 @@
-import { storeYobta } from '@yobta/stores'
-import { useYobta } from '@yobta/stores/react'
+import { createStore } from '@yobta/stores'
+import { useStore } from '@yobta/stores/react'
 import { YobtaErrorReporter } from '@yobta/validator'
 
 export interface ErrorLike {
@@ -8,7 +8,7 @@ export interface ErrorLike {
   type?: string
 }
 
-const errorsStore = storeYobta<ErrorLike[]>([])
+const errorsStore = createStore<ErrorLike[]>([])
 
 export const pushError = (error: ErrorLike): void => {
   const last = errorsStore.last()
@@ -46,6 +46,6 @@ export const handleYobtaErrors: YobtaErrorReporter = (errors, { event }) => {
 }
 
 export const useError = (): [ErrorLike | undefined, number] => {
-  const errors = useYobta(errorsStore)
+  const errors = useStore(errorsStore)
   return [errors[0], errors.length]
 }

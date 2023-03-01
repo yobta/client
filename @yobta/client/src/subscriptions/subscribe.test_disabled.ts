@@ -1,7 +1,8 @@
+import { YOBTA_SUBSCRIBE, YOBTA_UNSUBSCRIBE } from '@yobta/protocol'
+
 import { subscribe } from './subscribe.js'
 import { getSubscription } from './getSubscription.js'
 import { subscriptionsStore } from './subscriptions.js'
-import { YOBTA_SUBSCRIBE, YOBTA_UNSUBSCRIBE } from '../protocol/protocol.js'
 import { queueOperation } from '../queue/queue.js'
 
 beforeEach(() => {
@@ -11,18 +12,18 @@ beforeEach(() => {
 vi.mock('../queue/queue.js', () => ({ queueOperation: vi.fn() }))
 
 it('adds the callback to the subscribers set of the given channel', () => {
-  let channel = 'test-channel'
-  let callback = vi.fn()
+  const channel = 'test-channel'
+  const callback = vi.fn()
 
   subscribe(channel, callback)
 
-  let subscription = getSubscription(channel, [])
+  const subscription = getSubscription(channel, [])
   expect(subscription.subscribers).toContain(callback)
 })
 
 it('queues a subscribe operation for the given channel', () => {
-  let channel = 'test-channel'
-  let callback = vi.fn()
+  const channel = 'test-channel'
+  const callback = vi.fn()
 
   subscribe(channel, callback)
 
@@ -36,20 +37,20 @@ it('queues a subscribe operation for the given channel', () => {
 })
 
 it('returns a function that removes the callback from the subscribers set when called', () => {
-  let channel = 'test-channel'
-  let callback = vi.fn()
-  let unsubscribe = subscribe(channel, callback)
+  const channel = 'test-channel'
+  const callback = vi.fn()
+  const unsubscribe = subscribe(channel, callback)
 
   unsubscribe()
 
-  let subscription = getSubscription(channel, [])
+  const subscription = getSubscription(channel, [])
   expect(subscription.subscribers).not.toContain(callback)
 })
 
 it('queues an unsubscribe operation when the last subscriber unsubscribes', () => {
-  let channel = 'test-channel'
-  let callback = vi.fn()
-  let unsubscribe = subscribe(channel, callback)
+  const channel = 'test-channel'
+  const callback = vi.fn()
+  const unsubscribe = subscribe(channel, callback)
 
   unsubscribe()
 

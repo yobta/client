@@ -4,7 +4,8 @@ import {
   YOBTA_COLLECTION_DELETE,
   YobtaCollectionUpdate,
   YOBTA_COLLECTION_UPDATE,
-} from '../protocol/protocol.js'
+} from '@yobta/protocol'
+
 import { mergeOperation } from './mergeOperation.js'
 import { Snapshot } from './mergeLog.js'
 
@@ -14,8 +15,8 @@ type TestData = {
 }
 
 it('should insert new items into the state map', () => {
-  let state: Snapshot<TestData> = new Map()
-  let operation: YobtaCollectionInsert = {
+  const state: Snapshot<TestData> = new Map()
+  const operation: YobtaCollectionInsert = {
     id: 'op1',
     channel: 'test-channel',
     time: Date.now(),
@@ -34,13 +35,13 @@ it('should insert new items into the state map', () => {
 })
 
 it('should mark existing items as deleted in the state map and', () => {
-  let state: Snapshot<TestData> = new Map()
+  const state: Snapshot<TestData> = new Map()
   state.set('item1', {
     data: { id: 'item1', value: 'test value' },
     deleted: false,
   })
 
-  let operation: YobtaCollectionDelete = {
+  const operation: YobtaCollectionDelete = {
     id: 'op1',
     channel: 'test-channel',
     time: Date.now(),
@@ -56,7 +57,7 @@ it('should mark existing items as deleted in the state map and', () => {
 })
 
 it('should insert items before the specified reference item', () => {
-  let state: Snapshot<TestData> = new Map()
+  const state: Snapshot<TestData> = new Map()
   state.set('item1', {
     data: { id: 'item1', value: 'test value 1' },
     deleted: false,
@@ -66,7 +67,7 @@ it('should insert items before the specified reference item', () => {
     deleted: false,
   })
 
-  let operation: YobtaCollectionInsert = {
+  const operation: YobtaCollectionInsert = {
     id: 'item3',
     channel: 'test-channel',
     time: Date.now(),
@@ -86,12 +87,12 @@ it('should insert items before the specified reference item', () => {
 })
 
 it('should assign new values to existing items', () => {
-  let state: Snapshot<TestData> = new Map()
+  const state: Snapshot<TestData> = new Map()
   state.set('item1', {
     data: { id: 'item1', value: 'test value 1' },
     deleted: false,
   })
-  let operation: YobtaCollectionUpdate = {
+  const operation: YobtaCollectionUpdate = {
     id: 'op1',
     channel: 'test-channel',
     time: Date.now(),
@@ -106,12 +107,12 @@ it('should assign new values to existing items', () => {
 })
 
 it('should ignore assign operations with invalid references', () => {
-  let state: Snapshot<TestData> = new Map()
+  const state: Snapshot<TestData> = new Map()
   state.set('item1', {
     data: { id: 'item1', value: 'test value 1' },
     deleted: false,
   })
-  let operation: YobtaCollectionUpdate = {
+  const operation: YobtaCollectionUpdate = {
     id: 'op1',
     channel: 'test-channel',
     time: Date.now(),

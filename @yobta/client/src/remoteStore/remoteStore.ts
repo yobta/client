@@ -1,9 +1,9 @@
-import { broadcastChannelPluginYobta, storeYobta } from '@yobta/stores'
+import { broadcastChannelPlugin, createStore } from '@yobta/stores'
 import { YobtaRemoteOperation } from '@yobta/protocol'
 
-export const remoteStore = storeYobta<YobtaRemoteOperation>(
+export const remoteStore = createStore<YobtaRemoteOperation>(
   {} as YobtaRemoteOperation,
-  broadcastChannelPluginYobta({
+  broadcastChannelPlugin({
     channel: 'yobta-remote-op',
   }),
 )

@@ -1,6 +1,6 @@
 import { YobtaUnsubscribe, YOBTA_UNSUBSCRIBE } from '@yobta/protocol'
 
-import { createOperationYobta } from '../createOperation/createOperation.js'
+import { createOperation } from '../createOperation/createOperation.js'
 import { getSubscribeOperation } from '../lwwCollection/getSubscribeOperation.js'
 import { operationsQueue, queueOperation } from '../queue/queue.js'
 import { getSubscription } from './getSubscription.js'
@@ -18,7 +18,7 @@ export const subscribe = (
     subscription.subscribers.delete(callback)
     if (subscription.subscribers.size === 0) {
       subscriptionsStore.delete(channel)
-      const unsubscribe = createOperationYobta<YobtaUnsubscribe>({
+      const unsubscribe = createOperation<YobtaUnsubscribe>({
         id: `${channel}/unsubscribe`,
         channel,
         type: YOBTA_UNSUBSCRIBE,

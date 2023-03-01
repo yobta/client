@@ -5,7 +5,7 @@ import {
   YobtaRemoteOperation,
 } from '@yobta/protocol'
 
-import { createOperationYobta } from '../createOperation/createOperation.js'
+import { createOperation } from '../createOperation/createOperation.js'
 
 interface EncoderFactory {
   (): {
@@ -28,7 +28,7 @@ export const encoderYobta: EncoderFactory = () => {
       try {
         return JSON.parse(value)
       } catch (_) {
-        const error = createOperationYobta<YobtaError>({
+        const error = createOperation<YobtaError>({
           type: YOBTA_ERROR,
           message: String(value),
         })

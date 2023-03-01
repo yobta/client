@@ -10,7 +10,10 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2019",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "paths": {
+      "@yobta/*": ["./@yobta/*/src"]
+    }
   },
-  "exclude": ["**/lib", "**/*.test.ts", "**/*.spec.ts", "node_modules"]
+  "exclude": ["**/lib", "**/*.test_disabled.*", "node_modules"]
 }

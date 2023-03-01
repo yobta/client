@@ -1,4 +1,7 @@
+coverage
 node_modules
 lib
 *.tsbuildinfo
-.next
+dev/next/.next
+
+coverage

@@ -1,0 +1,16 @@
+---
+extends:
+  - '../../.eslintrc.yml'
+  - 'next/core-web-vitals'
+rules:
+  import/extensions: 'off'
+  prefer-let/prefer-let: 'off'
+  prefer-const: 'error'
+  '@next/next/no-html-link-for-pages': ['error', 'dev/next/src/pages']
+ignorePatterns:
+  - 'public/*'
+  - '**/*.md'
+  - '**/*.mdx'
+  - '**/*.css'
+parserOptions:
+  project: ['./dev/next/tsconfig.json']

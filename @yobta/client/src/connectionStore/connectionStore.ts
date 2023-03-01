@@ -1,4 +1,4 @@
-import { localStoragePluginYobta, storeYobta } from '@yobta/stores'
+import { localStoragePlugin, createStore } from '@yobta/stores'
 
 // #region types
 export type YOBTA_CONNECTION_STATE =
@@ -15,9 +15,9 @@ export const YOBTA_CLOSED = 'CLOSED'
 export const YOBTA_CONNECTION_ERROR = 'ERROR'
 // #endregion
 
-export const connectionStore = storeYobta<YOBTA_CONNECTION_STATE>(
+export const connectionStore = createStore<YOBTA_CONNECTION_STATE>(
   YOBTA_CLOSED,
-  localStoragePluginYobta({
+  localStoragePlugin({
     channel: 'yobta-client-state',
   }),
 )

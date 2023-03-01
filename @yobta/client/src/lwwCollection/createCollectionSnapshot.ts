@@ -1,11 +1,11 @@
-import { YobtaCollectionItem, YobtaCollectionId } from '@yobta/protocol'
+import { YobtaCollectionId, YobtaCollectionAnySnapshot } from '@yobta/protocol'
 
 import { YobtaLog } from '../log/log.js'
 import { mergeOperation } from './mergeOperation.js'
 import { mergeLog, Snapshot } from './mergeLog.js'
 
 interface YobtaCollectionSnapshotFactory {
-  <State extends YobtaCollectionItem>(): {
+  <State extends YobtaCollectionAnySnapshot>(): {
     next(logs: {
       committed: YobtaLog
       pending: YobtaLog
@@ -14,7 +14,7 @@ interface YobtaCollectionSnapshotFactory {
 }
 
 export const createCollectionSnapshot: YobtaCollectionSnapshotFactory = <
-  State extends YobtaCollectionItem,
+  State extends YobtaCollectionAnySnapshot,
 >() => {
   let version: Symbol
   let state: Snapshot<State> = new Map()

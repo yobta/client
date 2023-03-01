@@ -3,8 +3,9 @@ import { nanoid } from 'nanoid'
 import {
   YobtaCommit,
   YobtaReject,
-  YOBTA_SUBSCRIBE,
-  YOBTA_UNSUBSCRIBE,
+  YobtaSubscribe,
+  YobtaUnsubscribe,
+  YOBTA_RECEIVED,
 } from '@yobta/protocol'
 
 import { createServerOperation } from '../serverOperation/index.js'
@@ -21,10 +22,16 @@ interface ServerFactory {
 export type ServerCallbacks = {
   commit(operation: YobtaCommit): void
   reject(operation: YobtaReject): void
+  subscribe(operation: YobtaSubscribe): void
+  unsubscribe(operation: YobtaUnsubscribe): void
 }
 
-export const serverYobta: ServerFactory = wss => {
-  wss.on('connection', (connection, req) => {
+export const createServer: ServerFactory = wss => {
+  wss.on('connection', connection => {
+    const mediator = registerConnection(operation => {
+      const message = createServerOperation(operation)
+      connection.send(message)
+    })
     const callbacks: ServerCallbacks = {
       commit(operation) {
         const message: string = createServerOperation(operation)
@@ -34,35 +41,23 @@ export const serverYobta: ServerFactory = wss => {
         const message: string = createServerOperation(operation)
         connection.send(message)
       },
+      subscribe: mediator.add,
+      unsubscribe: mediator.remove,
     }
-    const mediator = registerConnection(operation => {
-      const message = createServerOperation(operation)
-      connection.send(message)
-    })
     connection.on('message', (message: string) => {
       const { operation, headers } = parseClientOperation(message)
       const receivedOp = createServerOperation({
         id: nanoid(),
         ref: operation.id,
-        time: Date.now(),
-        type: 'received',
+        committed: Date.now(),
+        type: YOBTA_RECEIVED,
       })
       connection.send(receivedOp)
-      switch (operation.type) {
-        case YOBTA_SUBSCRIBE:
-          mediator.add(operation.channel)
-          break
-        case YOBTA_UNSUBSCRIBE:
-          mediator.remove(operation.channel)
-          break
-        default:
-          broadcastClientMessage(
-            operation.channel,
-            { headers, operation },
-            callbacks,
-          )
-          break
-      }
+      broadcastClientMessage(
+        operation.channel,
+        { headers, operation },
+        callbacks,
+      )
     })
     connection.on('close', mediator.clear)
   })

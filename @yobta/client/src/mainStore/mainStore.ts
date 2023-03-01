@@ -1,4 +1,4 @@
-import { storeEffectYobta, storeYobta } from '@yobta/stores'
+import { storeEffect, createStore } from '@yobta/stores'
 
 import { intervalYobta } from '../intervalYobta/intervalYobta.js'
 import { timeoutYobta } from '../timeoutYobta/timeoutYobta.js'
@@ -34,9 +34,9 @@ const honk: VoidFunction = () => {
   post(HONK)
 }
 
-export const mainStore = storeYobta(false)
+export const mainStore = createStore(false)
 
-storeEffectYobta(mainStore, () => {
+storeEffect(mainStore, () => {
   channel = new BroadcastChannel('yobta-main-tab')
   channel.onmessage = ({ data }: MessageEvent<string>): void => {
     switch (data) {

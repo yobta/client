@@ -16,5 +16,16 @@
     "incremental": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "references": [
+    {
+      "path": "../../@yobta/client/tsconfig.json"
+    },
+    {
+      "path": "../../@yobta/protocol/tsconfig.json"
+    },
+    {
+      "path": "../../@yobta/server/tsconfig.json"
+    }
+  ]
 }

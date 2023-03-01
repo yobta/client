@@ -1,8 +1,6 @@
-import { logYobta, YobtaLog } from '../log/log.js'
-import {
-  YobtaCollectionInsert,
-  YOBTA_COLLECTION_INSERT,
-} from '../protocol/protocol.js'
+import { YOBTA_COLLECTION_INSERT } from '@yobta/protocol'
+
+import { YobtaLog } from '../log/log.js'
 import { mergeLog } from './mergeLog.js'
 
 describe('createProxyState', () => {
@@ -32,13 +30,13 @@ describe('createProxyState', () => {
   })
 
   it('returns a Map of the correct type', () => {
-    let state = new Map()
+    const state = new Map()
     mergeLog(state, log)
     expect(state).toBeInstanceOf(Map)
   })
 
   it('merges operations from the log', () => {
-    let state = new Map()
+    const state = new Map()
     mergeLog(state, log)
     expect(state.get('id1')).toEqual({
       data: {
@@ -57,7 +55,7 @@ describe('createProxyState', () => {
   })
 
   it('sets the "deleted" property to false by default', () => {
-    let state = new Map()
+    const state = new Map()
     mergeLog(state, log)
     expect(state.get('id1')?.deleted).toBe(false)
     expect(state.get('id2')?.deleted).toBe(false)

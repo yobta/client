@@ -22,11 +22,11 @@
     "./package.json": "./package.json"
   },
   "engines": {
-    "node": "^14.0.0 || >=16.0.0 || >=18.0.0"
+    "node": ">=16.0.0"
   },
   "dependencies": {
     "@yobta/protocol": "workspace:*",
-    "@yobta/stores": "^0.1.10",
+    "@yobta/stores": "^0.2.1",
     "nanoid": "^4.0.0"
   },
   "devDependencies": {

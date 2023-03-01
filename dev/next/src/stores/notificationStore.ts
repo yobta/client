@@ -1,11 +1,11 @@
-import { storeYobta } from '@yobta/stores'
-import { useYobta } from '@yobta/stores/react'
+import { createStore } from '@yobta/stores'
+import { useStore } from '@yobta/stores/react'
 
 export interface NotificationLike {
   message: string
 }
 
-const notificationStore = storeYobta<NotificationLike[]>([])
+const notificationStore = createStore<NotificationLike[]>([])
 
 export const pushNotification = (
   ...notifications: NotificationLike[]
@@ -23,6 +23,6 @@ export const popNotification = (): void => {
 }
 
 export const useNotification = (): NotificationLike | undefined => {
-  const notifications = useYobta(notificationStore)
+  const notifications = useStore(notificationStore)
   return notifications[0]
 }

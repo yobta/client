@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@yobta/*": ["./@yobta/*/src"]
-    }
+    "noEmit": true,
+    "jsx": "preserve"
   },
   "extends": "./tsconfig.json",
   "include": ["@yobta", "dev"]

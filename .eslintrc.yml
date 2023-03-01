@@ -8,21 +8,29 @@ parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: 12
   project: ./tsconfig.json
+extends:
+  - '@logux/eslint-config/ts'
 plugins:
   - '@typescript-eslint'
   - security
   - unicorn
   - import
 ignorePatterns:
-  - '**/.eslintrc.yml'
-  - '**/*.yaml'
-  - '**/*.json'
-  - '**/*.test.*'
-  - '**/*.tsbuildinfo'
   - '**/lib'
+  - '**/coverage'
+  - '**/*.test_disabled.*'
   - 'vitest.config.ts'
 rules:
   no-shadow: 'off'
   '@typescript-eslint/no-shadow': ['error']
-  import/extensions: 'off'
+  '@typescript-eslint/no-unused-vars':
+    - error
+    - argsIgnorePattern: '^_'
+      varsIgnorePattern: '^_'
+      caughtErrorsIgnorePattern: '^_'
+  import/extensions:
+    - 'error'
+    - always
+    - js: always
+  prefer-let/prefer-let: 'off'
   prefer-const: ['error']

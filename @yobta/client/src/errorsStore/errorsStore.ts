@@ -1,7 +1,7 @@
-import { mapYobta } from '@yobta/stores'
+import { createMapStore } from '@yobta/stores'
 import { YobtaError } from '@yobta/protocol'
 
-export const yobtaErrorsStore = mapYobta<YobtaError>({} as YobtaError)
+export const yobtaErrorsStore = createMapStore<YobtaError>({} as YobtaError)
 
 export const createErrorYobta = (error: YobtaError): void => {
   yobtaErrorsStore.assign({ [error.message]: error })

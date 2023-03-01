@@ -17,7 +17,7 @@ type Tail = Set<YobtaDataOperation>
 export type YobtaLog = ReturnType<YobtaLogFactory>
 
 export const logYobta: YobtaLogFactory = initialState => {
-  let version = Symbol()
+  let version = Symbol('')
   const log: Log = new Map()
   let lastOperationId: YobtaOperationId
   let wasSorted = true
@@ -29,9 +29,9 @@ export const logYobta: YobtaLogFactory = initialState => {
     operations.forEach(op => {
       const tail: Tail = new Set()
       wasSorted = false
-      if (Number(log.get(lastOperationId)?.time) > op.time) {
+      if (Number(log.get(lastOperationId)?.committed) > op.committed) {
         log.forEach(stored => {
-          if (stored.time > op.time) {
+          if (stored.committed > op.committed) {
             tail.add(stored)
             log.delete(stored.id)
           }
@@ -41,7 +41,7 @@ export const logYobta: YobtaLogFactory = initialState => {
       append(op)
       tail.forEach(append)
     })
-    version = Symbol()
+    version = Symbol('')
     if (operations.length > 1) wasSorted = true
   }
   add(...initialState)
@@ -58,7 +58,7 @@ export const logYobta: YobtaLogFactory = initialState => {
       const op = log.get(operationId)
       log.delete(operationId)
       wasSorted = true
-      version = Symbol()
+      version = Symbol('')
       return op
     },
   }

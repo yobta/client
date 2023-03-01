@@ -5,8 +5,8 @@ import { getServerTime } from '../serverTime/serverTime.js'
 
 type PartialOperartion<Operation extends YobtaAnyOperation> = Omit<
   Operation,
-  'id' | 'time'
-> & { id?: YobtaOperationId; time?: number }
+  'id' | 'committed' | 'merged'
+> & { id?: YobtaOperationId; committed?: number; merged?: number }
 
 interface YobtaOperationFactory {
   <Operation extends YobtaAnyOperation>(
@@ -14,14 +14,15 @@ interface YobtaOperationFactory {
   ): Operation
 }
 
-export const createOperationYobta: YobtaOperationFactory = <
+export const createOperation: YobtaOperationFactory = <
   Operation extends YobtaAnyOperation,
 >(
   partialOperation: PartialOperartion<Operation>,
 ): Operation => {
   return {
     id: nanoid(),
-    time: getServerTime(),
+    committed: getServerTime(),
+    merged: 0,
     ...partialOperation,
   } as Operation
 }

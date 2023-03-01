@@ -1,10 +1,12 @@
+type AnyOverloads = any[] // eslint-disable-line @typescript-eslint/no-explicit-any
+
 interface CallBack {
-  (...args: any[]): void
+  <Args extends AnyOverloads>(...args: Args): void
 }
 
 interface TimeoutFactory {
-  (): {
-    start(callback: CallBack, timeout: number, ...overloads: any[]): void
+  <Args extends AnyOverloads>(): {
+    start(callback: CallBack, timeout: number, ...overloads: Args): void
     stop(callback: CallBack): void
     stopAll: VoidFunction
   }

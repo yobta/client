@@ -28,7 +28,7 @@ export const handleRemoteOperation = (message: YobtaRemoteOperation): void => {
   switch (message.type) {
     case YOBTA_COMMIT: {
       const op = pending.remove(message.ref)
-      if (op) committed.add({ ...op, time: message.time })
+      if (op) committed.add({ ...op, committed: message.committed })
       notifyOperationObservers(message)
       break
     }
