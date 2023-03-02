@@ -31,6 +31,9 @@ lint:
 typecheck:
 	pnpm tsc -p tsconfig.check.json
 
+test-client:
+	cd @yobta/client && pnpm test:watch
+
 test-server:
 	cd @yobta/server && pnpm test:watch
 
