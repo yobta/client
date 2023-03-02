@@ -15,4 +15,6 @@ const myTodos = createChannel({
   route: 'my-todos',
 })
 
-export const useTodos = createHookFromStore(myTodos)
+export const useTodos = createHookFromStore(myTodos, {
+  getServerSnapshot: () => [],
+})

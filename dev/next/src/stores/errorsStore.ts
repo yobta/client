@@ -46,6 +46,6 @@ export const handleYobtaErrors: YobtaErrorReporter = (errors, { event }) => {
 }
 
 export const useError = (): [ErrorLike | undefined, number] => {
-  const errors = useStore(errorsStore)
+  const errors = useStore(errorsStore, { getServerSnapshot: () => [] })
   return [errors[0], errors.length]
 }
