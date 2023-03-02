@@ -51,7 +51,7 @@ interface RouterFactory {
     subscribe<Path extends string>(
       path: Path,
       callback: Callback<ParseUrl<Path>, TData, TOverloads>,
-    ): void
+    ): VoidFunction
     publish(path: string, data: TData, ...overloads: TOverloads): boolean
   }
 }
@@ -70,13 +70,17 @@ export const createRouter: RouterFactory = <
       path,
       callback: Callback<ParseUrl<typeof path>, TData, TOverloads>,
     ) {
+      const anyCallback = callback as Callback<AnyParams, TData, TOverloads>
       const item = matchersMap.get(path) || {
         callbacks: new Set(),
         matcher: match(path, options),
         path,
       }
-      item.callbacks.add(callback as Callback<AnyParams, TData, TOverloads>)
+      item.callbacks.add(anyCallback)
       matchersMap.set(path, item)
+      return () => {
+        matchersMap.get(path)?.callbacks.delete(anyCallback)
+      }
     },
     publish(path, data: TData, ...overloads: TOverloads) {
       const matchedCallbacks = new Set<{

@@ -20,6 +20,15 @@ describe('create router', () => {
     expect(mockSubscriber).toBeCalledWith({}, 'data', 'ovrl1', 'ovrl2')
   })
 
+  it('unsubscribes listener', () => {
+    const router = createRouter()
+    const mockSubscriber = vi.fn()
+    const unsubscribe = router.subscribe('/user/123', mockSubscriber)
+    unsubscribe()
+    router.publish('/user/123', 'data')
+    expect(mockSubscriber).not.toBeCalled()
+  })
+
   it('subscribe and publish with dynamical params', () => {
     const router = createRouter()
     const mockSubscriber = vi.fn()
