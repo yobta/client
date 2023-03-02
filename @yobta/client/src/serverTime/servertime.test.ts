@@ -1,6 +1,6 @@
 import {
   serverTimeCompensator,
-  compensateTimeDifference,
+  computeServerTime,
   getServerTime,
 } from './serverTime.js'
 
@@ -13,7 +13,7 @@ it('should initialize with a value of 0', () => {
 })
 
 it('should update the value of serverTimeCompensator', () => {
-  compensateTimeDifference(100, 110)
+  computeServerTime(100, 110)
   expect(serverTimeCompensator.last()).not.toBe(0)
 })
 

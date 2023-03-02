@@ -5,21 +5,21 @@ export const YOBTA_RECEIVED = 'yobta-received'
 export type YobtaReceived = {
   id: YobtaOperationId
   ref: YobtaOperationId
-  committed: number
+  received: number
   type: typeof YOBTA_RECEIVED
 }
 
-export const YOBTA_COMMIT = 'yobta-commit'
-export type YobtaCommit = {
+export const YOBTA_MERGE = 'yobta-merge'
+export type YobtaMergeOperation = {
   id: YobtaOperationId
   channel: string
   ref: YobtaOperationId
   committed: number
-  type: typeof YOBTA_COMMIT
+  type: typeof YOBTA_MERGE
 }
 
 export const YOBTA_REJECT = 'yobta-reject'
-export type YobtaReject = {
+export type YobtaRejectOperation = {
   id: YobtaOperationId
   channel: string
   reason: string
@@ -38,8 +38,8 @@ export type YobtaBatchOperation = {
 
 export type YobtaRemoteOperation =
   | YobtaReceived
-  | YobtaCommit
-  | YobtaReject
+  | YobtaMergeOperation
+  | YobtaRejectOperation
   | YobtaError
   | YobtaDataOperation
   | YobtaBatchOperation

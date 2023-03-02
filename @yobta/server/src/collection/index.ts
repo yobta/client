@@ -3,9 +3,9 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_INSERT,
-  YobtaReject,
-  YobtaCommit,
-  YOBTA_COMMIT,
+  YobtaRejectOperation,
+  YobtaMergeOperation,
+  YOBTA_MERGE,
   YOBTA_REJECT,
   YobtaDataOperation,
   YOBTA_COLLECTION_UPDATE,
@@ -56,12 +56,12 @@ export const collectionYobta: CollectionFactory = <
           switch (operation.type) {
             case YOBTA_COLLECTION_INSERT: {
               const operations = await insert({ headers, operation })
-              const commitOperation: YobtaCommit = {
+              const commitOperation: YobtaMergeOperation = {
                 id: nanoid(),
                 channel,
                 committed: Date.now(),
                 ref: operation.id,
-                type: YOBTA_COMMIT,
+                type: YOBTA_MERGE,
               }
               commit(commitOperation)
               sendBack(operations)
@@ -69,12 +69,12 @@ export const collectionYobta: CollectionFactory = <
             }
             case YOBTA_COLLECTION_UPDATE: {
               const operations = await update({ headers, operation })
-              const updateOperation: YobtaCommit = {
+              const updateOperation: YobtaMergeOperation = {
                 id: nanoid(),
                 channel,
                 committed: Date.now(),
                 ref: operation.id,
-                type: YOBTA_COMMIT,
+                type: YOBTA_MERGE,
               }
               commit(updateOperation)
               sendBack(operations)
@@ -92,7 +92,7 @@ export const collectionYobta: CollectionFactory = <
             }
           }
         } catch (error) {
-          const rejectOperation: YobtaReject = {
+          const rejectOperation: YobtaRejectOperation = {
             id: nanoid(),
             channel,
             committed: Date.now(),

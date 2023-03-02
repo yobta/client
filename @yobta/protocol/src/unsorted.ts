@@ -5,9 +5,9 @@ import {
   YobtaCollectionUpdateOperation,
 } from './collection.js'
 import {
-  YobtaCommit,
+  YobtaMergeOperation,
   YobtaReceived,
-  YobtaReject,
+  YobtaRejectOperation,
   YobtaRemoteOperation,
 } from './serverOperations.js'
 
@@ -19,8 +19,8 @@ export type YobtaDataOperation =
 
 export type YobtaAnyOperation =
   | YobtaReceived
-  | YobtaCommit
-  | YobtaReject
+  | YobtaMergeOperation
+  | YobtaRejectOperation
   | YobtaError
   | YobtaClientOperation
   | YobtaRemoteOperation

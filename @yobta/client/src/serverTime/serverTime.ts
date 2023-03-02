@@ -2,7 +2,7 @@ import { createStore } from '@yobta/stores'
 
 export const serverTimeCompensator = createStore(0)
 
-export const compensateTimeDifference = (
+export const computeServerTime = (
   clientTime: number,
   serverTime: number,
 ): void => {

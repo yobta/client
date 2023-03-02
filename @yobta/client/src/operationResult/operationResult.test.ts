@@ -1,8 +1,8 @@
 import { vi } from 'vitest'
 import {
-  YobtaCommit,
-  YobtaReject,
-  YOBTA_COMMIT,
+  YobtaMergeOperation,
+  YobtaRejectOperation,
+  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -19,12 +19,12 @@ beforeEach(() => {
 it('should call all registered observers with the operation argument', () => {
   const observer1 = vi.fn()
   const observer2 = vi.fn()
-  const mockOperation: YobtaCommit = {
+  const mockOperation: YobtaMergeOperation = {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
     ref: 'operation-1',
-    type: YOBTA_COMMIT,
+    type: YOBTA_MERGE,
   }
 
   operationResultObservers.add(observer1)
@@ -36,12 +36,12 @@ it('should call all registered observers with the operation argument', () => {
 })
 
 it('should resolve if the operation is committed and remove observer', () => {
-  const mockOperation: YobtaCommit = {
+  const mockOperation: YobtaMergeOperation = {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
     ref: 'operation-1',
-    type: YOBTA_COMMIT,
+    type: YOBTA_MERGE,
   }
   const promise = operationResult('operation-1')
 
@@ -51,7 +51,7 @@ it('should resolve if the operation is committed and remove observer', () => {
 })
 
 it('should reject if the operation is rejected and remove observer', () => {
-  const mockOperation: YobtaReject = {
+  const mockOperation: YobtaRejectOperation = {
     id: 'operation-2',
     channel: 'channel-1',
     ref: 'operation-1',
@@ -69,12 +69,12 @@ it('should reject if the operation is rejected and remove observer', () => {
 })
 
 it('should not resolve if the operation is committed but for another operation', () => {
-  const mockOperation: YobtaCommit = {
+  const mockOperation: YobtaMergeOperation = {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
     ref: 'operation-2',
-    type: YOBTA_COMMIT,
+    type: YOBTA_MERGE,
   }
   const promise = operationResult('operation-1')
 

@@ -2,21 +2,25 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YobtaCollectionInsertOperation,
-  YobtaCollectionOperation,
+  YobtaDataOperation,
+  YobtaMergeOperation,
+  YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
 } from '@yobta/protocol'
 import { createStore, YobtaReadable } from '@yobta/stores'
 
+type YobtaNotification =
+  | YobtaDataOperation
+  | YobtaMergeOperation
+  | YobtaRejectOperation
 interface YobtaLogFactory {
-  <Snapshot extends YobtaCollectionAnySnapshot>(
-    operations: YobtaCollectionOperation<Snapshot>[],
-  ): YobtaLog<Snapshot>
+  (operations: YobtaNotification[]): YobtaLog
 }
-type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = Readonly<{
-  add: (operations: YobtaCollectionOperation<Snapshot>[]) => void
+export type YobtaLog = Readonly<{
+  add(operations: YobtaNotification[]): void
 }> &
   YobtaReadable<YobtaLogState>
-type YobtaLogState = Map<
+export type YobtaLogState = Map<
   YobtaCollectionId,
   {
     committed: number
@@ -48,13 +52,11 @@ const insertEntry = (
   ])
 }
 
-export const createLog: YobtaLogFactory = <
-  Snapshot extends YobtaCollectionAnySnapshot,
->(
-  initialOperations: YobtaCollectionOperation<Snapshot>[],
+export const createLog: YobtaLogFactory = (
+  initialOperations: YobtaNotification[],
 ) => {
   const { last, next, on, observe } = createStore(new Map())
-  const add = (newOperations: YobtaCollectionOperation<Snapshot>[]): void => {
+  const add = (newOperations: YobtaNotification[]): void => {
     let log = last()
     let shouldUpdate = false
     newOperations.forEach(operation => {
