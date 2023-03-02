@@ -1,8 +1,8 @@
 import { YOBTA_SUBSCRIBE, YOBTA_UNSUBSCRIBE } from '@yobta/protocol'
 
 import { subscribe } from './subscribe.js'
-import { getSubscription } from './getSubscription.js'
-import { subscriptionsStore } from './subscriptions.js'
+import { getSubscription } from '../subscriptions/getSubscription.js'
+import { subscriptionsStore } from '../subscriptions/subscriptions.js'
 import { queueOperation } from '../queue/queue.js'
 
 beforeEach(() => {

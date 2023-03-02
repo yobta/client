@@ -1,12 +1,12 @@
 import { vi } from 'vitest'
 import {
-  YobtaCommit,
+  YobtaMergeOperation,
   YobtaError,
   YobtaCollectionInsertOperation,
   YobtaRemoteOperation,
   YobtaReject,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COMMIT,
+  YOBTA_MERGE,
   YOBTA_ERROR,
   YOBTA_RECEIVED,
   YOBTA_REJECT,
@@ -15,10 +15,10 @@ import {
 } from '@yobta/protocol'
 
 import { createErrorYobta } from '../errorsStore/errorsStore.js'
-import { dequeueOperationAndFixTime } from '../queue/queue.js'
+import { dequeueOperation } from '../queue/queue.js'
 import { getSubscription } from './getSubscription.js'
 import { handleRemoteOperation } from './handleRemoteOperation.js'
-import { subscriptionsStore } from './subscriptions.js'
+import { serverSubscriptionsStore } from './subscriptions.js'
 
 vi.mock('../queue/queue.js', () => ({
   dequeueOperationAndFixTime: vi.fn(),
@@ -29,7 +29,7 @@ vi.mock('../errorsStore/errorsStore.js', () => ({
 }))
 
 beforeEach(() => {
-  subscriptionsStore.clear()
+  serverSubscriptionsStore.clear()
 })
 
 it('should dequeue a received message', () => {
@@ -37,10 +37,10 @@ it('should dequeue a received message', () => {
     type: YOBTA_RECEIVED,
     id: 'message-123',
     ref: 'operation-123',
-    committed: 1234,
+    received: 1234,
   }
   handleRemoteOperation(operation)
-  expect(dequeueOperationAndFixTime).toHaveBeenCalledWith(operation)
+  expect(dequeueOperation).toHaveBeenCalledWith(operation)
 })
 
 it('should add error', () => {
@@ -53,7 +53,7 @@ it('should add error', () => {
   handleRemoteOperation(operation)
 
   expect(createErrorYobta).toBeCalledWith(operation)
-  expect(subscriptionsStore.size).toEqual(0)
+  expect(serverSubscriptionsStore.size).toEqual(0)
 })
 
 it('should add a remote operation to the committed list for a valid channel', () => {
@@ -91,8 +91,8 @@ it('should remove a pending operation and add it to the committed list for a com
   }
   subscription.pending.add(operation)
 
-  const commitOperation: YobtaCommit = {
-    type: YOBTA_COMMIT,
+  const commitOperation: YobtaMergeOperation = {
+    type: YOBTA_MERGE,
     id: 'operation-123',
     channel: 'channel-123',
     ref: 'operation-123',
@@ -141,7 +141,7 @@ it('should not notify subscribers after received operation', () => {
     type: YOBTA_RECEIVED,
     id: 'message-123',
     ref: 'operation-123',
-    committed: 1234,
+    received: 1234,
   }
   handleRemoteOperation(operation)
   expect(subscriber).not.toBeCalled()
@@ -206,5 +206,5 @@ it('should not apply operations when the channel is not subscribed', () => {
     ],
   }
   handleRemoteOperation(operation)
-  expect(subscriptionsStore.size).toEqual(0)
+  expect(serverSubscriptionsStore.size).toEqual(0)
 })

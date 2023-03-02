@@ -1,4 +1,4 @@
-import { lwwCollection } from '@yobta/client'
+import { createChannel, createCollection } from '@yobta/client'
 import { createHookFromStore } from '@yobta/stores/react'
 
 type Todo = {
@@ -8,6 +8,11 @@ type Todo = {
   time: number
 }
 
-const todos = lwwCollection<Todo>({ channel: 'todos' })
+const todos = createCollection<Todo>([])
 
-export const useTodos = createHookFromStore(todos)
+const myTodos = createChannel({
+  collection: todos,
+  route: 'my-todos',
+})
+
+export const useTodos = createHookFromStore(myTodos)

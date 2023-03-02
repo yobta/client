@@ -5,8 +5,6 @@ import {
   YobtaReceived,
 } from '@yobta/protocol'
 
-import { compensateTimeDifference } from '../serverTime/serverTime.js'
-
 type State = Map<YobtaOperationId, YobtaClientOperation>
 
 export const operationsQueue: State = new Map()
@@ -25,10 +23,10 @@ export const queueOperation = (operation: YobtaClientOperation): void => {
   channel.next(operation)
 }
 
-export const dequeueOperationAndFixTime = (operation: YobtaReceived): void => {
-  const clientOperation = operationsQueue.get(operation.ref)
-  if (clientOperation) {
-    compensateTimeDifference(clientOperation.committed, operation.committed)
-  }
-  operationsQueue.delete(operation.ref)
+export const dequeueOperation = (
+  operation: YobtaReceived,
+): number | undefined => {
+  const time = operationsQueue.get(operation.id)?.committed
+  operationsQueue.delete(operation.id)
+  return time
 }

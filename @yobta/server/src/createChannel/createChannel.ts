@@ -1,8 +1,8 @@
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionOperation,
-  YobtaSubscribe,
-  YobtaUnsubscribe,
+  YobtaSubscribeOperation,
+  YobtaUnsubscribeOperation,
   YOBTA_SUBSCRIBE,
   YOBTA_UNSUBSCRIBE,
   YOBTA_COLLECTION_INSERT,
@@ -25,7 +25,7 @@ type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   access: {
     read(message: {
       headers: Headers
-      operation: YobtaSubscribe
+      operation: YobtaSubscribeOperation
     }): Promise<void>
     write(message: {
       headers: Headers
@@ -38,8 +38,8 @@ type Message<Snapshot extends YobtaCollectionAnySnapshot> = {
   headers: Headers
   operation:
     | YobtaCollectionOperation<Snapshot>
-    | YobtaSubscribe
-    | YobtaUnsubscribe
+    | YobtaSubscribeOperation
+    | YobtaUnsubscribeOperation
 }
 
 export const createChannel: YobtaChannelFactory = <

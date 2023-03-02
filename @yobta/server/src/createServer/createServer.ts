@@ -1,10 +1,10 @@
 import { WebSocketServer } from 'ws'
 import { nanoid } from 'nanoid'
 import {
-  YobtaCommit,
-  YobtaReject,
-  YobtaSubscribe,
-  YobtaUnsubscribe,
+  YobtaMergeOperation,
+  YobtaRejectOperation,
+  YobtaSubscribeOperation,
+  YobtaUnsubscribeOperation,
   YOBTA_RECEIVED,
 } from '@yobta/protocol'
 
@@ -20,10 +20,10 @@ interface ServerFactory {
 }
 
 export type ServerCallbacks = {
-  commit(operation: YobtaCommit): void
-  reject(operation: YobtaReject): void
-  subscribe(operation: YobtaSubscribe): void
-  unsubscribe(operation: YobtaUnsubscribe): void
+  commit(operation: YobtaMergeOperation): void
+  reject(operation: YobtaRejectOperation): void
+  subscribe(operation: YobtaSubscribeOperation): void
+  unsubscribe(operation: YobtaUnsubscribeOperation): void
 }
 
 export const createServer: ServerFactory = wss => {
@@ -49,7 +49,7 @@ export const createServer: ServerFactory = wss => {
       const receivedOp = createServerOperation({
         id: nanoid(),
         ref: operation.id,
-        committed: Date.now(),
+        received: Date.now(),
         type: YOBTA_RECEIVED,
       })
       connection.send(receivedOp)

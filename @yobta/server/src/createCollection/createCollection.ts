@@ -1,7 +1,7 @@
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionOperation,
-  YobtaSubscribe,
+  YobtaSubscribeOperation,
 } from '@yobta/protocol'
 
 import { YobtaLog } from '../createMemoryLog/createMemoryLog.js'
@@ -36,7 +36,7 @@ export type YobtaCollectionMessage<
 export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
   // getSnapshot(channel: string, id: YobtaCollectionId): Promise<Snapshot>
-  revalidate(operation: YobtaSubscribe): Promise<void>
+  revalidate(operation: YobtaSubscribeOperation): Promise<void>
   merge(operation: YobtaCollectionMessage<Snapshot>): Promise<void>
 }
 

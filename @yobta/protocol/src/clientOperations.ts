@@ -2,8 +2,8 @@ import { YobtaDataOperation, YobtaOperationId } from './unsorted.js'
 
 export type YobtaClientOperation =
   | YobtaDataOperation
-  | YobtaSubscribe
-  | YobtaUnsubscribe
+  | YobtaSubscribeOperation
+  | YobtaUnsubscribeOperation
 
 export const YOBTA_ERROR = 'yobta-error'
 export type YobtaError = {
@@ -14,7 +14,7 @@ export type YobtaError = {
 }
 
 export const YOBTA_SUBSCRIBE = 'yobta-subscribe'
-export type YobtaSubscribe = {
+export type YobtaSubscribeOperation = {
   id: YobtaOperationId
   channel: string
   version: number
@@ -24,7 +24,7 @@ export type YobtaSubscribe = {
 }
 
 export const YOBTA_UNSUBSCRIBE = 'yobta-unsubscribe'
-export type YobtaUnsubscribe = {
+export type YobtaUnsubscribeOperation = {
   id: YobtaOperationId
   channel: string
   committed: number

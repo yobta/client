@@ -3,8 +3,8 @@ import {
   YobtaDataOperation,
   YobtaError,
   YobtaRemoteOperation,
-  YobtaSubscribe,
-  YobtaUnsubscribe,
+  YobtaSubscribeOperation,
+  YobtaUnsubscribeOperation,
 } from '@yobta/protocol'
 import { createPubSub } from '@yobta/stores'
 
@@ -12,8 +12,8 @@ import { ServerCallbacks } from '../createServer/createServer.js'
 
 interface ConnectionManager {
   (callback: (operation: YobtaRemoteOperation) => void): {
-    add(operation: YobtaSubscribe): void
-    remove(operation: YobtaUnsubscribe): void
+    add(operation: YobtaSubscribeOperation): void
+    remove(operation: YobtaUnsubscribeOperation): void
     clear(): void
   }
 }

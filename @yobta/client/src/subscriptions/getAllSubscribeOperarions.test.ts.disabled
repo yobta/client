@@ -2,7 +2,7 @@ import { vi, it } from 'vitest'
 import { YOBTA_SUBSCRIBE } from '@yobta/protocol'
 
 import { logYobta } from '../log/log.js'
-import { getAllSubscribeOperarions } from './getAllSubscribeOperarions.js'
+import { getAllSubscribeOperarions } from './subscriptions.js'
 
 vi.mock('./subscriptions.js', () => ({
   subscriptionsStore: {

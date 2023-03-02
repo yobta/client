@@ -1,8 +1,8 @@
 import {
-  YobtaCommit,
+  YobtaMergeOperation,
   YobtaOperationId,
-  YobtaReject,
-  YOBTA_COMMIT,
+  YobtaRejectOperation,
+  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -10,12 +10,12 @@ interface OperationResultPromiseFactory {
   (operationId: YobtaOperationId): Promise<void>
 }
 
-type Observer = (operation: YobtaCommit | YobtaReject) => void
+type Observer = (operation: YobtaMergeOperation | YobtaRejectOperation) => void
 
 export const operationResultObservers = new Set<Observer>()
 
 export const notifyOperationObservers = (
-  operation: YobtaCommit | YobtaReject,
+  operation: YobtaMergeOperation | YobtaRejectOperation,
 ): void => {
   operationResultObservers.forEach(observer => {
     observer(operation)
@@ -26,7 +26,7 @@ export const operationResult: OperationResultPromiseFactory = operationId =>
   new Promise((resolve, reject) => {
     const ovserver: Observer = operation => {
       if (operation.ref !== operationId) return
-      if (operation.type === YOBTA_COMMIT) resolve()
+      if (operation.type === YOBTA_MERGE) resolve()
       if (operation.type === YOBTA_REJECT) reject(new Error(operation.reason))
       operationResultObservers.delete(ovserver)
     }

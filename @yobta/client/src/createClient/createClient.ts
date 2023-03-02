@@ -13,8 +13,10 @@ import { timeoutYobta } from '../timeoutYobta/timeoutYobta.js'
 import { operationsQueue, observeQueue } from '../queue/queue.js'
 import { isMainTab, mainStore } from '../mainStore/mainStore.js'
 import { encoderYobta, YobtaClientEncoder } from '../encoder/encoder.js'
-import { handleRemoteOperation } from '../subscriptions/handleRemoteOperation.js'
-import { getAllSubscribeOperarions } from '../subscriptions/getAllSubscribeOperarions.js'
+import {
+  getAllSubscribeOperarions,
+  handleRemoteOperation,
+} from '../subscriptions/subscriptions.js'
 import { remoteStore } from '../remoteStore/remoteStore.js'
 
 interface ClientFactory {
