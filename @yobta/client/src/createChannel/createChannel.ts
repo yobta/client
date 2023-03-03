@@ -78,6 +78,7 @@ export const createChannel: YobtaChannelFactory = <
       },
     )
     collection.commit(operation)
+    log.add([operation])
     await operationResult(operation.id)
     return collection.get(data.id)
   }
@@ -94,6 +95,7 @@ export const createChannel: YobtaChannelFactory = <
       },
     )
     collection.commit(operation)
+    log.add([operation])
     await operationResult(operation.id)
     return collection.get(ref)
   }

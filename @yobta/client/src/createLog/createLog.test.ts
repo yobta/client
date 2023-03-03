@@ -9,15 +9,105 @@ import {
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
-import locals, { createLog, YobtaLogState } from './createLog.js'
+import locals, { createLog, YobtaLogEntry } from './createLog.js'
 
-const { insertEntry } = locals
+const { mergeEntry, createEntryFromOperation, parseEntry } = locals
 
 type MockSnapshot = { id: string; key: string }
 
-describe('insertEntry', () => {
+describe('createEntryFromOperation', () => {
+  it('creates entries from insert operatoins', () => {
+    const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: 'op-id',
+      committed: 1,
+      merged: 2,
+      snapshotId: 'snapshot-2',
+      nextSnapshotId: 'snapshot-1',
+      type: YOBTA_COLLECTION_INSERT,
+      data: { id: '1', key: 'value' },
+      channel: 'channel',
+    }
+    const entry = createEntryFromOperation(insertOpetaion)
+    expect(entry).toEqual([
+      'op-id',
+      'channel',
+      1,
+      2,
+      YOBTA_COLLECTION_INSERT,
+      'snapshot-2',
+      'snapshot-1',
+    ])
+  })
+  it('creates entries from merge operatoins', () => {
+    const mergeOpetaion: YobtaMergeOperation = {
+      id: 'op-id',
+      channel: 'channel',
+      committed: 1,
+      merged: 2,
+      operationId: 'op-id',
+      type: YOBTA_MERGE,
+    }
+    const entry = createEntryFromOperation(mergeOpetaion)
+    expect(entry).toEqual([
+      'op-id',
+      'channel',
+      1,
+      2,
+      YOBTA_MERGE,
+      undefined,
+      undefined,
+    ])
+  })
+  it('creates entries from reject operatoins', () => {
+    const rejectOpetaion: YobtaRejectOperation = {
+      id: 'op-id',
+      channel: 'channel',
+      committed: 1,
+      merged: 2,
+      operationId: 'op-id',
+      reason: 'reason',
+      type: YOBTA_REJECT,
+    }
+    const entry = createEntryFromOperation(rejectOpetaion)
+    expect(entry).toEqual([
+      'op-id',
+      'channel',
+      1,
+      2,
+      YOBTA_REJECT,
+      undefined,
+      undefined,
+    ])
+  })
+})
+
+describe('parseEntry', () => {
+  it('creates object from entry', () => {
+    const entry: YobtaLogEntry = [
+      'op-id',
+      'channel',
+      1,
+      2,
+      YOBTA_COLLECTION_INSERT,
+      'snapshot-2',
+      'snapshot-1',
+    ]
+    const object = parseEntry(entry)
+    expect(object).toEqual({
+      id: 'op-id',
+      channel: 'channel',
+      committed: 1,
+      merged: 2,
+      type: YOBTA_COLLECTION_INSERT,
+      snapshotId: 'snapshot-2',
+      nextSnapshotId: 'snapshot-1',
+    })
+  })
+})
+
+describe('mergeEntry', () => {
   it('inserts new entry', () => {
-    const log: YobtaLogState = []
+    const log: YobtaLogEntry[] = []
     const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
@@ -27,11 +117,11 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const nextLog = insertEntry(log, insertOpetaion)
-    expect(nextLog).toEqual([insertOpetaion])
+    const nextLog = mergeEntry(log, insertOpetaion)
+    expect(nextLog).toEqual([createEntryFromOperation(insertOpetaion)])
   })
   it('should not mutate the original log', () => {
-    const log: YobtaLogState = []
+    const log: YobtaLogEntry[] = []
     const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
@@ -41,11 +131,11 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    insertEntry(log, insertOpetaion)
+    mergeEntry(log, insertOpetaion)
     expect(log).toEqual([])
   })
   it('should sort entries by committed', () => {
-    const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
@@ -54,21 +144,24 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const insertOpetaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
-      id: '2',
-      committed: 2,
-      merged: 2,
-      snapshotId: '2',
-      type: YOBTA_COLLECTION_INSERT,
-      data: { id: '2', key: 'value' },
-      channel: 'channel',
-    }
-    const log: YobtaLogState = [insertOpetaion2]
-    const nextLog = insertEntry(log, insertOpetaion1)
-    expect(nextLog).toEqual([insertOpetaion1, insertOpetaion2])
+    const initialEntry: YobtaLogEntry = [
+      '2',
+      'channel',
+      2,
+      2,
+      YOBTA_COLLECTION_INSERT,
+      '2',
+      undefined,
+    ]
+    const log: YobtaLogEntry[] = [initialEntry]
+    const nextLog = mergeEntry(log, insertOpetaion)
+    expect(nextLog).toEqual([
+      createEntryFromOperation(insertOpetaion),
+      initialEntry,
+    ])
   })
   it('should sort entries one by one when committed is equal', () => {
-    const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
@@ -77,18 +170,21 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const insertOpetaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
-      id: '2',
-      committed: 1,
-      merged: 1,
-      snapshotId: '2',
-      type: YOBTA_COLLECTION_INSERT,
-      data: { id: '2', key: 'value' },
-      channel: 'channel',
-    }
-    const log: YobtaLogState = [insertOpetaion2]
-    const nextLog = insertEntry(log, insertOpetaion1)
-    expect(nextLog).toEqual([insertOpetaion1, insertOpetaion2])
+    const initialEntry: YobtaLogEntry = [
+      '2',
+      'channel',
+      1,
+      1,
+      YOBTA_COLLECTION_INSERT,
+      '2',
+      undefined,
+    ]
+    const log: YobtaLogEntry[] = [initialEntry]
+    const nextLog = mergeEntry(log, insertOpetaion)
+    expect(nextLog).toEqual([
+      createEntryFromOperation(insertOpetaion),
+      initialEntry,
+    ])
   })
   it('should be idempotent', () => {
     const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
@@ -100,9 +196,9 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const log: YobtaLogState = [insertOpetaion]
-    const nextLog = insertEntry(log, insertOpetaion)
-    expect(nextLog).toEqual([insertOpetaion])
+    const log: YobtaLogEntry[] = [createEntryFromOperation(insertOpetaion)]
+    const nextLog = mergeEntry(log, insertOpetaion)
+    expect(nextLog).toEqual([createEntryFromOperation(insertOpetaion)])
   })
   it('should replace existing entry when new commited is less then old', () => {
     const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
@@ -123,9 +219,9 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const log: YobtaLogState = [insertOpetaion2]
-    const nextLog = insertEntry(log, insertOpetaion1)
-    expect(nextLog).toEqual([insertOpetaion1])
+    const log: YobtaLogEntry[] = [createEntryFromOperation(insertOpetaion2)]
+    const nextLog = mergeEntry(log, insertOpetaion1)
+    expect(nextLog).toEqual([createEntryFromOperation(insertOpetaion1)])
   })
   it('should replace existing entry when new commited is equal to old', () => {
     const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
@@ -146,9 +242,9 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const log: YobtaLogState = [insertOpetaion2]
-    const nextLog = insertEntry(log, insertOpetaion1)
-    expect(nextLog).toEqual([insertOpetaion1])
+    const log: YobtaLogEntry[] = [createEntryFromOperation(insertOpetaion2)]
+    const nextLog = mergeEntry(log, insertOpetaion1)
+    expect(nextLog).toEqual([createEntryFromOperation(insertOpetaion1)])
   })
   it('should replace existing entry when new commited is greater then old', () => {
     const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
@@ -169,9 +265,9 @@ describe('insertEntry', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const log: YobtaLogState = [insertOpetaion2]
-    const nextLog = insertEntry(log, insertOpetaion1)
-    expect(nextLog).toEqual([insertOpetaion1])
+    const log: YobtaLogEntry[] = [createEntryFromOperation(insertOpetaion2)]
+    const nextLog = mergeEntry(log, insertOpetaion1)
+    expect(nextLog).toEqual([createEntryFromOperation(insertOpetaion1)])
   })
 })
 
@@ -196,7 +292,7 @@ describe('factory', () => {
       channel: 'channel',
     }
     const log = createLog([insertOpetaion])
-    expect(log.last()).toEqual([insertOpetaion])
+    expect(log.last()).toEqual([createEntryFromOperation(insertOpetaion)])
   })
   it('sorts initial opetations', () => {
     const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
@@ -218,7 +314,10 @@ describe('factory', () => {
       channel: 'channel',
     }
     const log = createLog([insertOpetaion2, insertOpetaion1])
-    expect(log.last()).toEqual([insertOpetaion1, insertOpetaion2])
+    expect(log.last()).toEqual([
+      createEntryFromOperation(insertOpetaion1),
+      createEntryFromOperation(insertOpetaion2),
+    ])
   })
 })
 
@@ -235,7 +334,7 @@ describe('add', () => {
       channel: 'channel',
     }
     log.add([insertOpetaion])
-    expect(log.last()).toEqual([insertOpetaion])
+    expect(log.last()).toEqual([createEntryFromOperation(insertOpetaion)])
   })
   it('supports reject operations', () => {
     const log = createLog([])
@@ -249,7 +348,7 @@ describe('add', () => {
       reason: 'reason',
     }
     log.add([rejectOpetaion])
-    expect(log.last()).toEqual([rejectOpetaion])
+    expect(log.last()).toEqual([createEntryFromOperation(rejectOpetaion)])
   })
   it('supports merge operations', () => {
     const log = createLog([])
@@ -262,7 +361,7 @@ describe('add', () => {
       channel: 'channel',
     }
     log.add([mergeOpetaion])
-    expect(log.last()).toEqual([mergeOpetaion])
+    expect(log.last()).toEqual([createEntryFromOperation(mergeOpetaion)])
   })
   it('ignores update operations', () => {
     const log = createLog([])
@@ -299,7 +398,10 @@ describe('add', () => {
       channel: 'channel',
     }
     log.add([insertOpetaion1, insertOpetaion2])
-    expect(log.last()).toEqual([insertOpetaion1, insertOpetaion2])
+    expect(log.last()).toEqual([
+      createEntryFromOperation(insertOpetaion1),
+      createEntryFromOperation(insertOpetaion2),
+    ])
   })
   it('should not mutate the original log', () => {
     const log = createLog([])
@@ -337,7 +439,10 @@ describe('add', () => {
       channel: 'channel',
     }
     log.add([insertOpetaion2, insertOpetaion1])
-    expect(log.last()).toEqual([insertOpetaion1, insertOpetaion2])
+    expect(log.last()).toEqual([
+      createEntryFromOperation(insertOpetaion1),
+      createEntryFromOperation(insertOpetaion2),
+    ])
   })
   it('should be idempotent', () => {
     const log = createLog([])
@@ -362,8 +467,12 @@ describe('last', () => {
     const log = createLog([])
     expect(log.last()).toEqual([])
   })
-  it('returns empty map if log is empty', () => {
-    const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+  it('returns empty array if log is empty', () => {
+    const log = createLog([])
+    expect(log.last()).toEqual([])
+  })
+  it('returns all entries', () => {
+    const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
@@ -372,8 +481,20 @@ describe('last', () => {
       data: { id: '1', key: 'value' },
       channel: 'channel',
     }
-    const log = createLog([insertOpetaion])
-    expect(log.last()).toEqual([insertOpetaion])
+    const insertOpetaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: '2',
+      committed: 2,
+      merged: 2,
+      snapshotId: '2',
+      type: YOBTA_COLLECTION_INSERT,
+      data: { id: '2', key: 'value' },
+      channel: 'channel',
+    }
+    const log = createLog([insertOpetaion1, insertOpetaion2])
+    expect(log.last()).toEqual([
+      createEntryFromOperation(insertOpetaion1),
+      createEntryFromOperation(insertOpetaion2),
+    ])
   })
 })
 
@@ -392,7 +513,9 @@ describe('observe', () => {
     const observer = vi.fn()
     log.observe(observer)
     log.add([insertOpetaion])
-    expect(observer).toHaveBeenCalledWith([insertOpetaion])
+    expect(observer).toHaveBeenCalledWith([
+      createEntryFromOperation(insertOpetaion),
+    ])
   })
   it('should not receive updates when there are no changes', () => {
     const log = createLog([])

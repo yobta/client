@@ -1,16 +1,15 @@
-import { YobtaLoggedOperation } from '../createLog/createLog.js'
+import locals, { YobtaLogEntry } from '../createLog/createLog.js'
 
+const { parseEntry } = locals
 interface YobtaLogVersionGetterFactory {
-  (getState: () => readonly YobtaLoggedOperation[]): YobtaLogVersionGetter
+  (getState: () => readonly YobtaLogEntry[]): YobtaLogVersionGetter
 }
 
 export type YobtaLogVersionGetter = () => number
 
 export const createLogVersionGetter: YobtaLogVersionGetterFactory =
   getState => () => {
-    let version = 0
-    for (const { merged } of getState().values()) {
-      if (merged > version) version = merged
-    }
+    const log = getState()
+    const version = log.length ? parseEntry(log[log.length - 1]).merged : 0
     return version
   }

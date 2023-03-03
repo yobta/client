@@ -14,6 +14,8 @@ export type YobtaMergeOperation = {
   id: YobtaOperationId
   channel: string
   operationId: YobtaOperationId
+  snapshotId?: never
+  nextSnapshotId?: never
   committed: number
   merged: number
   type: typeof YOBTA_MERGE
@@ -25,6 +27,8 @@ export type YobtaRejectOperation = {
   channel: string
   reason: string
   operationId: YobtaOperationId
+  snapshotId?: never
+  nextSnapshotId?: never
   type: typeof YOBTA_REJECT
   committed: number
   merged: number
