@@ -38,7 +38,7 @@ const mergeOperation = (
 ): YobtaLogEntry[] => {
   const result: YobtaLogEntry[] = []
   Object.entries(operation.data).forEach(([key, value]) => {
-    const entryKey = getEntryId(operation.channel, operation.ref, key)
+    const entryKey = getEntryId(operation.channel, operation.snapshotId, key)
     const candidateEntry: YobtaLogEntry = {
       channel: operation.channel,
       key,
@@ -46,7 +46,7 @@ const mergeOperation = (
       committed: operation.committed,
       merged: Date.now(),
       operationId: operation.id,
-      snapshotId: operation.ref,
+      snapshotId: operation.snapshotId,
     }
     const existingEntry = log.get(entryKey)
     if (candidateEntry.committed > (existingEntry?.committed || 0)) {

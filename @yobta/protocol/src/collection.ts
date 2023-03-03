@@ -25,7 +25,7 @@ export type YobtaCollectionInsertOperation<
   type: typeof YOBTA_COLLECTION_INSERT
   channel: string
   data: Snapshot
-  ref: YobtaCollectionId
+  snapshotId: YobtaCollectionId
   before?: YobtaCollectionId
   committed: number
   merged: number
@@ -39,7 +39,7 @@ export type YobtaCollectionUpdateOperation<
   type: typeof YOBTA_COLLECTION_UPDATE
   channel: string
   data: PatchWithoutId<Snapshot>
-  ref: YobtaCollectionId
+  snapshotId: YobtaCollectionId
   before?: never
   committed: number
   merged: number

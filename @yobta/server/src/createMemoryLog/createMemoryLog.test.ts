@@ -42,7 +42,7 @@ describe('log write', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const result = await log.merge([insertOperation])
     const entry1 = {
@@ -83,7 +83,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const item = mergeOperation(log, insertOperation)
     expect(item).toEqual([
@@ -122,7 +122,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_UPDATE,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const item = mergeOperation(log, updateOperation)
     expect(item).toEqual([
@@ -147,7 +147,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
       channel: 'channel',
@@ -156,7 +156,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_UPDATE,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     mergeOperation(log, insertOperation)
     mergeOperation(log, updateOperation)
@@ -198,7 +198,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
       channel: 'channel',
@@ -207,7 +207,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_UPDATE,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     mergeOperation(log, updateOperation)
     mergeOperation(log, insertOperation)
@@ -250,7 +250,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
       channel: 'channel',
@@ -259,7 +259,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_UPDATE,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     mergeOperation(log1, insertOperation)
     mergeOperation(log1, updateOperation)
@@ -287,7 +287,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const updateOperation1: YobtaCollectionUpdateOperation<MockItem> = {
       channel: 'channel',
@@ -296,7 +296,7 @@ describe('mergeOperation', () => {
       id: 'operation-id-1',
       type: YOBTA_COLLECTION_UPDATE,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const updateOperation2: YobtaCollectionUpdateOperation<MockItem> = {
       channel: 'channel',
@@ -305,7 +305,7 @@ describe('mergeOperation', () => {
       id: 'operation-id-3',
       type: YOBTA_COLLECTION_UPDATE,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     mergeOperation(log, insertOperation)
     mergeOperation(log, updateOperation2)
@@ -337,7 +337,7 @@ describe('mergeOperation', () => {
       id: 'operation-id',
       type: YOBTA_COLLECTION_UPDATE,
       merged: 0,
-      ref: 'snapshot-id',
+      snapshotId: 'snapshot-id',
     }
     const log = new Map([['channel.key', entry1]])
     const item = mergeOperation(log, updateOperation)

@@ -81,7 +81,7 @@ export const createChannel: YobtaChannelFactory = <
         type: YOBTA_COLLECTION_INSERT,
         data,
         channel: route,
-        ref: data.id,
+        snapshotId: data.id,
       },
     )
     collection.commit(operation)
@@ -97,7 +97,7 @@ export const createChannel: YobtaChannelFactory = <
         type: YOBTA_COLLECTION_UPDATE,
         data,
         channel: route,
-        ref,
+        snapshotId: ref,
       },
     )
     collection.commit(operation)

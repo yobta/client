@@ -85,9 +85,9 @@ const mergeSome = <Snapshot extends YobtaCollectionAnySnapshot>(
   operations: YobtaCollectionOperation<Snapshot>[],
 ): InternalState<Snapshot> =>
   operations.reduce((acc, operation) => {
-    const item = getOrCreateItem(acc, operation.ref)
+    const item = getOrCreateItem(acc, operation.snapshotId)
     const nextItem = mergeOne(item, operation)
-    acc.set(operation.ref, nextItem)
+    acc.set(operation.snapshotId, nextItem)
     return acc
   }, state)
 
@@ -117,9 +117,9 @@ export const createCollection: YobtaCollectionFactory = <
   const getState = (): InternalState<Snapshot> => new Map(last())
   const commit = (operation: YobtaCollectionOperation<Snapshot>): void => {
     const state = getState()
-    const item = getOrCreateItem(state, operation.ref)
+    const item = getOrCreateItem(state, operation.snapshotId)
     if (!item.slice(2).some(({ id }) => id === operation.id)) {
-      state.set(operation.ref, [...item, operation])
+      state.set(operation.snapshotId, [...item, operation])
       queueOperation(operation)
       next(state)
     }
