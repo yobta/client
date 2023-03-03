@@ -8,7 +8,7 @@ clean:
 build: clean
 	pnpm build
 
-check: lint typecheck
+check: typecheck lint test
 
 dev-backend:
 	cd dev/backend && pnpm dev
