@@ -67,6 +67,29 @@ describe('insertEntry', () => {
     const nextLog = insertEntry(log, insertOpetaion1)
     expect(nextLog).toEqual([insertOpetaion1, insertOpetaion2])
   })
+  it('should sort entries one by one when committed is equal', () => {
+    const insertOpetaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: '1',
+      committed: 1,
+      merged: 1,
+      snapshotId: '1',
+      type: YOBTA_COLLECTION_INSERT,
+      data: { id: '1', key: 'value' },
+      channel: 'channel',
+    }
+    const insertOpetaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: '2',
+      committed: 1,
+      merged: 1,
+      snapshotId: '2',
+      type: YOBTA_COLLECTION_INSERT,
+      data: { id: '2', key: 'value' },
+      channel: 'channel',
+    }
+    const log: YobtaLogState = [insertOpetaion2]
+    const nextLog = insertEntry(log, insertOpetaion1)
+    expect(nextLog).toEqual([insertOpetaion1, insertOpetaion2])
+  })
   it('should be idempotent', () => {
     const insertOpetaion: YobtaCollectionInsertOperation<MockSnapshot> = {
       id: '1',

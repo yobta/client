@@ -33,7 +33,7 @@ const insertEntry = (
 ): readonly YobtaLoggedOperation[] => {
   let added = false
   const result = log.reduce<YobtaLogState>((acc, existingAction) => {
-    if (!added && newAction.committed < existingAction.committed) {
+    if (!added && newAction.committed <= existingAction.committed) {
       acc.push(newAction)
       added = true
     }
