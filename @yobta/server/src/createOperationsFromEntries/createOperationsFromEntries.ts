@@ -31,7 +31,7 @@ export const createOperationsFromEntries: CreateOperationsFromEntries =
           type: YOBTA_COLLECTION_UPDATE,
           channel,
           data: {},
-          ref: snapshotId,
+          snapshotId: snapshotId,
           committed,
           merged,
         }

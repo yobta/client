@@ -34,7 +34,7 @@ const insertEntry = (
   {
     committed,
     merged,
-    ref,
+    snapshotId,
   }: YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>,
 ): YobtaLogState => {
   const head = new Map(log)
@@ -47,7 +47,7 @@ const insertEntry = (
   }
   return new Map([
     ...head,
-    [ref, { committed, merged, deleted: false }],
+    [snapshotId, { committed, merged, deleted: false }],
     ...tail,
   ])
 }
