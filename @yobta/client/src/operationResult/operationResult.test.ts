@@ -23,7 +23,8 @@ it('should call all registered observers with the operation argument', () => {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
-    ref: 'operation-1',
+    merged: 123456789,
+    operationId: 'operation-1',
     type: YOBTA_MERGE,
   }
 
@@ -40,7 +41,8 @@ it('should resolve if the operation is committed and remove observer', () => {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
-    ref: 'operation-1',
+    merged: 123456789,
+    operationId: 'operation-1',
     type: YOBTA_MERGE,
   }
   const promise = operationResult('operation-1')
@@ -54,8 +56,9 @@ it('should reject if the operation is rejected and remove observer', () => {
   const mockOperation: YobtaRejectOperation = {
     id: 'operation-2',
     channel: 'channel-1',
-    ref: 'operation-1',
+    operationId: 'operation-1',
     committed: 123456789,
+    merged: 123456789,
     type: YOBTA_REJECT,
     reason: 'Operation was rejected',
   }
@@ -73,7 +76,8 @@ it('should not resolve if the operation is committed but for another operation',
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
-    ref: 'operation-2',
+    merged: 123456789,
+    operationId: 'operation-2',
     type: YOBTA_MERGE,
   }
   const promise = operationResult('operation-1')
