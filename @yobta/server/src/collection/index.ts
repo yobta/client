@@ -59,8 +59,9 @@ export const collectionYobta: CollectionFactory = <
               const commitOperation: YobtaMergeOperation = {
                 id: nanoid(),
                 channel,
-                committed: Date.now(),
-                ref: operation.id,
+                committed: operation.committed,
+                merged: Date.now(),
+                operationId: operation.id,
                 type: YOBTA_MERGE,
               }
               commit(commitOperation)
@@ -72,8 +73,9 @@ export const collectionYobta: CollectionFactory = <
               const updateOperation: YobtaMergeOperation = {
                 id: nanoid(),
                 channel,
-                committed: Date.now(),
-                ref: operation.id,
+                committed: operation.committed,
+                merged: Date.now(),
+                operationId: operation.id,
                 type: YOBTA_MERGE,
               }
               commit(updateOperation)
@@ -95,9 +97,10 @@ export const collectionYobta: CollectionFactory = <
           const rejectOperation: YobtaRejectOperation = {
             id: nanoid(),
             channel,
-            committed: Date.now(),
+            committed: operation.committed,
+            merged: Date.now(),
             reason: getErrorMessage(error),
-            ref: operation.id,
+            operationId: operation.id,
             type: YOBTA_REJECT,
           }
           reject(rejectOperation)

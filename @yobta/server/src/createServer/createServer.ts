@@ -48,7 +48,7 @@ export const createServer: ServerFactory = wss => {
       const { operation, headers } = parseClientOperation(message)
       const receivedOp = createServerOperation({
         id: nanoid(),
-        ref: operation.id,
+        operationId: operation.id,
         received: Date.now(),
         type: YOBTA_RECEIVED,
       })

@@ -4,7 +4,7 @@ import { YobtaError } from './clientOperations.js'
 export const YOBTA_RECEIVED = 'yobta-received'
 export type YobtaReceived = {
   id: YobtaOperationId
-  ref: YobtaOperationId
+  operationId: YobtaOperationId
   received: number
   type: typeof YOBTA_RECEIVED
 }
@@ -13,8 +13,9 @@ export const YOBTA_MERGE = 'yobta-merge'
 export type YobtaMergeOperation = {
   id: YobtaOperationId
   channel: string
-  ref: YobtaOperationId
+  operationId: YobtaOperationId
   committed: number
+  merged: number
   type: typeof YOBTA_MERGE
 }
 
@@ -23,9 +24,10 @@ export type YobtaRejectOperation = {
   id: YobtaOperationId
   channel: string
   reason: string
-  ref: YobtaOperationId
+  operationId: YobtaOperationId
   type: typeof YOBTA_REJECT
   committed: number
+  merged: number
 }
 
 export const YOBTA_BATCH = 'yobta-batch'

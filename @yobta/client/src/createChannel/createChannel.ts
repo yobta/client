@@ -48,16 +48,9 @@ export const createChannel: YobtaChannelFactory = <
 }: YobtaChannelProps<Snapshot>) => {
   const log = createLog(operations)
   const derivedStore = createDerivedStore(
-    logEntries => {
+    _logEntries => {
       const snapshots: Snapshot[] = []
-      for (const [snapshotId, { deleted }] of logEntries) {
-        if (!deleted) {
-          const snapshot = collection.get(snapshotId)
-          if (snapshot) {
-            snapshots.push(snapshot)
-          }
-        }
-      }
+      // todo: merge operations
       return snapshots
     },
     log,

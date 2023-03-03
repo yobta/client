@@ -25,7 +25,7 @@ export const notifyOperationObservers = (
 export const operationResult: OperationResultPromiseFactory = operationId =>
   new Promise((resolve, reject) => {
     const ovserver: Observer = operation => {
-      if (operation.ref !== operationId) return
+      if (operation.operationId !== operationId) return
       if (operation.type === YOBTA_MERGE) resolve()
       if (operation.type === YOBTA_REJECT) reject(new Error(operation.reason))
       operationResultObservers.delete(ovserver)

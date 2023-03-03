@@ -1,7 +1,7 @@
-import { YobtaLogState } from '../createLog/createLog.js'
+import { YobtaLoggedOperation } from '../createLog/createLog.js'
 
 interface YobtaLogVersionGetterFactory {
-  (getState: () => YobtaLogState): YobtaLogVersionGetter
+  (getState: () => readonly YobtaLoggedOperation[]): YobtaLogVersionGetter
 }
 
 export type YobtaLogVersionGetter = () => number

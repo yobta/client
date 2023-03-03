@@ -19,5 +19,5 @@ it('should update the value of serverTimeCompensator', () => {
 
 it('should return the current time plus the value of serverTimeCompensator', () => {
   serverTimeCompensator.next(10)
-  expect(getServerTime()).toBeCloseTo(Date.now() + 10, 1)
+  expect(getServerTime()).toBeCloseTo(Date.now() + 10, 2)
 })
