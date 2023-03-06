@@ -10,6 +10,5 @@ export type YobtaLogVersionGetter = () => number
 export const createLogVersionGetter: YobtaLogVersionGetterFactory =
   getState => () => {
     const log = getState()
-    const version = log.length ? parseEntry(log[log.length - 1]).merged : 0
-    return version
+    return log.length ? parseEntry(log[log.length - 1]).merged : 0
   }
