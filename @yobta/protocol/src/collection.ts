@@ -27,6 +27,7 @@ export type YobtaCollectionInsertOperation<
   data: Snapshot
   snapshotId: YobtaCollectionId
   nextSnapshotId?: YobtaCollectionId
+  operationId?: never
   committed: number
   merged: number
 }
@@ -41,7 +42,7 @@ export type YobtaCollectionUpdateOperation<
   data: PatchWithoutId<Snapshot>
   snapshotId: YobtaCollectionId
   nextSnapshotId?: never
-  before?: never
+  operationId?: never
   committed: number
   merged: number
 }

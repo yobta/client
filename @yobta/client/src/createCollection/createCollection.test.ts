@@ -4,8 +4,13 @@ import {
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
+import { YOBTA_READY } from '@yobta/stores'
 
-import locals, { createCollection } from './index.js'
+import locals, {
+  createCollection,
+  YobtaCollectionState,
+} from './createCollection.js'
+import { queueOperation } from '../queue/queue.js'
 
 const { getOrCreateItem, mergeOne, mergeSome } = locals
 
@@ -13,6 +18,10 @@ type Snapshot = {
   id: string
   name: string
 }
+
+vi.mock('../queue/queue.js', () => ({
+  queueOperation: vi.fn(),
+}))
 
 describe('getOrCreateItem', () => {
   it('should create item if it does not exist', () => {
@@ -27,7 +36,7 @@ describe('getOrCreateItem', () => {
       channel: 'test',
       type: YOBTA_COLLECTION_INSERT,
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     })
@@ -45,7 +54,7 @@ describe('mergeOne', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     })
@@ -65,7 +74,7 @@ describe('mergeOne', () => {
         channel: 'test',
         type: YOBTA_COLLECTION_UPDATE,
         data: { name: 'test2' },
-        ref: 'item-1',
+        snapshotId: 'item-1',
         committed: 2,
         merged: 2,
       },
@@ -85,7 +94,7 @@ describe('mergeOne', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     })
@@ -101,7 +110,7 @@ describe('mergeOne', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     })
@@ -113,7 +122,7 @@ describe('mergeOne', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -122,7 +131,7 @@ describe('mergeOne', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test3' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 3,
       merged: 3,
     }
@@ -151,7 +160,7 @@ describe('mergeSome', () => {
         type: YOBTA_COLLECTION_INSERT,
         channel: 'test',
         data: { id: 'item-1', name: 'test' },
-        ref: 'item-1',
+        snapshotId: 'item-1',
         committed: 1,
         merged: 1,
       },
@@ -169,7 +178,7 @@ describe('mergeSome', () => {
         type: YOBTA_COLLECTION_INSERT,
         channel: 'test',
         data: { id: 'item-1', name: 'test' },
-        ref: 'item-1',
+        snapshotId: 'item-1',
         committed: 1,
         merged: 1,
       },
@@ -178,7 +187,7 @@ describe('mergeSome', () => {
         type: YOBTA_COLLECTION_UPDATE,
         channel: 'test',
         data: { name: 'test2' },
-        ref: 'item-1',
+        snapshotId: 'item-1',
         committed: 2,
         merged: 2,
       },
@@ -189,20 +198,33 @@ describe('mergeSome', () => {
     ])
   })
 })
-describe('merge', () => {
+describe('factory', () => {
+  it('returns a collection object', () => {
+    const collection = createCollection<Snapshot>([])
+    expect(collection).toEqual({
+      commit: expect.any(Function),
+      get: expect.any(Function),
+      last: expect.any(Function),
+      merge: expect.any(Function),
+      observe: expect.any(Function),
+      on: expect.any(Function),
+    })
+  })
   it('should merge initial state', () => {
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
       id: 'op-1',
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
     const collection = createCollection<Snapshot>([insertOperation])
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test' })
   })
+})
+describe('merge', () => {
   it('should merge insert operation', () => {
     const collection = createCollection<Snapshot>([])
     const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
@@ -210,7 +232,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -230,7 +252,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -239,7 +261,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-2', name: 'test' },
-      ref: 'item-2',
+      snapshotId: 'item-2',
       committed: 2,
       merged: 2,
     }
@@ -264,7 +286,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -284,7 +306,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -293,7 +315,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 3' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -313,7 +335,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -322,7 +344,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -342,7 +364,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -351,7 +373,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -371,7 +393,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -380,7 +402,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -401,7 +423,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -415,7 +437,7 @@ describe('merge', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -437,7 +459,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -446,6 +468,8 @@ describe('commit', () => {
     mockState.set('item-1', [{ id: 'item-1' }, { id: 0 }, insertOperation])
     expect(collection.last()).toEqual(mockState)
     expect(collection.get('item-1')).toEqual({ id: 'item-1', name: 'test' })
+    expect(queueOperation).toHaveBeenCalledTimes(1)
+    expect(queueOperation).toHaveBeenCalledWith(insertOperation)
   })
   it('should commit update operation', () => {
     const collection = createCollection<Snapshot>([])
@@ -454,7 +478,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -463,6 +487,8 @@ describe('commit', () => {
     mockState.set('item-1', [{ id: 'item-1' }, { id: 0 }, updateOperation])
     expect(collection.last()).toEqual(mockState)
     expect(collection.get('item-1')).toBeUndefined()
+    expect(queueOperation).toHaveBeenCalledTimes(1)
+    expect(queueOperation).toHaveBeenCalledWith(updateOperation)
   })
   it('sould commit insert and update operations', () => {
     const collection = createCollection<Snapshot>([])
@@ -471,7 +497,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -480,7 +506,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -503,7 +529,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -512,7 +538,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -535,7 +561,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -544,7 +570,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -570,7 +596,7 @@ describe('commit', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -590,7 +616,7 @@ describe('get', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -604,7 +630,7 @@ describe('get', () => {
       type: YOBTA_COLLECTION_INSERT,
       channel: 'test',
       data: { id: 'item-1', name: 'test' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 1,
       merged: 1,
     }
@@ -613,7 +639,7 @@ describe('get', () => {
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'test',
       data: { name: 'test 2' },
-      ref: 'item-1',
+      snapshotId: 'item-1',
       committed: 2,
       merged: 2,
     }
@@ -631,7 +657,7 @@ describe('consistency', () => {
     type: YOBTA_COLLECTION_INSERT,
     channel: 'test',
     data: { id: 'item-1', name: 'test' },
-    ref: 'item-1',
+    snapshotId: 'item-1',
     committed: 1,
     merged: 1,
   }
@@ -640,7 +666,7 @@ describe('consistency', () => {
     type: YOBTA_COLLECTION_INSERT,
     channel: 'test',
     data: { id: 'item-2', name: 'test' },
-    ref: 'item-2',
+    snapshotId: 'item-2',
     committed: 2,
     merged: 2,
   }
@@ -649,7 +675,7 @@ describe('consistency', () => {
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
     data: { name: 'test 2' },
-    ref: 'item-1',
+    snapshotId: 'item-1',
     committed: 3,
     merged: 3,
   }
@@ -658,7 +684,7 @@ describe('consistency', () => {
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
     data: { name: 'test 3' },
-    ref: 'item-1',
+    snapshotId: 'item-1',
     committed: 4,
     merged: 4,
   }
@@ -667,5 +693,38 @@ describe('consistency', () => {
     store2.merge(update2, insert1, update1, insert2, update2, insert1)
     expect(store1.get('item-1')).toEqual(store2.get('item-1'))
     expect(store1.get('item-2')).toEqual(store2.get('item-2'))
+  })
+})
+describe('middleware', () => {
+  it('should enqueue operations and hydrate state', () => {
+    const updateOperation: YobtaCollectionUpdateOperation<Snapshot> = {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_UPDATE,
+      channel: 'test',
+      data: { name: 'test 2' },
+      snapshotId: 'item-1',
+      committed: 2,
+      merged: 0,
+    }
+    const storedState: YobtaCollectionState<Snapshot> = new Map([
+      [
+        'item-1',
+        [{ id: 'item-1', name: 'test 2' }, { id: 1, name: 1 }, updateOperation],
+      ],
+    ])
+    const collection = createCollection<Snapshot>([], ({ addMiddleware }) => {
+      addMiddleware(YOBTA_READY, () => {
+        return storedState
+      })
+    })
+    expect(queueOperation).not.toHaveBeenCalled()
+    expect(collection.last()).toEqual(new Map())
+    const unobserve = collection.observe(() => {})
+    expect(queueOperation).toHaveBeenCalledOnce()
+    expect(queueOperation).toHaveBeenCalledWith(updateOperation, 0, [
+      updateOperation,
+    ])
+    expect(collection.last()).toEqual(storedState)
+    unobserve()
   })
 })

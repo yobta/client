@@ -17,13 +17,11 @@ import { queueOperation } from '../queue/queue.js'
 type Versions<Snapshot extends YobtaCollectionAnySnapshot> = {
   [K in keyof Snapshot]: number
 }
-type ResultingSnapshot<Snapshot extends YobtaCollectionAnySnapshot> =
+type YobtaMaybeSnapshot<Snapshot extends YobtaCollectionAnySnapshot> =
   | Readonly<Snapshot>
   | undefined
-type InternalState<Snapshot extends YobtaCollectionAnySnapshot> = Map<
-  YobtaCollectionId,
-  ItemWithMeta<Snapshot>
->
+export type YobtaCollectionState<Snapshot extends YobtaCollectionAnySnapshot> =
+  Map<YobtaCollectionId, ItemWithMeta<Snapshot>>
 type ItemWithMeta<
   Snapshot extends YobtaCollectionAnySnapshot,
   PartialSnapshot extends YobtaCollectionAnySnapshot = PatchWithId<Snapshot>,
@@ -35,19 +33,23 @@ type ItemWithMeta<
 interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     initial: YobtaCollectionOperation<Snapshot>[],
-    ...plugins: YobtaStorePlugin<InternalState<Snapshot>, never>[]
+    ...plugins: YobtaStorePlugin<YobtaCollectionState<Snapshot>, never>[]
   ): YobtaCollection<Snapshot>
 }
 export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   commit(operation: YobtaCollectionOperation<Snapshot>): void
   merge(...operations: YobtaCollectionOperation<Snapshot>[]): void
-  get(id: YobtaCollectionId): ResultingSnapshot<Snapshot>
-  last(): InternalState<Snapshot>
-} & YobtaReadable<InternalState<Snapshot>, never>
+  get: YobtaGetCollectionSnapshot<Snapshot>
+  last(): YobtaCollectionState<Snapshot>
+} & YobtaReadable<YobtaCollectionState<Snapshot>, never>
+
+export type YobtaGetCollectionSnapshot<
+  Snapshot extends YobtaCollectionAnySnapshot,
+> = (id: YobtaCollectionId) => YobtaMaybeSnapshot<Snapshot>
 // #endregion
 
 const getOrCreateItem = <Snapshot extends YobtaCollectionAnySnapshot>(
-  state: InternalState<Snapshot>,
+  state: YobtaCollectionState<Snapshot>,
   id: YobtaCollectionId,
 ): ItemWithMeta<Snapshot> => {
   let item = state.get(id)
@@ -81,9 +83,9 @@ const mergeOne = <Snapshot extends YobtaCollectionAnySnapshot>(
 }
 
 const mergeSome = <Snapshot extends YobtaCollectionAnySnapshot>(
-  state: InternalState<Snapshot>,
+  state: YobtaCollectionState<Snapshot>,
   operations: YobtaCollectionOperation<Snapshot>[],
-): InternalState<Snapshot> =>
+): YobtaCollectionState<Snapshot> =>
   operations.reduce((acc, operation) => {
     const item = getOrCreateItem(acc, operation.snapshotId)
     const nextItem = mergeOne(item, operation)
@@ -95,10 +97,10 @@ export const createCollection: YobtaCollectionFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
   initial: YobtaCollectionOperation<Snapshot>[],
-  ...plugins: YobtaStorePlugin<InternalState<Snapshot>, never>[]
+  ...plugins: YobtaStorePlugin<YobtaCollectionState<Snapshot>, never>[]
 ) => {
   const { last, next, observe, on } = createStore<
-    InternalState<Snapshot>,
+    YobtaCollectionState<Snapshot>,
     never
   >(
     mergeSome(new Map(), initial),
@@ -106,7 +108,7 @@ export const createCollection: YobtaCollectionFactory = <
     // TODO: тест что коммиты отправляются после того как отработают остальные миддлвары
     ({ addMiddleware }) => {
       addMiddleware(YOBTA_READY, state => {
-        state.forEach(([_snapshot, _versions, ...operations]) => {
+        state.forEach(([, , ...operations]) => {
           operations.forEach(queueOperation)
         })
         return state
@@ -114,7 +116,7 @@ export const createCollection: YobtaCollectionFactory = <
     },
     ...plugins,
   )
-  const getState = (): InternalState<Snapshot> => new Map(last())
+  const getState = (): YobtaCollectionState<Snapshot> => new Map(last())
   const commit = (operation: YobtaCollectionOperation<Snapshot>): void => {
     const state = getState()
     const item = getOrCreateItem(state, operation.snapshotId)
@@ -128,7 +130,7 @@ export const createCollection: YobtaCollectionFactory = <
     const state = mergeSome(getState(), operations)
     next(state)
   }
-  const get = (id: YobtaCollectionId): ResultingSnapshot<Snapshot> => {
+  const get = (id: YobtaCollectionId): YobtaMaybeSnapshot<Snapshot> => {
     const item = last().get(id)
     if (!item) return undefined
     const [snapshot, versions, ...operations] = item
@@ -136,14 +138,14 @@ export const createCollection: YobtaCollectionFactory = <
       ItemWithMeta<Snapshot>
     >(mergeOne, [snapshot, versions])
     return resultingVersions.id
-      ? (resultingSnapshot as ResultingSnapshot<Snapshot>)
+      ? (resultingSnapshot as YobtaMaybeSnapshot<Snapshot>)
       : undefined
   }
   return {
     commit,
-    merge,
     get,
     last,
+    merge,
     observe,
     on,
   }

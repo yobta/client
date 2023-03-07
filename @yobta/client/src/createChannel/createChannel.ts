@@ -14,6 +14,7 @@ import { YobtaCollection } from '../createCollection/createCollection.js'
 import { createLog } from '../createLog/createLog.js'
 import { createLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
+import { createLogMerger } from '../createLogMerger/createLogMerger.js'
 import { operationResult } from '../operationResult/operationResult.js'
 import { subscribeToServerMessages } from '../subscribeToServerMessages/subscribeToServerMessages.js'
 
@@ -48,11 +49,7 @@ export const createChannel: YobtaChannelFactory = <
 }: YobtaChannelProps<Snapshot>) => {
   const log = createLog(operations)
   const derivedStore = createDerivedStore(
-    _logEntries => {
-      const snapshots: Snapshot[] = []
-      // todo: merge operations
-      return snapshots
-    },
+    createLogMerger(collection.get),
     log,
     collection,
   )
