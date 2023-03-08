@@ -38,17 +38,18 @@ export const operationResult: OperationResultPromiseFactory = operationId =>
         case YOBTA_COLLECTION_UPDATE: {
           if (operation.id === operationId) {
             resolve()
+            operationResultObservers.delete(ovserver)
           }
           break
         }
         case YOBTA_REJECT: {
           if (operation.operationId === operationId) {
             reject(new Error(operation.reason))
+            operationResultObservers.delete(ovserver)
           }
           break
         }
       }
-      operationResultObservers.delete(ovserver)
     }
     operationResultObservers.add(ovserver)
   })
