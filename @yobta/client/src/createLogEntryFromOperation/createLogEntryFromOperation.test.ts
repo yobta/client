@@ -1,9 +1,7 @@
 import {
   YobtaCollectionInsertOperation,
-  YobtaMergeOperation,
   YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -32,27 +30,6 @@ it('creates entries from insert operatoins', () => {
     'snapshot-2',
     'snapshot-1',
     undefined,
-  ])
-})
-it('creates entries from merge operatoins', () => {
-  const mergeOpetaion: YobtaMergeOperation = {
-    id: 'op-id',
-    channel: 'channel',
-    committed: 1,
-    merged: 2,
-    operationId: 'op-id',
-    type: YOBTA_MERGE,
-  }
-  const entry = createLogEntryFromOperation(mergeOpetaion)
-  expect(entry).toEqual([
-    'op-id',
-    'channel',
-    1,
-    2,
-    YOBTA_MERGE,
-    undefined,
-    undefined,
-    'op-id',
   ])
 })
 it('creates entries from reject operatoins', () => {

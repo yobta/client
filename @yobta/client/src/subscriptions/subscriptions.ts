@@ -1,14 +1,11 @@
 import {
   YobtaDataOperation,
-  YobtaMergeOperation,
   YobtaRejectOperation,
   YobtaRemoteOperation,
   YobtaSubscribeOperation,
   YOBTA_BATCH,
   YOBTA_ERROR,
-  YOBTA_MERGE,
   YOBTA_RECEIVED,
-  YOBTA_REJECT,
 } from '@yobta/protocol'
 
 import { YobtaLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
@@ -18,10 +15,7 @@ import { notifyOperationObservers } from '../operationResult/operationResult.js'
 import { dequeueOperation } from '../queue/queue.js'
 import { computeServerTime } from '../serverTime/serverTime.js'
 
-type YobtaNotification =
-  | YobtaDataOperation
-  | YobtaMergeOperation
-  | YobtaRejectOperation
+type YobtaNotification = YobtaDataOperation | YobtaRejectOperation
 export type YobtaServerSubscriber = (operation: YobtaNotification) => void
 export type YobtaServerSubscription = {
   callback: YobtaServerSubscriber
@@ -73,17 +67,12 @@ export const handleRemoteOperation = (
       createErrorYobta(operation)
       break
     }
-    case YOBTA_MERGE:
-    case YOBTA_REJECT: {
-      notifyOperationObservers(operation)
-      notifySubscribers(operation)
-      break
-    }
     case YOBTA_BATCH: {
       for (const op of operation.operations) notifySubscribers(op)
       break
     }
     default: {
+      notifyOperationObservers(operation)
       notifySubscribers(operation)
       break
     }

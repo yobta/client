@@ -3,21 +3,16 @@ import {
   YobtaCollectionId,
   YobtaCollectionInsertOperation,
   YobtaDataOperation,
-  YobtaMergeOperation,
   YobtaOperationId,
   YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 import { createStore, YobtaReadable } from '@yobta/stores'
 
 import { addEntryToLog } from '../addEntryToLog/addEntryToLog.js'
 
-type YobtaNotification =
-  | YobtaDataOperation
-  | YobtaMergeOperation
-  | YobtaRejectOperation
+type YobtaNotification = YobtaDataOperation | YobtaRejectOperation
 interface YobtaLogFactory {
   (operations: YobtaNotification[]): YobtaLog
 }
@@ -27,7 +22,6 @@ export type YobtaLog = Readonly<{
   YobtaReadable<YobtaLogEntry[]>
 export type YobtaLoggedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
-  | YobtaMergeOperation
   | YobtaRejectOperation
 
 export type YobtaLogInsertEntry = [
@@ -40,16 +34,6 @@ export type YobtaLogInsertEntry = [
   YobtaCollectionId | undefined, // nextSnapshotId
   undefined, // target operationId
 ]
-export type YobtaLogMergeEntry = [
-  YobtaOperationId, // id
-  string, // channel
-  number, // committed
-  number, // merged
-  typeof YOBTA_MERGE, // type
-  undefined, // snapshotId
-  undefined, // nextSnapshotId
-  YobtaOperationId, // target operationId
-]
 export type YobtaLogRejectEntry = [
   YobtaOperationId, // id
   string, // channel
@@ -60,10 +44,7 @@ export type YobtaLogRejectEntry = [
   undefined, // nextSnapshotId
   YobtaOperationId, // target operationId
 ]
-export type YobtaLogEntry =
-  | YobtaLogInsertEntry
-  | YobtaLogMergeEntry
-  | YobtaLogRejectEntry
+export type YobtaLogEntry = YobtaLogInsertEntry | YobtaLogRejectEntry
 
 export const createLog: YobtaLogFactory = (
   initialOperations: YobtaNotification[],
@@ -75,7 +56,6 @@ export const createLog: YobtaLogFactory = (
     newOperations.forEach(operation => {
       if (
         operation.type === YOBTA_COLLECTION_INSERT ||
-        operation.type === YOBTA_MERGE ||
         operation.type === YOBTA_REJECT
       ) {
         log = addEntryToLog(log, operation)

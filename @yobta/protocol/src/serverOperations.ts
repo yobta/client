@@ -9,18 +9,6 @@ export type YobtaReceived = {
   type: typeof YOBTA_RECEIVED
 }
 
-export const YOBTA_MERGE = 'yobta-merge'
-export type YobtaMergeOperation = {
-  id: YobtaOperationId
-  channel: string
-  operationId: YobtaOperationId
-  snapshotId?: never
-  nextSnapshotId?: never
-  committed: number
-  merged: number
-  type: typeof YOBTA_MERGE
-}
-
 export const YOBTA_REJECT = 'yobta-reject'
 export type YobtaRejectOperation = {
   id: YobtaOperationId
@@ -44,7 +32,6 @@ export type YobtaBatchOperation = {
 
 export type YobtaRemoteOperation =
   | YobtaReceived
-  | YobtaMergeOperation
   | YobtaRejectOperation
   | YobtaError
   | YobtaDataOperation

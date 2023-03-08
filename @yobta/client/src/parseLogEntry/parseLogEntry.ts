@@ -3,7 +3,6 @@ import {
   YobtaOperationId,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
-  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -33,16 +32,6 @@ type YobtaParsedLogEntry =
       snapshotId: YobtaCollectionId
       nextSnapshotId: undefined
       operationId: undefined
-    }
-  | {
-      id: YobtaOperationId
-      channel: string
-      committed: number
-      merged: number
-      type: typeof YOBTA_MERGE
-      snapshotId: undefined
-      nextSnapshotId: undefined
-      operationId: YobtaOperationId
     }
   | {
       id: YobtaOperationId

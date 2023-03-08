@@ -4,8 +4,6 @@ import {
   YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_INSERT,
   YobtaRejectOperation,
-  YobtaMergeOperation,
-  YOBTA_MERGE,
   YOBTA_REJECT,
   YobtaDataOperation,
   YOBTA_COLLECTION_UPDATE,
@@ -41,7 +39,7 @@ type Message<Item extends YobtaCollectionAnySnapshot> = {
     | YobtaCollectionUpdateOperation<Item>
 }
 
-export const collectionYobta: CollectionFactory = <
+export const createCollection: CollectionFactory = <
   Item extends YobtaCollectionAnySnapshot,
 >({
   channel,
@@ -51,34 +49,16 @@ export const collectionYobta: CollectionFactory = <
   const destroy = (): VoidFunction =>
     onClientMessage<string, [Message<Item>, ServerCallbacks]>(
       channel,
-      async ({ headers, operation }, { commit, reject }) => {
+      async ({ headers, operation }, { reject }) => {
         try {
           switch (operation.type) {
             case YOBTA_COLLECTION_INSERT: {
               const operations = await insert({ headers, operation })
-              const commitOperation: YobtaMergeOperation = {
-                id: nanoid(),
-                channel,
-                committed: operation.committed,
-                merged: Date.now(),
-                operationId: operation.id,
-                type: YOBTA_MERGE,
-              }
-              commit(commitOperation)
               sendBack(operations)
               break
             }
             case YOBTA_COLLECTION_UPDATE: {
               const operations = await update({ headers, operation })
-              const updateOperation: YobtaMergeOperation = {
-                id: nanoid(),
-                channel,
-                committed: operation.committed,
-                merged: Date.now(),
-                operationId: operation.id,
-                type: YOBTA_MERGE,
-              }
-              commit(updateOperation)
               sendBack(operations)
               break
             }

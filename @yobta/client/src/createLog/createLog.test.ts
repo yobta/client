@@ -1,11 +1,9 @@
 import {
   YobtaCollectionInsertOperation,
   YobtaCollectionUpdateOperation,
-  YobtaMergeOperation,
   YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
-  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -13,45 +11,6 @@ import { createLogEntryFromOperation } from '../createLogEntryFromOperation/crea
 import { createLog } from './createLog.js'
 
 type MockSnapshot = { id: string; key: string }
-
-// describe('patchOperation', () => {
-//   it('should update entries committed and merged', () => {
-//     const entries: YobtaLogEntry[] = [
-//       [
-//         '1',
-//         'channel',
-//         1,
-//         0,
-//         YOBTA_COLLECTION_INSERT,
-//         'shapshot-id',
-//         undefined,
-//         undefined,
-//       ],
-//     ]
-//     const mergeOp: YobtaMergeOperation = {
-//       id: '2',
-//       committed: 2,
-//       merged: 2,
-//       channel: 'channel',
-//       type: YOBTA_MERGE,
-//       operationId: '1',
-//     }
-//     const patchedEntries = patchOperation(entries, mergeOp)
-//     expect(patchedEntries).toEqual([
-//       [
-//         '1',
-//         'channel',
-//         2,
-//         2,
-//         YOBTA_COLLECTION_INSERT,
-//         'shapshot-id',
-//         undefined,
-//         undefined,
-//       ],
-//       // ['2', 'channel', 2, 2, YOBTA_MERGE, undefined, undefined],
-//     ])
-//   })
-// })
 
 describe('factory', () => {
   it('returns a log object', () => {
@@ -131,19 +90,6 @@ describe('add', () => {
     }
     log.add([rejectOpetaion])
     expect(log.last()).toEqual([createLogEntryFromOperation(rejectOpetaion)])
-  })
-  it('supports merge operations', () => {
-    const log = createLog([])
-    const mergeOpetaion: YobtaMergeOperation = {
-      id: '1',
-      committed: 1,
-      merged: 1,
-      operationId: '1',
-      type: YOBTA_MERGE,
-      channel: 'channel',
-    }
-    log.add([mergeOpetaion])
-    expect(log.last()).toEqual([createLogEntryFromOperation(mergeOpetaion)])
   })
   it('ignores update operations', () => {
     const log = createLog([])

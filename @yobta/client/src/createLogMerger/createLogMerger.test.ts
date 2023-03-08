@@ -1,14 +1,12 @@
 import {
   YobtaCollectionId,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
 import {
   YobtaLogRejectEntry,
   YobtaLogInsertEntry,
-  YobtaLogMergeEntry,
 } from '../createLog/createLog.js'
 import { createLogMerger } from './createLogMerger.js'
 
@@ -16,7 +14,6 @@ type MockSnapshot = {
   id: string
   name: string
 }
-
 type MockStore = {
   [id: string]: MockSnapshot
 }
@@ -149,109 +146,5 @@ describe('rejects', () => {
     ]
     const result = merge([reject1, insert1])
     expect(result).toEqual([store['item-1']])
-  })
-})
-describe('merges', () => {
-  it('should change order when committed is changed', () => {
-    const insert1: YobtaLogInsertEntry = [
-      'operation-1',
-      'channel-1',
-      1,
-      1,
-      YOBTA_COLLECTION_INSERT,
-      'item-1',
-      undefined,
-      undefined,
-    ]
-    const insert2: YobtaLogInsertEntry = [
-      'operation-2',
-      'channel-1',
-      2,
-      2,
-      YOBTA_COLLECTION_INSERT,
-      'item-2',
-      undefined,
-      undefined,
-    ]
-    const merge1: YobtaLogMergeEntry = [
-      'operation-3',
-      'channel-1',
-      3,
-      3,
-      YOBTA_MERGE,
-      undefined,
-      undefined,
-      'operation-1',
-    ]
-    const result = merge([insert1, insert2, merge1])
-    expect(result).toEqual([store['item-2'], store['item-1']])
-  })
-  it('should not change order when committed is not changed', () => {
-    const insert1: YobtaLogInsertEntry = [
-      'operation-1',
-      'channel-1',
-      1,
-      1,
-      YOBTA_COLLECTION_INSERT,
-      'item-1',
-      undefined,
-      undefined,
-    ]
-    const insert2: YobtaLogInsertEntry = [
-      'operation-2',
-      'channel-1',
-      2,
-      2,
-      YOBTA_COLLECTION_INSERT,
-      'item-2',
-      undefined,
-      undefined,
-    ]
-    const merge1: YobtaLogMergeEntry = [
-      'operation-3',
-      'channel-1',
-      1,
-      3,
-      YOBTA_MERGE,
-      undefined,
-      undefined,
-      'operation-1',
-    ]
-    const result = merge([insert1, merge1, insert2])
-    expect(result).toEqual([store['item-1'], store['item-2']])
-  })
-  it('should ignore merge if the order is incorrect', () => {
-    const merge1: YobtaLogMergeEntry = [
-      'operation-1',
-      'channel-1',
-      1,
-      1,
-      YOBTA_MERGE,
-      undefined,
-      undefined,
-      'operation-1',
-    ]
-    const insert1: YobtaLogInsertEntry = [
-      'operation-2',
-      'channel-1',
-      2,
-      2,
-      YOBTA_COLLECTION_INSERT,
-      'item-1',
-      undefined,
-      undefined,
-    ]
-    const insert2: YobtaLogInsertEntry = [
-      'operation-3',
-      'channel-1',
-      3,
-      3,
-      YOBTA_COLLECTION_INSERT,
-      'item-2',
-      undefined,
-      undefined,
-    ]
-    const result = merge([merge1, insert1, insert2])
-    expect(result).toEqual([store['item-1'], store['item-2']])
   })
 })

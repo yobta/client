@@ -2,17 +2,11 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_MERGE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
 import { YobtaGetCollectionSnapshot } from '../createCollection/createCollection.js'
-import {
-  YobtaLogEntry,
-  YobtaLogInsertEntry,
-  YobtaLogMergeEntry,
-} from '../createLog/createLog.js'
-import { parseLogEntry } from '../parseLogEntry/parseLogEntry.js'
+import { YobtaLogEntry } from '../createLog/createLog.js'
 
 interface YobtaLogMergerFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
@@ -20,33 +14,6 @@ interface YobtaLogMergerFactory {
   ): (entries: YobtaLogEntry[]) => Snapshot[]
 }
 
-const merge = (
-  entries: YobtaLogEntry[],
-  entry: YobtaLogMergeEntry,
-): YobtaLogEntry[] => {
-  const { committed, merged, operationId } = parseLogEntry(entry)
-  const entryIndex = entries.findIndex(([id]) => id === operationId)
-  if (entryIndex === -1) {
-    return entries
-  }
-  const [id, channel, , , type, snapshotId, nextSnapshotId] = entries[
-    entryIndex
-  ] as YobtaLogInsertEntry
-  return [
-    ...entries.slice(0, entryIndex),
-    ...entries.slice(entryIndex + 1),
-    [
-      id,
-      channel,
-      committed,
-      merged,
-      type,
-      snapshotId,
-      nextSnapshotId,
-      undefined,
-    ],
-  ]
-}
 const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
   snapshots: Snapshot[],
   snapshot?: Snapshot,
@@ -77,8 +44,6 @@ export const createLogMerger: YobtaLogMergerFactory =
           case YOBTA_REJECT:
             undone.add(entry[7])
             return acc
-          case YOBTA_MERGE:
-            return merge(acc, entry)
           default:
             acc.push(entry)
             return acc

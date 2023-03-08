@@ -1,10 +1,5 @@
 import { vi } from 'vitest'
-import {
-  YobtaMergeOperation,
-  YobtaRejectOperation,
-  YOBTA_MERGE,
-  YOBTA_REJECT,
-} from '@yobta/protocol'
+import { YobtaRejectOperation, YOBTA_REJECT } from '@yobta/protocol'
 
 import {
   notifyOperationObservers,
@@ -19,13 +14,14 @@ beforeEach(() => {
 it('should call all registered observers with the operation argument', () => {
   const observer1 = vi.fn()
   const observer2 = vi.fn()
-  const mockOperation: YobtaMergeOperation = {
+  const mockOperation: YobtaRejectOperation = {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
     operationId: 'operation-1',
-    type: YOBTA_MERGE,
+    type: YOBTA_REJECT,
+    reason: 'Operation was rejected',
   }
 
   operationResultObservers.add(observer1)
@@ -37,13 +33,14 @@ it('should call all registered observers with the operation argument', () => {
 })
 
 it('should resolve if the operation is committed and remove observer', () => {
-  const mockOperation: YobtaMergeOperation = {
+  const mockOperation: YobtaRejectOperation = {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
     operationId: 'operation-1',
-    type: YOBTA_MERGE,
+    type: YOBTA_REJECT,
+    reason: 'Operation was rejected',
   }
   const promise = operationResult('operation-1')
 
@@ -72,13 +69,14 @@ it('should reject if the operation is rejected and remove observer', () => {
 })
 
 it('should not resolve if the operation is committed but for another operation', () => {
-  const mockOperation: YobtaMergeOperation = {
+  const mockOperation: YobtaRejectOperation = {
     id: 'operation-2',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
     operationId: 'operation-2',
-    type: YOBTA_MERGE,
+    type: YOBTA_REJECT,
+    reason: 'Operation was rejected',
   }
   const promise = operationResult('operation-1')
 
