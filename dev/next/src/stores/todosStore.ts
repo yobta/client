@@ -10,11 +10,20 @@ type Todo = {
 
 const todos = createCollection<Todo>([])
 
-const myTodos = createChannel({
+const allTodos = createChannel({
   collection: todos,
-  route: 'my-todos',
+  route: 'all-todos',
 })
 
-export const useTodos = createHookFromStore(myTodos, {
+export const useTodos = createHookFromStore(allTodos, {
   getServerSnapshot: () => [],
 })
+
+export const addTodo = async ({ text }: { text: string }): Promise<void> => {
+  await allTodos.insert({
+    id: Date.now().toString(),
+    text,
+    completed: false,
+    time: Date.now(),
+  })
+}
