@@ -6,7 +6,11 @@ import { getServerTime } from '../serverTime/serverTime.js'
 type PartialOperartion<Operation extends YobtaAnyOperation> = Omit<
   Operation,
   'id' | 'committed' | 'merged'
-> & { id?: YobtaOperationId; committed?: number; merged?: number }
+> & {
+  id?: YobtaOperationId
+  committed?: number
+  merged?: number
+}
 
 interface YobtaOperationFactory {
   <Operation extends YobtaAnyOperation>(

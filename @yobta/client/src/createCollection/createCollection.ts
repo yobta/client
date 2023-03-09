@@ -104,8 +104,6 @@ export const createCollection: YobtaCollectionFactory = <
     never
   >(
     mergeSome(new Map(), initial),
-    // TODO: тест что стор отправляет коммиты в очередь
-    // TODO: тест что коммиты отправляются после того как отработают остальные миддлвары
     ({ addMiddleware }) => {
       addMiddleware(YOBTA_READY, state => {
         state.forEach(([, , ...operations]) => {

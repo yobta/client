@@ -55,11 +55,17 @@ export const createChannel: YobtaChannelFactory = <
   )
   storeEffect(derivedStore, () => {
     const getVersion = createLogVersionGetter(log.last)
-    const unsubscribe = subscribeToServerMessages(
+    const unsubscribe = subscribeToServerMessages<Snapshot>(
       route,
       getVersion,
       operation => {
         log.add([operation])
+        if (
+          operation.type === YOBTA_COLLECTION_INSERT ||
+          operation.type === YOBTA_COLLECTION_UPDATE
+        ) {
+          collection.merge(operation)
+        }
       },
     )
     return unsubscribe

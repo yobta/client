@@ -1,5 +1,8 @@
 import { YobtaOnlineStore } from '@yobta/stores'
-import { YobtaClientOperation } from '@yobta/protocol'
+import {
+  YobtaClientOperation,
+  YobtaCollectionAnySnapshot,
+} from '@yobta/protocol'
 
 import {
   YobtaTransport,
@@ -64,7 +67,9 @@ export const clientYobta: ClientFactory = ({
     disconnect()
     connect()
   }
-  const send = (operation: YobtaClientOperation): void => {
+  const send = (
+    operation: YobtaClientOperation<YobtaCollectionAnySnapshot>,
+  ): void => {
     if (connection?.isOpen()) {
       const encoded = encoder.encode({
         headers: getHeaders?.(),

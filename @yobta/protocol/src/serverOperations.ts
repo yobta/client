@@ -1,5 +1,5 @@
+import { YobtaCollectionAnySnapshot } from './collection.js'
 import { YobtaDataOperation, YobtaOperationId } from './unsorted.js'
-import { YobtaError } from './clientOperations.js'
 
 export const YOBTA_RECEIVED = 'yobta-received'
 export type YobtaReceived = {
@@ -22,17 +22,7 @@ export type YobtaRejectOperation = {
   merged: number
 }
 
-export const YOBTA_BATCH = 'yobta-batch'
-export type YobtaBatchOperation = {
-  id: YobtaOperationId
-  channel: string
-  type: typeof YOBTA_BATCH
-  operations: YobtaDataOperation[]
-}
-
-export type YobtaRemoteOperation =
+export type YobtaRemoteOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaReceived
   | YobtaRejectOperation
-  | YobtaError
-  | YobtaDataOperation
-  | YobtaBatchOperation
+  | YobtaDataOperation<Snapshot>

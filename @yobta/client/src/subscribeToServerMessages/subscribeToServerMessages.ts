@@ -1,4 +1,8 @@
-import { YobtaUnsubscribeOperation, YOBTA_UNSUBSCRIBE } from '@yobta/protocol'
+import {
+  YobtaCollectionAnySnapshot,
+  YobtaUnsubscribeOperation,
+  YOBTA_UNSUBSCRIBE,
+} from '@yobta/protocol'
 
 import { YobtaLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
@@ -11,12 +15,14 @@ import {
   removeServerSubscription,
 } from '../subscriptions/subscriptions.js'
 
-export const subscribeToServerMessages = (
+export const subscribeToServerMessages = <
+  Snapshot extends YobtaCollectionAnySnapshot,
+>(
   channel: string,
   getVersion: YobtaLogVersionGetter,
-  callback: YobtaServerSubscriber,
+  callback: YobtaServerSubscriber<Snapshot>,
 ): VoidFunction => {
-  const subscription: YobtaServerSubscription = {
+  const subscription: YobtaServerSubscription<Snapshot> = {
     callback,
     channel,
     getVersion,
