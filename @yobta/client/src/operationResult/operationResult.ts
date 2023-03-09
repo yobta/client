@@ -1,8 +1,11 @@
 import {
-  YobtaMergeOperation,
+  YobtaCollectionAnySnapshot,
+  YobtaCollectionInsertOperation,
+  YobtaCollectionUpdateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
-  YOBTA_MERGE,
+  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_UPDATE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -10,12 +13,17 @@ interface OperationResultPromiseFactory {
   (operationId: YobtaOperationId): Promise<void>
 }
 
-type Observer = (operation: YobtaMergeOperation | YobtaRejectOperation) => void
+type SupportedOperation =
+  | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
+  | YobtaCollectionUpdateOperation<YobtaCollectionAnySnapshot>
+  | YobtaRejectOperation
+
+type Observer = (operation: SupportedOperation) => void
 
 export const operationResultObservers = new Set<Observer>()
 
 export const notifyOperationObservers = (
-  operation: YobtaMergeOperation | YobtaRejectOperation,
+  operation: SupportedOperation,
 ): void => {
   operationResultObservers.forEach(observer => {
     observer(operation)
@@ -25,10 +33,23 @@ export const notifyOperationObservers = (
 export const operationResult: OperationResultPromiseFactory = operationId =>
   new Promise((resolve, reject) => {
     const ovserver: Observer = operation => {
-      if (operation.operationId !== operationId) return
-      if (operation.type === YOBTA_MERGE) resolve()
-      if (operation.type === YOBTA_REJECT) reject(new Error(operation.reason))
-      operationResultObservers.delete(ovserver)
+      switch (operation.type) {
+        case YOBTA_COLLECTION_INSERT:
+        case YOBTA_COLLECTION_UPDATE: {
+          if (operation.id === operationId) {
+            resolve()
+            operationResultObservers.delete(ovserver)
+          }
+          break
+        }
+        case YOBTA_REJECT: {
+          if (operation.operationId === operationId) {
+            reject(new Error(operation.reason))
+            operationResultObservers.delete(ovserver)
+          }
+          break
+        }
+      }
     }
     operationResultObservers.add(ovserver)
   })

@@ -5,7 +5,6 @@ import {
   YobtaCollectionUpdateOperation,
 } from './collection.js'
 import {
-  YobtaMergeOperation,
   YobtaReceived,
   YobtaRejectOperation,
   YobtaRemoteOperation,
@@ -19,7 +18,6 @@ export type YobtaDataOperation =
 
 export type YobtaAnyOperation =
   | YobtaReceived
-  | YobtaMergeOperation
   | YobtaRejectOperation
   | YobtaError
   | YobtaClientOperation
