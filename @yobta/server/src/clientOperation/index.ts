@@ -1,13 +1,16 @@
-import { YobtaClientOperation } from '@yobta/protocol'
+import {
+  YobtaClientOperation,
+  YobtaCollectionAnySnapshot,
+} from '@yobta/protocol'
 
-interface ClientOperationFactory {
+interface ParseClientOperation {
   (message: string): {
     headers: Headers
-    operation: YobtaClientOperation
+    operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
   }
 }
 
-export const parseClientOperation: ClientOperationFactory = message => {
+export const parseClientOperation: ParseClientOperation = message => {
   const { headers, operation } = JSON.parse(message)
   return {
     headers,

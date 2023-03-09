@@ -1,7 +1,12 @@
-import { YobtaRemoteOperation } from '@yobta/protocol'
+import {
+  YobtaCollectionAnySnapshot,
+  YobtaRemoteOperation,
+} from '@yobta/protocol'
 
 interface YobtaStringifyServerOperation {
-  (operation: YobtaRemoteOperation): string
+  <Snapshot extends YobtaCollectionAnySnapshot>(
+    operation: YobtaRemoteOperation<Snapshot>,
+  ): string
 }
 
 export const stringifyServerOperation: YobtaStringifyServerOperation =

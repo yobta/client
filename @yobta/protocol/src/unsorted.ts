@@ -12,13 +12,13 @@ import {
 
 export type YobtaOperationId = string
 
-export type YobtaDataOperation =
-  | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
-  | YobtaCollectionUpdateOperation<YobtaCollectionAnySnapshot>
+export type YobtaDataOperation<Snapshot extends YobtaCollectionAnySnapshot> =
+  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
 
 export type YobtaAnyOperation =
   | YobtaReceived
   | YobtaRejectOperation
   | YobtaError
-  | YobtaClientOperation
-  | YobtaRemoteOperation
+  | YobtaClientOperation<YobtaCollectionAnySnapshot>
+  | YobtaRemoteOperation<YobtaCollectionAnySnapshot>

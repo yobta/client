@@ -79,9 +79,12 @@ const Home: NextPage = () => {
           <Input
             name="text"
             caption="My Todo"
-            className="flex-1 rounded-r-none"
+            className="rounded-r-none flex-grow"
           />
-          <button className="yobta-primary h-12 rounded-l-none" type="submit">
+          <button
+            className="yobta-button-primary h-12 rounded-l-none shrink-0"
+            type="submit"
+          >
             Add Todo
           </button>
         </form>

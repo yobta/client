@@ -12,12 +12,16 @@ import { createStore, YobtaReadable } from '@yobta/stores'
 
 import { addEntryToLog } from '../addEntryToLog/addEntryToLog.js'
 
-type YobtaNotification = YobtaDataOperation | YobtaRejectOperation
+export type YobtaLogInput<Snapshot extends YobtaCollectionAnySnapshot> =
+  | YobtaDataOperation<Snapshot>
+  | YobtaRejectOperation
 interface YobtaLogFactory {
-  (operations: YobtaNotification[]): YobtaLog
+  <Snapshot extends YobtaCollectionAnySnapshot>(
+    operations: YobtaLogInput<Snapshot>[],
+  ): YobtaLog<Snapshot>
 }
-export type YobtaLog = Readonly<{
-  add(operations: YobtaNotification[]): void
+export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = Readonly<{
+  add(operations: YobtaLogInput<Snapshot>[]): void
 }> &
   YobtaReadable<YobtaLogEntry[]>
 export type YobtaLoggedOperation =
@@ -46,11 +50,13 @@ export type YobtaLogRejectEntry = [
 ]
 export type YobtaLogEntry = YobtaLogInsertEntry | YobtaLogRejectEntry
 
-export const createLog: YobtaLogFactory = (
-  initialOperations: YobtaNotification[],
+export const createLog: YobtaLogFactory = <
+  Snapshot extends YobtaCollectionAnySnapshot,
+>(
+  initialOperations: YobtaLogInput<Snapshot>[],
 ) => {
   const { last, next, on, observe } = createStore<readonly YobtaLogEntry[]>([])
-  const add = (newOperations: YobtaNotification[]): void => {
+  const add = (newOperations: YobtaLogInput<Snapshot>[]): void => {
     let log = last()
     let shouldUpdate = false
     newOperations.forEach(operation => {

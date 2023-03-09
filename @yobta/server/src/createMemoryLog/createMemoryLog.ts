@@ -1,4 +1,5 @@
 import {
+  YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YobtaDataOperation,
   YobtaOperationId,
@@ -21,7 +22,9 @@ export type YobtaLogEntry = {
 
 export type YobtaLog = {
   find(channel: string, merged: number): Promise<YobtaLogEntry[]>
-  merge(operations: YobtaDataOperation[]): Promise<YobtaLogEntry[][]>
+  merge(
+    operations: YobtaDataOperation<YobtaCollectionAnySnapshot>[],
+  ): Promise<YobtaLogEntry[][]>
 }
 
 type YobtaMemoryLog = Map<string, YobtaLogEntry>
@@ -34,7 +37,7 @@ const getEntryId = (
 
 const mergeOperation = (
   log: YobtaMemoryLog,
-  operation: YobtaDataOperation,
+  operation: YobtaDataOperation<YobtaCollectionAnySnapshot>,
 ): YobtaLogEntry[] => {
   const result: YobtaLogEntry[] = []
   Object.entries(operation.data).forEach(([key, value]) => {

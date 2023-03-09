@@ -1,7 +1,8 @@
+import { YobtaCollectionAnySnapshot } from './collection.js'
 import { YobtaDataOperation, YobtaOperationId } from './unsorted.js'
 
-export type YobtaClientOperation =
-  | YobtaDataOperation
+export type YobtaClientOperation<Snapshot extends YobtaCollectionAnySnapshot> =
+  | YobtaDataOperation<Snapshot>
   | YobtaSubscribeOperation
   | YobtaUnsubscribeOperation
 

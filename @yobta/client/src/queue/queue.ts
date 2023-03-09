@@ -3,14 +3,18 @@ import {
   YobtaOperationId,
   YobtaClientOperation,
   YobtaReceived,
+  YobtaCollectionAnySnapshot,
 } from '@yobta/protocol'
 
-type State = Map<YobtaOperationId, YobtaClientOperation>
+type State = Map<
+  YobtaOperationId,
+  YobtaClientOperation<YobtaCollectionAnySnapshot>
+>
 
 export const operationsQueue: State = new Map()
 
-const channel = createStore<YobtaClientOperation>(
-  {} as YobtaClientOperation,
+const channel = createStore<YobtaClientOperation<YobtaCollectionAnySnapshot>>(
+  {} as YobtaClientOperation<YobtaCollectionAnySnapshot>,
   broadcastChannelPlugin({
     channel: 'yobta-client-op',
   }),
@@ -18,7 +22,9 @@ const channel = createStore<YobtaClientOperation>(
 
 export const observeQueue = channel.observe
 
-export const queueOperation = (operation: YobtaClientOperation): void => {
+export const queueOperation = <Snapshot extends YobtaCollectionAnySnapshot>(
+  operation: YobtaClientOperation<Snapshot>,
+): void => {
   operationsQueue.set(operation.id, operation)
   channel.next(operation)
 }

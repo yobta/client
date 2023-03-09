@@ -3,23 +3,24 @@ import {
   YobtaClientOperation,
   YOBTA_ERROR,
   YobtaRemoteOperation,
+  YobtaCollectionAnySnapshot,
 } from '@yobta/protocol'
 
 import { createOperation } from '../createOperation/createOperation.js'
 
-interface EncoderFactory {
+interface YobtaEncoderFactory {
   (): {
     encode: (params: {
       headers?: Record<string, string>
-      operation: YobtaClientOperation
+      operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
     }) => string
-    decode: (value: string) => YobtaRemoteOperation
+    decode: (value: string) => YobtaRemoteOperation<YobtaCollectionAnySnapshot>
   }
 }
 
-export type YobtaClientEncoder = ReturnType<EncoderFactory>
+export type YobtaClientEncoder = ReturnType<YobtaEncoderFactory>
 
-export const encoderYobta: EncoderFactory = () => {
+export const encoderYobta: YobtaEncoderFactory = () => {
   return {
     encode(value) {
       return JSON.stringify(value)

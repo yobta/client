@@ -3,11 +3,11 @@ import { YobtaJsonValue } from '@yobta/stores'
 import { YobtaOperationId } from './unsorted.js'
 
 export type YobtaCollectionId = string | number
-type Key = string | number
+export type YobtaCollectionSnapshotKey = string | number
 
 export type YobtaCollectionAnySnapshot = {
   id: YobtaCollectionId
-  [key: Key]: YobtaJsonValue | undefined
+  [key: YobtaCollectionSnapshotKey]: YobtaJsonValue | undefined
 }
 
 export type PatchWithoutId<Snapshot extends YobtaCollectionAnySnapshot> =
