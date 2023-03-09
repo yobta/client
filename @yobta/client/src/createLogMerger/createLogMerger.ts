@@ -49,12 +49,14 @@ export const createLogMerger: YobtaLogMergerFactory =
             return acc
         }
       }, [])
-      .filter(([id]) => !undone.has(id))
-      .reduce<Snapshot[]>((acc, [, , , , type, snapshotId, nextSnapshotId]) => {
-        if (type === YOBTA_COLLECTION_INSERT) {
-          const snapshot = getSnapshot(snapshotId)
-          return insert(acc, snapshot, nextSnapshotId)
-        }
-        return acc
-      }, [])
+      .reduce<Snapshot[]>(
+        (acc, [id, , , , type, snapshotId, nextSnapshotId]) => {
+          if (type === YOBTA_COLLECTION_INSERT && !undone.has(id)) {
+            const snapshot = getSnapshot(snapshotId)
+            return insert(acc, snapshot, nextSnapshotId)
+          }
+          return acc
+        },
+        [],
+      )
   }
