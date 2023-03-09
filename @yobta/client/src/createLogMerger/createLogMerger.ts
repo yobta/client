@@ -37,26 +37,19 @@ export const createLogMerger: YobtaLogMergerFactory =
     getSnapshot: YobtaGetCollectionSnapshot<Snapshot>,
   ) =>
   entries => {
-    const undone = new Set<YobtaCollectionId>()
     return entries
       .reduce<YobtaLogEntry[]>((acc, entry) => {
-        switch (entry[4]) {
-          case YOBTA_REJECT:
-            undone.add(entry[7])
-            return acc
-          default:
-            acc.push(entry)
-            return acc
+        if (entry[4] === YOBTA_REJECT) {
+          return acc.filter(([id]) => id !== entry[7])
         }
+        acc.push(entry)
+        return acc
       }, [])
-      .reduce<Snapshot[]>(
-        (acc, [id, , , , type, snapshotId, nextSnapshotId]) => {
-          if (type === YOBTA_COLLECTION_INSERT && !undone.has(id)) {
-            const snapshot = getSnapshot(snapshotId)
-            return insert(acc, snapshot, nextSnapshotId)
-          }
-          return acc
-        },
-        [],
-      )
+      .reduce<Snapshot[]>((acc, [, , , , type, snapshotId, nextSnapshotId]) => {
+        if (type === YOBTA_COLLECTION_INSERT) {
+          const snapshot = getSnapshot(snapshotId)
+          return insert(acc, snapshot, nextSnapshotId)
+        }
+        return acc
+      }, [])
   }

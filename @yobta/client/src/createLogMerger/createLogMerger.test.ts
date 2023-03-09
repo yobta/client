@@ -181,4 +181,38 @@ describe('rejects', () => {
     const result = merge([reject1, insert1, rejectx])
     expect(result).toEqual([store['item-1']])
   })
+  it('should resolve insert reject insert sequence', () => {
+    const insert1: YobtaLogInsertEntry = [
+      'operation-1',
+      'channel-1',
+      1,
+      1,
+      YOBTA_COLLECTION_INSERT,
+      'item-1',
+      undefined,
+      undefined,
+    ]
+    const reject1: YobtaLogRejectEntry = [
+      'operation-2',
+      'channel-1',
+      2,
+      2,
+      YOBTA_REJECT,
+      undefined,
+      undefined,
+      'operation-1',
+    ]
+    const insert2: YobtaLogInsertEntry = [
+      'operation-1',
+      'channel-1',
+      3,
+      3,
+      YOBTA_COLLECTION_INSERT,
+      'item-1',
+      undefined,
+      undefined,
+    ]
+    const result = merge([insert1, reject1, insert2])
+    expect(result).toEqual([store['item-1']])
+  })
 })
