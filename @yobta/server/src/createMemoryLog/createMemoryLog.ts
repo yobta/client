@@ -11,18 +11,20 @@ interface YobtaMemoryLogFactory {
 }
 
 export type YobtaLogEntry = {
-  snapshotId: YobtaCollectionId
   channel: string
-  key: string
-  value: YobtaJsonValue | undefined
+  collection: string
   committed: number
+  key: string
   merged: number
   operationId: YobtaOperationId
+  snapshotId: YobtaCollectionId
+  value: YobtaJsonValue | undefined
 }
 
 export type YobtaLog = {
   find(channel: string, merged: number): Promise<YobtaLogEntry[]>
   merge(
+    collection: string,
     operations: YobtaDataOperation<YobtaCollectionAnySnapshot>[],
   ): Promise<YobtaLogEntry[][]>
 }
@@ -37,6 +39,7 @@ const getEntryId = (
 
 const mergeOperation = (
   log: YobtaMemoryLog,
+  collection: string,
   operation: YobtaDataOperation<YobtaCollectionAnySnapshot>,
 ): YobtaLogEntry[] => {
   const result: YobtaLogEntry[] = []
@@ -44,6 +47,7 @@ const mergeOperation = (
     const entryKey = getEntryId(operation.channel, operation.snapshotId, key)
     const candidateEntry: YobtaLogEntry = {
       channel: operation.channel,
+      collection,
       key,
       value,
       committed: operation.committed,
@@ -71,9 +75,9 @@ export const createMemoryLog: YobtaMemoryLogFactory = () => {
     }
     return result
   }
-  const merge: YobtaLog['merge'] = async operations =>
+  const merge: YobtaLog['merge'] = async (collection, operations) =>
     operations
-      .map(operation => mergeOperation(log, operation))
+      .map(operation => mergeOperation(log, collection, operation))
       .filter(chunk => chunk.length)
   return {
     find,

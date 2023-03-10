@@ -9,6 +9,7 @@ import { createOperationsFromEntries } from './createOperationsFromEntries.js'
 const createEntry = (overload: Partial<YobtaLogEntry>): YobtaLogEntry => ({
   operationId: 'op-1',
   channel: 'ch-0',
+  collection: 'col-0',
   snapshotId: 'sn-0',
   key: 'id',
   value: 'id-0',

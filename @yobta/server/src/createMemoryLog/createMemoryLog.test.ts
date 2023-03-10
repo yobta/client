@@ -44,10 +44,12 @@ describe('log write', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     }
-    const result = await log.merge([insertOperation])
+    const collection = 'my-collection'
+    const result = await log.merge(collection, [insertOperation])
     const entry1 = {
       key: 'key',
       value: 'value',
+      collection,
       channel: 'channel',
       committed: 1,
       merged: expect.any(Number),
@@ -58,6 +60,7 @@ describe('log write', () => {
       key: 'id',
       value: 'snapshot-id',
       channel: 'channel',
+      collection,
       committed: 1,
       merged: expect.any(Number),
       operationId: 'operation-id',
@@ -85,11 +88,13 @@ describe('mergeOperation', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     }
-    const item = mergeOperation(log, insertOperation)
+    const collection = 'my-collection'
+    const item = mergeOperation(log, collection, insertOperation)
     expect(item).toEqual([
       {
         channel: 'channel',
         committed: 1,
+        collection,
         merged: expect.any(Number),
         key: 'key',
         value: 'value',
@@ -98,6 +103,7 @@ describe('mergeOperation', () => {
       },
       {
         channel: 'channel',
+        collection,
         committed: 1,
         merged: expect.any(Number),
         key: 'id',
@@ -124,11 +130,13 @@ describe('mergeOperation', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     }
-    const item = mergeOperation(log, updateOperation)
+    const collection = 'my-collection'
+    const item = mergeOperation(log, collection, updateOperation)
     expect(item).toEqual([
       {
         channel: 'channel',
         committed: 1,
+        collection,
         merged: expect.any(Number),
         key: 'key',
         value: 'value',
@@ -158,8 +166,9 @@ describe('mergeOperation', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     }
-    mergeOperation(log, insertOperation)
-    mergeOperation(log, updateOperation)
+    const collection = 'my-collection'
+    mergeOperation(log, collection, insertOperation)
+    mergeOperation(log, collection, updateOperation)
     expect(log).toEqual(
       new Map([
         [
@@ -167,6 +176,7 @@ describe('mergeOperation', () => {
           {
             channel: 'channel',
             committed: 2,
+            collection,
             merged: expect.any(Number),
             key: 'key',
             value: 'updated value',
@@ -179,6 +189,7 @@ describe('mergeOperation', () => {
           {
             channel: 'channel',
             committed: 1,
+            collection,
             merged: expect.any(Number),
             key: 'id',
             value: 'snapshot-id',
@@ -209,14 +220,16 @@ describe('mergeOperation', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     }
-    mergeOperation(log, updateOperation)
-    mergeOperation(log, insertOperation)
+    const collection = 'my-collection'
+    mergeOperation(log, collection, updateOperation)
+    mergeOperation(log, collection, insertOperation)
     expect(log).toEqual(
       new Map([
         [
           'channel.snapshot-id.key',
           {
             channel: 'channel',
+            collection,
             committed: 2,
             merged: expect.any(Number),
             key: 'key',
@@ -229,6 +242,7 @@ describe('mergeOperation', () => {
           'channel.snapshot-id.id',
           {
             channel: 'channel',
+            collection,
             committed: 1,
             merged: expect.any(Number),
             key: 'id',
@@ -261,15 +275,16 @@ describe('mergeOperation', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     }
-    mergeOperation(log1, insertOperation)
-    mergeOperation(log1, updateOperation)
-    mergeOperation(log1, insertOperation)
+    const collection = 'my-collection'
+    mergeOperation(log1, collection, insertOperation)
+    mergeOperation(log1, collection, updateOperation)
+    mergeOperation(log1, collection, insertOperation)
 
-    mergeOperation(log2, updateOperation)
-    mergeOperation(log2, updateOperation)
-    mergeOperation(log2, insertOperation)
-    mergeOperation(log2, insertOperation)
-    mergeOperation(log2, updateOperation)
+    mergeOperation(log2, collection, updateOperation)
+    mergeOperation(log2, collection, updateOperation)
+    mergeOperation(log2, collection, insertOperation)
+    mergeOperation(log2, collection, insertOperation)
+    mergeOperation(log2, collection, updateOperation)
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { merged: m1, ...snapshot1 } = log1.get('channel.snapshot-id.key')
@@ -307,11 +322,13 @@ describe('mergeOperation', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     }
-    mergeOperation(log, insertOperation)
-    mergeOperation(log, updateOperation2)
-    mergeOperation(log, updateOperation1)
+    const collection = 'my-collection'
+    mergeOperation(log, collection, insertOperation)
+    mergeOperation(log, collection, updateOperation2)
+    mergeOperation(log, collection, updateOperation1)
     expect(log.get('channel.snapshot-id.key')).toEqual({
       channel: 'channel',
+      collection,
       committed: 3,
       merged: expect.any(Number),
       key: 'key',
@@ -321,8 +338,10 @@ describe('mergeOperation', () => {
     })
   })
   it('should not mutate entry', () => {
+    const collection = 'my-collection'
     const entry1 = {
       channel: 'channel',
+      collection,
       committed: 1,
       merged: 2,
       key: 'key',
@@ -340,9 +359,9 @@ describe('mergeOperation', () => {
       snapshotId: 'snapshot-id',
     }
     const log = new Map([['channel.key', entry1]])
-    const item = mergeOperation(log, updateOperation)
+    const item = mergeOperation(log, collection, updateOperation)
     expect(item).toEqual([
-      { ...entry1, committed: 3, merged: expect.any(Number) },
+      { ...entry1, collection, committed: 3, merged: expect.any(Number) },
     ])
     expect(log.get('channel.snapshot-id.key')).not.toBe(entry1)
   })
