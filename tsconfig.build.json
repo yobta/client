@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "exclude": ["**/lib", "**/*.test_disabled.*", "**/*.test.*", "node_modules"],
+  "references": [
+    {
+      "path": "@yobta/client/tsconfig.build.json"
+    },
+    {
+      "path": "@yobta/protocol/tsconfig.build.json"
+    },
+    {
+      "path": "@yobta/server/tsconfig.build.json"
+    }
+  ]
+}
