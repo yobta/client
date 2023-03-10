@@ -6,10 +6,10 @@ clean:
 	rm -f *.tsbuildinfo
 
 build: clean
-	pnpm build
+	pnpm --filter {@yobta/*} run build
 
 watch:
-	pnpm --parallel --filter {@yobta/*} run watch
+	pnpm --parallel --filter {@yobta/*} run build:watch
 
 check: typecheck lint test
 

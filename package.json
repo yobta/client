@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
     "lint": "eslint --ext js,ts,tsx .",
     "lint+fix": "eslint --ext js,ts,tsx --fix .",
     "test": "vitest --coverage --run --passWithNoTests ."
