@@ -8,6 +8,9 @@ clean:
 build: clean
 	pnpm build
 
+watch:
+	pnpm --parallel --filter {@yobta/*} run watch
+
 check: typecheck lint test
 
 dev-backend:
@@ -16,8 +19,8 @@ dev-backend:
 dev-next:
 	cd dev/next && pnpm dev
 
-d:
-	make -j 2 dev-backend dev-next
+d: build
+	make -j 3 watch dev-backend dev-next
 
 i:
 	rm -rf @yobta/**/node_modules
@@ -41,6 +44,3 @@ test: build
 	pnpm test
 
 check: lint typecheck test
-
-watch:
-	pnpm tsc --watch
