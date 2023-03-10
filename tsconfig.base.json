@@ -15,5 +15,6 @@
       "@yobta/*": ["./@yobta/*/src"]
     }
   },
+  "files": [],
   "exclude": ["**/lib", "**/*.test_disabled.*", "node_modules"]
 }
