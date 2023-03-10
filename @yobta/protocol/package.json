@@ -6,7 +6,8 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsc -p tsconfig.build.json",
+    "build:watch": "tsc -p tsconfig.build.json --watch",
     "typecheck": "tsc --noEmit"
   },
   "sideEffects": false,
