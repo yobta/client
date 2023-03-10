@@ -64,7 +64,7 @@ export const createCollection: YobtaCollectionFactory = <
         committed: validateCommitTime(operation.committed),
       }
       const operations = await write({ headers, operation: fixedOperation })
-      const entries = await log.merge(operations)
+      const entries = await log.merge(name, operations)
       const loggedOperations = entries.map(createOperationsFromEntries).flat()
       sendBack(loggedOperations)
     },
