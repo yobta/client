@@ -1,10 +1,14 @@
 import { getParams } from '../getParams/getParams.js'
-import { normalizePath } from '../normalizePath/normalizePath.js'
-import { parseRoute, YobtaParsedRoute } from '../parseRoute/parseRoute.js'
+import { parseRoute } from '../parseRoute/parseRoute.js'
 import { matchRoute } from '../matchRoute/matchRoute.js'
+import {
+  checkCollision,
+  YobtaRouterHeap,
+  YobtaRouterHeapItem,
+} from '../checkCollision/checkCollision.js'
 
 // #region  types
-export type YobtaAnyParams = Record<string, string>
+export type YobtaRouterAnyParams = Record<string, string>
 export type YobtaRouterCallback<
   Route extends string,
   Overloads extends AnyOverloads,
@@ -40,24 +44,21 @@ type RouteToParams<PathArray, Params = {}> = PathArray extends [
       : RouteToParams<Rest, Params & Record<Param, string>>
     : RouteToParams<Rest, Params>
   : Params
-type Heap = Map<string, HeapItem>
-type HeapItem = {
-  callbacks: Set<YobtaRouterCallback<string, AnyOverloads>>
-  parsedRoute: YobtaParsedRoute<string>
-}
+
 interface YobtaRouterFactory {
   (): YobtaRouter
 }
 // #endregion
 
 export const createRouter: YobtaRouterFactory = () => {
-  const heap: Heap = new Map()
-  const findItem = (path: string): HeapItem | undefined => {
+  const heap: YobtaRouterHeap = new Map()
+  const findItem = (path: string): YobtaRouterHeapItem | undefined => {
     const key = [...heap.keys()].find(route => matchRoute(route, path))
     return key ? heap.get(key) : undefined
   }
   const subscribe: YobtaRouter['subscribe'] = (unknownRoute, callback) => {
     const parsedRoute = parseRoute(unknownRoute)
+    checkCollision(heap, parsedRoute)
     const anyCallback = callback as unknown as YobtaRouterCallback<
       string,
       AnyOverloads
@@ -67,7 +68,7 @@ export const createRouter: YobtaRouterFactory = () => {
       parsedRoute,
     }
     item.callbacks.add(anyCallback)
-    heap.set(parsedRoute.id, item as HeapItem)
+    heap.set(parsedRoute.id, item as YobtaRouterHeapItem)
     return () => {
       heap.get(parsedRoute.id)?.callbacks.delete(anyCallback)
     }

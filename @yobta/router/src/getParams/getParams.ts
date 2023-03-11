@@ -2,13 +2,13 @@ import { YobtaRouteParams } from '../createRouter/createRouter.js'
 import { normalizePath } from '../normalizePath/normalizePath.js'
 import { YobtaParsedRoute } from '../parseRoute/parseRoute.js'
 
-interface YobtaGetParams {
+interface YobtaRouterGetParams {
   <Route extends string>(route: YobtaParsedRoute<Route>, path: string):
     | undefined
     | YobtaRouteParams<Route>
 }
 
-export const getParams: YobtaGetParams = <Path extends string>(
+export const getParams: YobtaRouterGetParams = <Path extends string>(
   { regex, paramNames }: YobtaParsedRoute<Path>,
   rawPath: string,
 ) => {
