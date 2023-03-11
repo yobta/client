@@ -37,6 +37,9 @@ typecheck:
 test-client:
 	cd @yobta/client && pnpm test:watch
 
+test-router:
+	cd @yobta/router && pnpm test:watch
+
 test-server:
 	cd @yobta/server && pnpm test:watch
 
