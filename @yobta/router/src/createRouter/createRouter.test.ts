@@ -131,10 +131,3 @@ describe('pub/sub', () => {
     )
   })
 })
-
-it('checks match method', () => {
-  const router = createRouter()
-  router.subscribe('/user/:id', vi.fn())
-  expect(router.match('/user/123')).toBe(true)
-  expect(router.match('/user/123/name')).toBe(false)
-})

@@ -15,7 +15,6 @@ export type YobtaRouter = {
     callback: YobtaRouterCallback<Route, Overloads>,
   ): VoidFunction
   publish(path: string, ...overloads: AnyOverloads): boolean
-  match(path: string): boolean
 }
 export type YobtaRouteParams<Route extends string> = RouteToParams<
   YobtaSplitPath<Route, '/'>
@@ -57,12 +56,12 @@ export const createRouter: YobtaRouterFactory = () => {
     const key = [...heap.keys()].find(route => matchRoute(route, path))
     return key ? heap.get(key) : undefined
   }
-  const subscribe: YobtaRouter['subscribe'] = (route, callback) => {
+  const subscribe: YobtaRouter['subscribe'] = (unknownRoute, callback) => {
+    const parsedRoute = parseRoute(unknownRoute)
     const anyCallback = callback as unknown as YobtaRouterCallback<
       string,
       AnyOverloads
     >
-    const parsedRoute = parseRoute(route)
     const item = heap.get(parsedRoute.id) || {
       callbacks: new Set(),
       parsedRoute,
@@ -83,14 +82,7 @@ export const createRouter: YobtaRouterFactory = () => {
     }
     return !!item
   }
-  const match: YobtaRouter['match'] = path => {
-    const normalizedPath = normalizePath(path)
-    return [...heap.values()].some(({ parsedRoute }) =>
-      parsedRoute.regex.test(normalizedPath),
-    )
-  }
   return {
-    match,
     publish,
     subscribe,
   }
