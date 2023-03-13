@@ -5,7 +5,7 @@ import {
   checkCollision,
   YobtaRouterHeap,
   YobtaRouterHeapItem,
-} from '../checkCollision/checkCollision.js'
+} from '../_checkCollision/checkCollision.js'
 
 // #region  types
 export type YobtaRouterAnyParams = Record<string, string>
