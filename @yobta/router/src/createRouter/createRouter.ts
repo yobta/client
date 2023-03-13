@@ -18,7 +18,10 @@ export type YobtaRouter = {
     route: Route,
     callback: YobtaRouterCallback<Route, Overloads>,
   ): VoidFunction
-  publish(path: string, ...overloads: AnyOverloads): void
+  publish<Overloads extends AnyOverloads>(
+    path: string,
+    ...overloads: Overloads
+  ): void
 }
 export type YobtaRouteParams<Route extends string> = RouteToParams<
   YobtaSplitPath<Route, '/'>
