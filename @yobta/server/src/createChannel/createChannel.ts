@@ -7,6 +7,7 @@ import {
   YOBTA_UNSUBSCRIBE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
+  YobtaHeaders,
 } from '@yobta/protocol'
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
@@ -24,18 +25,18 @@ type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   route: string
   access: {
     read(message: {
-      headers: Headers
+      headers: YobtaHeaders
       operation: YobtaSubscribeOperation
     }): Promise<void>
     write(message: {
-      headers: Headers
+      headers: YobtaHeaders
       operation: YobtaCollectionOperation<Snapshot>
     }): Promise<void>
   }
 }
 
 type Message<Snapshot extends YobtaCollectionAnySnapshot> = {
-  headers: Headers
+  headers: YobtaHeaders
   operation:
     | YobtaCollectionOperation<Snapshot>
     | YobtaSubscribeOperation

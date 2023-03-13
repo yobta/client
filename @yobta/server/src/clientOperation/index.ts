@@ -1,13 +1,7 @@
-import {
-  YobtaClientOperation,
-  YobtaCollectionAnySnapshot,
-} from '@yobta/protocol'
+import { YobtaClientMessage } from '@yobta/protocol'
 
 interface ParseClientOperation {
-  (message: string): {
-    headers: Headers
-    operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
-  }
+  (message: string): YobtaClientMessage
 }
 
 export const parseClientOperation: ParseClientOperation = message => {

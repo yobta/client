@@ -27,6 +27,7 @@
   "dependencies": {
     "@types/ws": "^8.5.4",
     "@yobta/protocol": "workspace:*",
+    "@yobta/router": "workspace:*",
     "@yobta/stores": "^0.2.1",
     "nanoid": "^4.0.0"
   }

@@ -1,3 +1,5 @@
+import { YobtaJsonValue } from '@yobta/stores'
+
 import { YobtaCollectionAnySnapshot } from './collection.js'
 import { YobtaDataOperation, YobtaOperationId } from './unsorted.js'
 
@@ -30,4 +32,11 @@ export type YobtaUnsubscribeOperation = {
   channel: string
   committed: number
   type: typeof YOBTA_UNSUBSCRIBE
+}
+
+export type YobtaHeaders = Record<string, YobtaJsonValue>
+
+export type YobtaClientMessage = {
+  headers: YobtaHeaders
+  operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
 }

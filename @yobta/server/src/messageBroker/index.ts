@@ -1,5 +1,5 @@
 import {
-  YobtaClientOperation,
+  YobtaClientMessage,
   YobtaCollectionAnySnapshot,
   YobtaDataOperation,
   YobtaRemoteOperation,
@@ -26,13 +26,7 @@ interface SendBack {
 }
 
 const incoming = createPubSub<{
-  [key: string]: [
-    {
-      headers: Headers
-      operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
-    },
-    ServerCallbacks,
-  ]
+  [key: string]: [YobtaClientMessage, ServerCallbacks]
 }>()
 
 const outgoing = createPubSub<{

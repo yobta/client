@@ -6,8 +6,11 @@ const transport = websocketYobta({ url: 'ws://localhost:8080/' })
 const internetObserver = createConnectivityStore()
 
 const connect = clientYobta({
-  transport,
   internetObserver,
+  getHeaders() {
+    return {}
+  },
+  transport,
 })
 
 export const useClient = (): void => {

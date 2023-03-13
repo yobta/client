@@ -1,6 +1,7 @@
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionOperation,
+  YobtaHeaders,
   YobtaSubscribeOperation,
 } from '@yobta/protocol'
 
@@ -30,7 +31,7 @@ type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
 export type YobtaCollectionMessage<
   Snapshot extends YobtaCollectionAnySnapshot,
 > = {
-  headers: Headers
+  headers: YobtaHeaders
   operation: YobtaCollectionOperation<Snapshot>
 }
 export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {

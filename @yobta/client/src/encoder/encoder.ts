@@ -1,19 +1,16 @@
 import {
   YobtaError,
-  YobtaClientOperation,
   YOBTA_ERROR,
   YobtaRemoteOperation,
   YobtaCollectionAnySnapshot,
+  YobtaClientMessage,
 } from '@yobta/protocol'
 
 import { createOperation } from '../createOperation/createOperation.js'
 
 interface YobtaEncoderFactory {
   (): {
-    encode: (params: {
-      headers?: Record<string, string>
-      operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
-    }) => string
+    encode: (params: YobtaClientMessage) => string
     decode: (value: string) => YobtaRemoteOperation<YobtaCollectionAnySnapshot>
   }
 }
