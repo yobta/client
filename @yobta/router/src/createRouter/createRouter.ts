@@ -77,7 +77,7 @@ export const createRouter: YobtaRouterFactory = () => {
       matchRoute(route, path),
     )
     if (!item) {
-      throw new Error("Can't find route")
+      throw new Error(`Can't find route for path: ${path}`)
     }
     const params = getParams(item.parsedRoute, path)
     item.callbacks.forEach(callback => {
