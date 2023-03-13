@@ -57,6 +57,10 @@ export const notifySibscribers = <Snapshot extends YobtaCollectionAnySnapshot>(
   operations: YobtaDataOperation<Snapshot>[],
 ): void => {
   operations.forEach(operation => {
-    subscriptions.publish(operation.channel, operation)
+    try {
+      subscriptions.publish(operation.channel, operation)
+    } catch (error) {
+      // TODO: handle error
+    }
   })
 }
