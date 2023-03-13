@@ -55,10 +55,6 @@ interface YobtaRouterFactory {
 
 export const createRouter: YobtaRouterFactory = () => {
   const heap: YobtaRouterHeap = new Map()
-  const findItem = (path: string): YobtaRouterHeapItem | undefined => {
-    const key = [...heap.keys()].find(route => matchRoute(route, path))
-    return key ? heap.get(key) : undefined
-  }
   const subscribe: YobtaRouter['subscribe'] = (unknownRoute, callback) => {
     const parsedRoute = parseRoute(unknownRoute)
     checkCollision(heap, parsedRoute)
@@ -77,9 +73,11 @@ export const createRouter: YobtaRouterFactory = () => {
     }
   }
   const publish: YobtaRouter['publish'] = (path, ...overloads) => {
-    const item = findItem(path)
+    const item = [...heap.values()].find(({ parsedRoute: { route } }) =>
+      matchRoute(route, path),
+    )
     if (!item) {
-      throw new Error("Can't find route")
+      throw new Error(`Can't find route for path: ${path}`)
     }
     const params = getParams(item.parsedRoute, path)
     item.callbacks.forEach(callback => {
