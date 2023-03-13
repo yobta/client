@@ -36,17 +36,16 @@ type YobtaSplitPath<S extends string, D extends string> = string extends S
   : S extends `${infer T}${D}${infer U}`
   ? [T, ...YobtaSplitPath<U, D>]
   : [S]
-type RouteToParams<PathArray, Params = {}> = PathArray extends [
-  infer First,
-  ...infer Rest,
-]
-  ? First extends `:${infer Param}`
-    ? // eslint-disable-next-line @typescript-eslint/no-shadow
-      First extends `:${infer Param}?`
-      ? RouteToParams<Rest, Params & Partial<Record<Param, string>>>
-      : RouteToParams<Rest, Params & Record<Param, string>>
-    : RouteToParams<Rest, Params>
-  : Params
+type RouteToParams<PathArray, Params = {}> = Readonly<
+  PathArray extends [infer First, ...infer Rest]
+    ? First extends `:${infer Param}`
+      ? // eslint-disable-next-line @typescript-eslint/no-shadow
+        First extends `:${infer Param}?`
+        ? RouteToParams<Rest, Params & Partial<Record<Param, string>>>
+        : RouteToParams<Rest, Params & Record<Param, string>>
+      : RouteToParams<Rest, Params>
+    : Params
+>
 
 interface YobtaRouterFactory {
   (): YobtaRouter
@@ -79,7 +78,7 @@ export const createRouter: YobtaRouterFactory = () => {
     if (!item) {
       throw new Error(`Can't find route for path: ${path}`)
     }
-    const params = getParams(item.parsedRoute, path)!
+    const params = getParams(item.parsedRoute, path)
     item.callbacks.forEach(callback => {
       callback(params, ...overloads)
     })
