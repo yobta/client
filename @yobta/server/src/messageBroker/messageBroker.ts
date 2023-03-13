@@ -6,6 +6,7 @@ import {
   YobtaSubscribeOperation,
   YobtaUnsubscribeOperation,
 } from '@yobta/protocol'
+import { createRouter, YobtaRouterCallback } from '@yobta/router'
 import { createPubSub } from '@yobta/stores'
 
 import { ServerCallbacks } from '../createServer/createServer.js'
@@ -25,16 +26,35 @@ interface SendBack {
   ): void
 }
 
-const incoming = createPubSub<{
-  [key: string]: [YobtaClientMessage, ServerCallbacks]
-}>()
+const incoming = createRouter()
 
 const outgoing = createPubSub<{
   [key: string]: [YobtaRemoteOperation<YobtaCollectionAnySnapshot>]
 }>()
 
-export const onClientMessage = incoming.subscribe
-export const broadcastClientMessage = incoming.publish
+export const onClientMessage = <
+  Path extends string,
+  Overloads extends [YobtaClientMessage, ServerCallbacks],
+>(
+  path: Path,
+  callback: YobtaRouterCallback<Path, Overloads>,
+): VoidFunction => incoming.subscribe<Path, Overloads>(path, callback)
+
+export const broadcastClientMessage = (
+  channel: string,
+  { headers, operation }: YobtaClientMessage,
+  callbacks: ServerCallbacks,
+): void => {
+  try {
+    incoming.publish<[YobtaClientMessage, ServerCallbacks]>(
+      channel,
+      { headers, operation },
+      callbacks,
+    )
+  } catch (_e) {
+    callbacks.reject(operation, 'Channel not found')
+  }
+}
 
 export const registerConnection: ConnectionManager = <
   Snapshot extends YobtaCollectionAnySnapshot,
