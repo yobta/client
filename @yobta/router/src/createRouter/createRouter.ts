@@ -1,6 +1,6 @@
 import { getParams } from '../getParams/getParams.js'
 import { parseRoute } from '../parseRoute/parseRoute.js'
-import { matchRoute } from '../matchRoute/matchRoute.js'
+import { testRoute } from '../testRoute/testRoute.js'
 import {
   checkCollision,
   YobtaRouterHeap,
@@ -74,14 +74,14 @@ export const createRouter: YobtaRouterFactory = () => {
   }
   const publish: YobtaRouter['publish'] = (path, ...overloads) => {
     const item = [...heap.values()].find(({ parsedRoute: { route } }) =>
-      matchRoute(route, path),
+      testRoute(route, path),
     )
     if (!item) {
       throw new Error(`Can't find route for path: ${path}`)
     }
-    const params = getParams(item.parsedRoute, path)
+    const params = getParams(item.parsedRoute, path)!
     item.callbacks.forEach(callback => {
-      callback(params!, ...overloads)
+      callback(params, ...overloads)
     })
   }
   return {

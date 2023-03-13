@@ -1,5 +1,5 @@
 import { YobtaRouterCallback } from '../createRouter/createRouter.js'
-import { matchRoute } from '../matchRoute/matchRoute.js'
+import { testRoute } from '../testRoute/testRoute.js'
 import { YobtaParsedRoute } from '../parseRoute/parseRoute.js'
 
 export type YobtaRouterHeap = Map<string, YobtaRouterHeapItem>
@@ -20,7 +20,7 @@ export const checkCollision: YobtaRouterCheckConllisions = (
   { id, route },
 ): void => {
   for (const { parsedRoute } of heap.values()) {
-    if (id !== parsedRoute.id && matchRoute(parsedRoute.route, route)) {
+    if (id !== parsedRoute.id && testRoute(parsedRoute.route, route)) {
       throw new Error(`Route '${route}' conflicts with '${parsedRoute.route}'`)
     }
   }
