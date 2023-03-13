@@ -12,7 +12,7 @@ import {
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
 import { ServerCallbacks } from '../createServer/createServer.js'
-import { onClientMessage } from '../messageBroker/index.js'
+import { onClientMessage } from '../messageBroker/messageBroker.js'
 
 interface YobtaChannelFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(

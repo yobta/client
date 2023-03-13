@@ -11,7 +11,7 @@ import { stringifyServerOperation } from '../stringifyServerOperation/stringifyS
 import {
   broadcastClientMessage,
   registerConnection,
-} from '../messageBroker/index.js'
+} from '../messageBroker/messageBroker.js'
 import { parseClientOperation } from '../clientOperation/index.js'
 
 interface ServerFactory {

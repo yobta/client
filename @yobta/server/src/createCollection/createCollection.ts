@@ -7,7 +7,7 @@ import {
 
 import { YobtaLog } from '../createMemoryLog/createMemoryLog.js'
 import { createOperationsFromEntries } from '../createOperationsFromEntries/createOperationsFromEntries.js'
-import { sendBack } from '../messageBroker/index.js'
+import { sendBack } from '../messageBroker/messageBroker.js'
 import { validateCommitTime } from '../validateCommitTime/validateCommitTime.js'
 
 interface YobtaCollectionFactory {
