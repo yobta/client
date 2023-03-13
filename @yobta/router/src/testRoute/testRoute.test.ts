@@ -1,4 +1,4 @@
-import { matchRoute } from './matchRoute.js'
+import { testRoute } from './testRoute.js'
 
 const matches = [
   ['/user/:id', '/user/123'],
@@ -25,12 +25,12 @@ const mismatches = [
 
 matches.forEach(args => {
   it(`checks match - '${args.join(' <-> ')}'`, () => {
-    expect(matchRoute(...args)).toBe(true)
+    expect(testRoute(...args)).toBe(true)
   })
 })
 
 mismatches.forEach(args => {
   it(`checks mismatch - '${args.join(' <!> ')}'`, () => {
-    expect(matchRoute(...args)).toBe(false)
+    expect(testRoute(...args)).toBe(false)
   })
 })
