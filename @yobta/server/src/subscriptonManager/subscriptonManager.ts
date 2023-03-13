@@ -1,5 +1,4 @@
 import {
-  YobtaClientOperation,
   YobtaCollectionAnySnapshot,
   YobtaDataOperation,
   YobtaRemoteOperation,
@@ -8,9 +7,7 @@ import {
 } from '@yobta/protocol'
 import { createPubSub } from '@yobta/stores'
 
-import { ServerCallbacks } from '../createServer/createServer.js'
-
-interface ConnectionManager {
+interface YobtaConnectionManager {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     callback: (operation: YobtaRemoteOperation<Snapshot>) => void,
   ): {
@@ -19,30 +16,12 @@ interface ConnectionManager {
     clear(): void
   }
 }
-interface SendBack {
-  <Snapshot extends YobtaCollectionAnySnapshot>(
-    operations: YobtaDataOperation<Snapshot>[],
-  ): void
-}
 
-const incoming = createPubSub<{
-  [key: string]: [
-    {
-      headers: Headers
-      operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
-    },
-    ServerCallbacks,
-  ]
-}>()
-
-const outgoing = createPubSub<{
+const subscriptions = createPubSub<{
   [key: string]: [YobtaRemoteOperation<YobtaCollectionAnySnapshot>]
 }>()
 
-export const onClientMessage = incoming.subscribe
-export const broadcastClientMessage = incoming.publish
-
-export const registerConnection: ConnectionManager = <
+export const registerConnection: YobtaConnectionManager = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
   callback: (operation: YobtaRemoteOperation<Snapshot>) => void,
@@ -52,7 +31,7 @@ export const registerConnection: ConnectionManager = <
     add({ channel }) {
       if (!map[channel]) {
         map[channel] = 1
-        outgoing.subscribe(channel, callback)
+        subscriptions.subscribe(channel, callback)
       } else {
         map[channel]++
       }
@@ -61,21 +40,27 @@ export const registerConnection: ConnectionManager = <
       if (map[channel]) {
         map[channel]--
         if (!map[channel]) {
-          outgoing.unsubscribe(channel, callback)
+          subscriptions.unsubscribe(channel, callback)
           delete map[channel]
         }
       }
     },
     clear() {
       for (const channel in map) {
-        outgoing.unsubscribe(channel, callback)
+        subscriptions.unsubscribe(channel, callback)
       }
       map = {}
     },
   }
 }
-export const sendBack: SendBack = operations => {
+export const notifySibscribers = <Snapshot extends YobtaCollectionAnySnapshot>(
+  operations: YobtaDataOperation<Snapshot>[],
+): void => {
   operations.forEach(operation => {
-    outgoing.publish(operation.channel, operation)
+    try {
+      subscriptions.publish(operation.channel, operation)
+    } catch (error) {
+      // TODO: handle error
+    }
   })
 }

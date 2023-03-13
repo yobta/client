@@ -8,6 +8,9 @@
       "path": "@yobta/protocol/tsconfig.json"
     },
     {
+      "path": "@yobta/router/tsconfig.json"
+    },
+    {
       "path": "@yobta/server/tsconfig.json"
     }
   ]

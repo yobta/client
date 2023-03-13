@@ -2,6 +2,7 @@ import { YobtaOnlineStore } from '@yobta/stores'
 import {
   YobtaClientOperation,
   YobtaCollectionAnySnapshot,
+  YobtaHeaders,
 } from '@yobta/protocol'
 
 import {
@@ -27,7 +28,7 @@ interface ClientFactory {
     transport: YobtaTransport
     encoder?: YobtaClientEncoder
     internetObserver: YobtaOnlineStore
-    getHeaders?: () => Record<string, string>
+    getHeaders(): YobtaHeaders
     messageTimeoutMs?: number
   }): () => VoidFunction
 }
@@ -72,7 +73,7 @@ export const clientYobta: ClientFactory = ({
   ): void => {
     if (connection?.isOpen()) {
       const encoded = encoder.encode({
-        headers: getHeaders?.(),
+        headers: getHeaders(),
         operation,
       })
       connection.send(encoded)
