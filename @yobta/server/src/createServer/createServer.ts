@@ -11,11 +11,9 @@ import {
 } from '@yobta/protocol'
 
 import { stringifyServerOperation } from '../stringifyServerOperation/stringifyServerOperation.js'
-import {
-  broadcastClientMessage,
-  registerConnection,
-} from '../messageBroker/messageBroker.js'
+import { registerConnection } from '../subscriptonManager/subscriptonManager.js'
 import { parseClientOperation } from '../clientOperation/index.js'
+import { broadcastClientMessage } from '../router/router.js'
 
 interface ServerFactory {
   (wss: WebSocketServer): void

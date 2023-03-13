@@ -13,7 +13,7 @@ import { YobtaRouteParams } from '@yobta/router'
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
 import { ServerCallbacks } from '../createServer/createServer.js'
-import { onClientMessage } from '../messageBroker/messageBroker.js'
+import { onClientMessage } from '../router/router.js'
 
 interface YobtaChannelFactory {
   <Snapshot extends YobtaCollectionAnySnapshot, Route extends string>(

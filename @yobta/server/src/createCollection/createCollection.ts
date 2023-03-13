@@ -7,7 +7,7 @@ import {
 
 import { YobtaLog } from '../createMemoryLog/createMemoryLog.js'
 import { createOperationsFromEntries } from '../createOperationsFromEntries/createOperationsFromEntries.js'
-import { sendBack } from '../messageBroker/messageBroker.js'
+import { notifySibscribers } from '../subscriptonManager/subscriptonManager.js'
 import { validateCommitTime } from '../validateCommitTime/validateCommitTime.js'
 
 interface YobtaCollectionFactory {
@@ -56,7 +56,7 @@ export const createCollection: YobtaCollectionFactory = <
       const entries = await log.find(operation.channel, operation.merged)
       if (entries.length) {
         const operations = createOperationsFromEntries(entries)
-        sendBack(operations)
+        notifySibscribers(operations)
       }
     },
     async merge({ headers, operation }: YobtaCollectionMessage<Snapshot>) {
@@ -67,7 +67,7 @@ export const createCollection: YobtaCollectionFactory = <
       const operations = await write({ headers, operation: fixedOperation })
       const entries = await log.merge(name, operations)
       const loggedOperations = entries.map(createOperationsFromEntries).flat()
-      sendBack(loggedOperations)
+      notifySibscribers(loggedOperations)
     },
   }
 }
