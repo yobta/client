@@ -8,6 +8,9 @@
   "references": [
     {
       "path": "../protocol/tsconfig.build.json"
+    },
+    {
+      "path": "../router/tsconfig.build.json"
     }
   ]
 }
