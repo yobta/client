@@ -1,20 +1,16 @@
 import { parseRoute } from '../parseRoute/parseRoute.js'
 import { getParams } from './getParams.js'
 
-it('returns undefined if no match', () => {
+it('throws if not matched', () => {
   const route = parseRoute('/foo')
-  const result = getParams(route, '/bar')
-  expect(result).toBeUndefined()
+  expect(() => {
+    getParams(route, '/bar')
+  }).toThrow()
 })
 it('returns empty params object if no params', () => {
   const route = parseRoute('/foo')
   const result = getParams(route, '/foo')
   expect(result).toEqual({})
-})
-it('returns undefined if no params and not matched', () => {
-  const route = parseRoute('/foo')
-  const result = getParams(route, '/bar')
-  expect(result).toBeUndefined()
 })
 it('allows optional params to be not filled', () => {
   const route = parseRoute('/foo/:bar/:baz?')

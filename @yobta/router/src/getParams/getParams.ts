@@ -3,23 +3,24 @@ import { normalizePath } from '../normalizePath/normalizePath.js'
 import { YobtaParsedRoute } from '../parseRoute/parseRoute.js'
 
 interface YobtaRouterGetParams {
-  <Route extends string>(route: YobtaParsedRoute<Route>, path: string):
-    | undefined
-    | YobtaRouteParams<Route>
+  <Route extends string>(
+    route: YobtaParsedRoute<Route>,
+    path: string,
+  ): YobtaRouteParams<Route>
 }
 
 export const getParams: YobtaRouterGetParams = <Path extends string>(
-  { regex, paramNames }: YobtaParsedRoute<Path>,
+  { regex, paramNames, route }: YobtaParsedRoute<Path>,
   rawPath: string,
 ) => {
   const path = normalizePath(rawPath)
   const emptyParams = {} as YobtaRouteParams<Path>
-  if (!paramNames.length) {
-    return regex.test(path) ? emptyParams : undefined
+  const matches = path.match(regex)
+  if (!matches) {
+    throw new Error(`Path '${path}' does not match route '${route}'`)
   }
-  return path
-    .match(regex)
-    ?.slice(1)
+  return matches
+    .slice(1)
     .reduce<YobtaRouteParams<Path>>(
       (params, match, index) =>
         match
