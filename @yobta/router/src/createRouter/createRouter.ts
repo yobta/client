@@ -18,7 +18,7 @@ export type YobtaRouter = {
     route: Route,
     callback: YobtaRouterCallback<Route, Overloads>,
   ): VoidFunction
-  publish(path: string, ...overloads: AnyOverloads): boolean
+  publish(path: string, ...overloads: AnyOverloads): void
 }
 export type YobtaRouteParams<Route extends string> = RouteToParams<
   YobtaSplitPath<Route, '/'>
@@ -75,13 +75,13 @@ export const createRouter: YobtaRouterFactory = () => {
   }
   const publish: YobtaRouter['publish'] = (path, ...overloads) => {
     const item = findItem(path)
-    if (item) {
-      const params = getParams(item.parsedRoute, path)
-      item.callbacks.forEach(callback => {
-        callback(params!, ...overloads)
-      })
+    if (!item) {
+      throw new Error("Can't find route")
     }
-    return !!item
+    const params = getParams(item.parsedRoute, path)
+    item.callbacks.forEach(callback => {
+      callback(params!, ...overloads)
+    })
   }
   return {
     publish,
