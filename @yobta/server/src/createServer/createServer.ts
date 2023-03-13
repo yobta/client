@@ -12,7 +12,7 @@ import {
 
 import { stringifyServerOperation } from '../stringifyServerOperation/stringifyServerOperation.js'
 import { registerConnection } from '../subscriptonManager/subscriptonManager.js'
-import { parseClientOperation } from '../clientOperation/index.js'
+import { parseClientMessage } from '../parseClientMessage/parseClientMessage.js'
 import { broadcastClientMessage } from '../router/router.js'
 
 interface ServerFactory {
@@ -52,7 +52,7 @@ export const createServer: ServerFactory = wss => {
       unsubscribe: mediator.remove,
     }
     connection.on('message', (message: string) => {
-      const { operation, headers } = parseClientOperation(message)
+      const { operation, headers } = parseClientMessage(message)
       const receivedOp = stringifyServerOperation({
         id: nanoid(),
         operationId: operation.id,
