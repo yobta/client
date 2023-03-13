@@ -91,13 +91,14 @@ describe('pub/sub', () => {
     expect(() => router.subscribe('/user/:id?', mockSubscriber2)).toThrow()
     expect(() => router.subscribe('/user/:name', mockSubscriber2)).toThrow()
   })
-  it('ignores unknown urls and returns false when published', () => {
+  it('throws when published to the unknown route', () => {
     const router = createRouter()
     const mockSubscriber = vi.fn()
     router.subscribe('/user/:id', mockSubscriber)
-    const result = router.publish('/user/123/name')
+    expect(() => {
+      router.publish('/user/123/name')
+    }).toThrow()
     expect(mockSubscriber).not.toBeCalled()
-    expect(result).toBe(false)
   })
   it('subscribes to empty route', () => {
     const router = createRouter()
@@ -107,11 +108,13 @@ describe('pub/sub', () => {
     router.publish('', 'data')
     expect(mockSubscriber).toBeCalledTimes(2)
   })
-  it('ignores incorrect params', () => {
+  it('throws when published with incorrect params', () => {
     const router = createRouter()
     const mockSubscriber = vi.fn()
     router.subscribe('/user/?:id', mockSubscriber)
-    router.publish('/user/?123')
+    expect(() => {
+      router.publish('/user/?123')
+    }).toThrow()
     expect(mockSubscriber).toBeCalledTimes(0)
   })
   it('deduplicates subscribers', () => {
