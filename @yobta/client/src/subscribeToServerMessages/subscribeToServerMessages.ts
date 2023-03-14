@@ -22,8 +22,9 @@ export const subscribeToServerMessages = <
   getVersion: YobtaLogVersionGetter,
   callback: YobtaServerSubscriber<Snapshot>,
 ): VoidFunction => {
-  const subscription: YobtaServerSubscription<Snapshot> = {
-    callback,
+  const subscription: YobtaServerSubscription<YobtaCollectionAnySnapshot> = {
+    callback:
+      callback as unknown as YobtaServerSubscriber<YobtaCollectionAnySnapshot>,
     channel,
     getVersion,
   }

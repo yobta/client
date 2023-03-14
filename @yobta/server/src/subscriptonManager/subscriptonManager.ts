@@ -1,15 +1,17 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaDataOperation,
-  YobtaRemoteOperation,
+  YobtaServerDataOperation,
+  YobtaServerOperation,
   YobtaSubscribeOperation,
   YobtaUnsubscribeOperation,
 } from '@yobta/protocol'
 import { createPubSub } from '@yobta/stores'
 
 interface YobtaConnectionManager {
-  <Snapshot extends YobtaCollectionAnySnapshot>(
-    callback: (operation: YobtaRemoteOperation<Snapshot>) => void,
+  (
+    callback: (
+      operation: YobtaServerOperation<YobtaCollectionAnySnapshot>,
+    ) => void,
   ): {
     add(operation: YobtaSubscribeOperation): void
     remove(operation: YobtaUnsubscribeOperation): void
@@ -18,13 +20,13 @@ interface YobtaConnectionManager {
 }
 
 const subscriptions = createPubSub<{
-  [key: string]: [YobtaRemoteOperation<YobtaCollectionAnySnapshot>]
+  [key: string]: [YobtaServerOperation<YobtaCollectionAnySnapshot>]
 }>()
 
-export const registerConnection: YobtaConnectionManager = <
-  Snapshot extends YobtaCollectionAnySnapshot,
->(
-  callback: (operation: YobtaRemoteOperation<Snapshot>) => void,
+export const registerConnection: YobtaConnectionManager = (
+  callback: (
+    operation: YobtaServerOperation<YobtaCollectionAnySnapshot>,
+  ) => void,
 ) => {
   let map: Record<string, number> = {}
   return {
@@ -53,8 +55,8 @@ export const registerConnection: YobtaConnectionManager = <
     },
   }
 }
-export const notifySibscribers = <Snapshot extends YobtaCollectionAnySnapshot>(
-  operations: YobtaDataOperation<Snapshot>[],
+export const notifySibscribers = (
+  operations: YobtaServerDataOperation<YobtaCollectionAnySnapshot>[],
 ): void => {
   operations.forEach(operation => {
     try {

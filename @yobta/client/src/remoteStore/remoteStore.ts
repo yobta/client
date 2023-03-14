@@ -1,13 +1,13 @@
 import { broadcastChannelPlugin, createStore } from '@yobta/stores'
 import {
   YobtaCollectionAnySnapshot,
-  YobtaRemoteOperation,
+  YobtaServerOperation,
 } from '@yobta/protocol'
 
 export const remoteStore = createStore<
-  YobtaRemoteOperation<YobtaCollectionAnySnapshot>
+  YobtaServerOperation<YobtaCollectionAnySnapshot>
 >(
-  {} as YobtaRemoteOperation<YobtaCollectionAnySnapshot>,
+  {} as YobtaServerOperation<YobtaCollectionAnySnapshot>,
   broadcastChannelPlugin({
     channel: 'yobta-remote-op',
   }),

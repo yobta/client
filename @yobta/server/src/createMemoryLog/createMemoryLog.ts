@@ -1,88 +1,90 @@
 import {
+  YobtaClientDataOperation,
   YobtaCollectionAnySnapshot,
-  YobtaCollectionId,
-  YobtaDataOperation,
-  YobtaOperationId,
+  YobtaCollectionRevalidateOperation,
+  YobtaCollectionTuple,
+  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
-import { YobtaJsonValue } from '@yobta/stores'
+import { createStore } from '@yobta/stores'
+import { nanoid } from 'nanoid'
+
+import {
+  mergeCollectionOperation,
+  YobtaChannelLogEntry,
+} from './mergeCollectionOperation/mergeCollectionOperation.js'
+import {
+  mergeSnapshot,
+  YobtaServerLogSnapshot,
+} from './mergeSnapshot/mergeSnapshot.js'
 
 interface YobtaMemoryLogFactory {
   (): YobtaLog
 }
 
-export type YobtaLogEntry = {
-  channel: string
-  collection: string
-  committed: number
-  key: string
-  merged: number
-  operationId: YobtaOperationId
-  snapshotId: YobtaCollectionId
-  value: YobtaJsonValue | undefined
-}
-
 export type YobtaLog = {
-  find(channel: string, merged: number): Promise<YobtaLogEntry[]>
-  merge(
+  find(
+    channel: string,
+    merged: number,
+  ): Promise<YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>[]>
+  merge<
+    Operations extends YobtaClientDataOperation<YobtaCollectionAnySnapshot>[],
+  >(
     collection: string,
-    operations: YobtaDataOperation<YobtaCollectionAnySnapshot>[],
-  ): Promise<YobtaLogEntry[][]>
-}
-
-type YobtaMemoryLog = Map<string, YobtaLogEntry>
-
-const getEntryId = (
-  channel: string,
-  snapshotId: YobtaCollectionId,
-  key: string,
-): string => `${channel}.${snapshotId}.${key}`
-
-const mergeOperation = (
-  log: YobtaMemoryLog,
-  collection: string,
-  operation: YobtaDataOperation<YobtaCollectionAnySnapshot>,
-): YobtaLogEntry[] => {
-  const result: YobtaLogEntry[] = []
-  Object.entries(operation.data).forEach(([key, value]) => {
-    const entryKey = getEntryId(operation.channel, operation.snapshotId, key)
-    const candidateEntry: YobtaLogEntry = {
-      channel: operation.channel,
-      collection,
-      key,
-      value,
-      committed: operation.committed,
-      merged: Date.now(),
-      operationId: operation.id,
-      snapshotId: operation.snapshotId,
-    }
-    const existingEntry = log.get(entryKey)
-    if (candidateEntry.committed > (existingEntry?.committed || 0)) {
-      log.set(entryKey, candidateEntry)
-      result.push(candidateEntry)
-    }
-  })
-  return result
+    operations: Operations,
+  ): Promise<Operations>
 }
 
 export const createMemoryLog: YobtaMemoryLogFactory = () => {
-  const log: YobtaMemoryLog = new Map()
-  const find: YobtaLog['find'] = async (channel, merged) => {
-    const result: YobtaLogEntry[] = []
-    for (const entry of log.values()) {
-      if (entry.channel === channel && entry.merged > merged) {
-        result.push(entry)
-      }
-    }
-    return result
+  const snapshotsStore = createStore<YobtaServerLogSnapshot[]>([])
+  const channelsStore = createStore<YobtaChannelLogEntry[]>([])
+  const find: YobtaLog['find'] = async (channel, minMerged) => {
+    const operations = channelsStore.last()
+    const snashots = snapshotsStore.last()
+    return operations
+      .filter(entry => entry.channel === channel && entry.merged > minMerged)
+      .map(entry => {
+        const data: YobtaCollectionTuple<YobtaCollectionAnySnapshot>[] =
+          snashots
+            .filter(({ snapshotId }) => snapshotId === entry.snapshotId)
+            .map(({ key, value, committed, merged }) => [
+              key,
+              value,
+              committed,
+              merged,
+            ])
+        const operation: YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot> =
+          {
+            id: nanoid(),
+            type: YOBTA_COLLECTION_REVALIDATE,
+            channel,
+            snapshotId: entry.snapshotId,
+            nextSnapshotId: entry.nextSnapshotId,
+            committed: entry.committed,
+            merged: entry.merged,
+            deleted: entry.deleted,
+            data,
+          }
+        return operation
+      })
   }
-  const merge: YobtaLog['merge'] = async (collection, operations) =>
-    operations
-      .map(operation => mergeOperation(log, collection, operation))
-      .filter(chunk => chunk.length)
+  const merge: YobtaLog['merge'] = async (collection, operations) => {
+    const nextOps = operations.reduce<typeof operations>((acc, operation) => {
+      const mergedOperation = mergeSnapshot(
+        snapshotsStore,
+        collection,
+        operation,
+      )
+      if (operation.type === YOBTA_COLLECTION_INSERT) {
+        mergeCollectionOperation(channelsStore, operation)
+      }
+      acc.push(mergedOperation)
+      return acc
+    }, [] as unknown as typeof operations)
+    return nextOps
+  }
   return {
     find,
     merge,
   }
 }
-
-export default { mergeOperation }

@@ -5,9 +5,7 @@ import {
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
-import locals, { createMemoryLog } from './createMemoryLog.js'
-
-const { mergeOperation } = locals
+import { createMemoryLog } from './createMemoryLog.js'
 
 type MockItem = {
   id: string

@@ -1,6 +1,7 @@
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionInsertOperation,
+  YobtaCollectionRevalidateOperation,
   YobtaCollectionUpdateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
@@ -16,6 +17,7 @@ interface OperationResultPromiseFactory {
 type SupportedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionUpdateOperation<YobtaCollectionAnySnapshot>
+  | YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>
   | YobtaRejectOperation
 
 type Observer = (operation: SupportedOperation) => void

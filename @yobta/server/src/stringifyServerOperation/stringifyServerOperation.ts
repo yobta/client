@@ -1,11 +1,11 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaRemoteOperation,
+  YobtaServerOperation,
 } from '@yobta/protocol'
 
 interface YobtaStringifyServerOperation {
   <Snapshot extends YobtaCollectionAnySnapshot>(
-    operation: YobtaRemoteOperation<Snapshot>,
+    operation: YobtaServerOperation<Snapshot>,
   ): string
 }
 

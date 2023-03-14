@@ -1,5 +1,10 @@
-import { YobtaCollectionAnySnapshot } from './collection.js'
-import { YobtaDataOperation, YobtaOperationId } from './unsorted.js'
+import {
+  YobtaCollectionAnySnapshot,
+  YobtaCollectionInsertOperation,
+  YobtaCollectionRevalidateOperation,
+  YobtaCollectionUpdateOperation,
+} from './collection.js'
+import { YobtaOperationId } from './unsorted.js'
 
 export const YOBTA_RECEIVED = 'yobta-received'
 export type YobtaReceived = {
@@ -22,7 +27,16 @@ export type YobtaRejectOperation = {
   merged: number
 }
 
-export type YobtaRemoteOperation<Snapshot extends YobtaCollectionAnySnapshot> =
+export type YobtaServerOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaReceived
   | YobtaRejectOperation
-  | YobtaDataOperation<Snapshot>
+  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaCollectionRevalidateOperation<Snapshot>
+
+export type YobtaServerDataOperation<
+  Snapshot extends YobtaCollectionAnySnapshot,
+> =
+  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaCollectionRevalidateOperation<Snapshot>

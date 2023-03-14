@@ -1,7 +1,7 @@
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
-  PatchWithId,
+  YobtaCollectionPatchWithId,
   YobtaCollectionOperation,
 } from '@yobta/protocol'
 import {
@@ -24,7 +24,7 @@ export type YobtaCollectionState<Snapshot extends YobtaCollectionAnySnapshot> =
   Map<YobtaCollectionId, ItemWithMeta<Snapshot>>
 type ItemWithMeta<
   Snapshot extends YobtaCollectionAnySnapshot,
-  PartialSnapshot extends YobtaCollectionAnySnapshot = PatchWithId<Snapshot>,
+  PartialSnapshot extends YobtaCollectionAnySnapshot = YobtaCollectionPatchWithId<Snapshot>,
 > = [
   PartialSnapshot,
   Versions<PartialSnapshot>,
