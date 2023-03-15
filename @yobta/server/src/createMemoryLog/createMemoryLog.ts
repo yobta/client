@@ -6,7 +6,7 @@ import {
   YobtaCollectionTuple,
   YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
-import { createStore, YobtaJsonValue } from '@yobta/stores'
+import { createObservable, YobtaJsonValue } from '@yobta/stores'
 import { nanoid } from 'nanoid'
 
 import { filterKeys } from './filterKeys.js'
@@ -15,17 +15,22 @@ import { mergeData } from './mergeData.js'
 
 // #region types
 interface YobtaMemoryLogFactory {
-  (): YobtaLog
+  <
+    Snapshot extends YobtaCollectionAnySnapshot = YobtaCollectionAnySnapshot,
+  >(): YobtaLog<Snapshot>
 }
-export type YobtaLog = {
+export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = {
   find(
     channel: string,
     merged: number,
   ): Promise<YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>[]>
-  merge<Operation extends YobtaClientDataOperation<YobtaCollectionAnySnapshot>>(
+  merge<Operation extends YobtaClientDataOperation<Snapshot>>(
     collection: string,
     operation: Operation,
   ): Promise<Operation>
+  observe: (
+    observer: (operation: YobtaClientDataOperation<Snapshot>) => void,
+  ) => VoidFunction
 }
 
 export type YobtaServerLogEntry = {
@@ -49,18 +54,21 @@ export type YobtaChannelLogCursor = {
 export type YobtaServerLogItem = YobtaServerLogEntry | YobtaChannelLogCursor
 // #endregion
 
-export const createMemoryLog: YobtaMemoryLogFactory = () => {
-  const { last, next } = createStore<YobtaServerLogItem[]>([])
-  const find: YobtaLog['find'] = async (channel, minMerged) => {
-    const operations = last()
-    const cursors = operations.filter(
+export const createMemoryLog: YobtaMemoryLogFactory = <
+  Snapshot extends YobtaCollectionAnySnapshot,
+>() => {
+  let log: YobtaServerLogItem[] = []
+  const { observe, next } =
+    createObservable<YobtaClientDataOperation<Snapshot>>()
+  const find: YobtaLog<Snapshot>['find'] = async (channel, minMerged) => {
+    const cursors = log.filter(
       entry =>
         'channel' in entry &&
         entry.channel === channel &&
         entry.merged > minMerged,
     ) as YobtaChannelLogCursor[]
     return cursors.map(entry => {
-      const snapshots = operations.filter(
+      const snapshots = log.filter(
         ({ snapshotId }) => snapshotId === entry.snapshotId && 'key' in entry,
       ) as YobtaServerLogEntry[]
       const data: YobtaCollectionTuple<YobtaCollectionAnySnapshot>[] =
@@ -85,16 +93,19 @@ export const createMemoryLog: YobtaMemoryLogFactory = () => {
       return operation
     })
   }
-  const merge: YobtaLog['merge'] = async (collection, rawOperation) => {
-    const state = last()
-    const operation = filterKeys(state, collection, rawOperation)
-    const withData = mergeData(state, collection, operation)
-    const withCursor = mergeCursor(withData, collection, operation)
-    next(withCursor, operation)
+  const merge: YobtaLog<Snapshot>['merge'] = async (
+    collection,
+    rawOperation,
+  ) => {
+    const operation = filterKeys(log, collection, rawOperation)
+    const withData = mergeData(log, collection, operation)
+    log = mergeCursor(withData, collection, operation)
+    next(operation)
     return operation
   }
   return {
     find,
     merge,
+    observe,
   }
 }

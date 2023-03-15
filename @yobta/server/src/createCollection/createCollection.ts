@@ -15,7 +15,7 @@ interface YobtaCollectionFactory {
 }
 type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
-  log: YobtaLog
+  log: YobtaLog<YobtaCollectionAnySnapshot>
   // read(channel: string, id: YobtaCollectionId): Promise<Snapshot>
   write(
     message: YobtaCollectionMessage<Snapshot>,
