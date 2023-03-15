@@ -5,7 +5,7 @@ import {
   YOBTA_COLLECTION_INSERT,
 } from '@yobta/protocol'
 
-import { YobtaChannelLogCursor, YobtaServerLogItem } from './createMemoryLog.js'
+import { YobtaServerLogItem } from './createMemoryLog.js'
 
 // #region types
 interface YobtaServerLogMergeToChannel {
