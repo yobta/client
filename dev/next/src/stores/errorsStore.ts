@@ -15,7 +15,7 @@ export const pushError = (error: ErrorLike): void => {
   const state = last.some((left) => left.message === error.message)
     ? last
     : [...last, error]
-  errorsStore.next(state as ErrorLike[])
+  errorsStore.next(state)
 }
 
 export const popError = (): void => {

@@ -44,7 +44,6 @@ export const createCollection: YobtaCollectionFactory = <
 >({
   name,
   log,
-  write,
 }: YobtaCollectionProps<Snapshot>) => {
   return {
     get name() {
@@ -56,10 +55,9 @@ export const createCollection: YobtaCollectionFactory = <
         notifySibscribers(entries)
       }
     },
-    async merge({ headers, operation }: YobtaCollectionMessage<Snapshot>) {
-      const operations = await write({ headers, operation })
-      const loggedOperations = await log.merge(name, operations)
-      notifySibscribers(loggedOperations)
+    async merge({ operation }: YobtaCollectionMessage<Snapshot>) {
+      const loggedOperation = await log.merge(name, operation)
+      notifySibscribers([loggedOperation])
     },
   }
 }

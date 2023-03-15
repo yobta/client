@@ -6,7 +6,6 @@ import {
   YobtaCollectionUpdateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
-  YobtaServerDataOperation,
   YOBTA_COLLECTION_INSERT,
   YOBTA_REJECT,
 } from '@yobta/protocol'
@@ -63,7 +62,7 @@ export const createLog: YobtaLogFactory = <
 >(
   initialOperations: YobtaClientLogOperation<Snapshot>[],
 ) => {
-  const { last, next, on, observe } = createStore<readonly YobtaLogEntry[]>([])
+  const { last, next, on, observe } = createStore<YobtaLogEntry[]>([])
   const add = (newOperations: YobtaClientLogOperation<Snapshot>[]): void => {
     let log = last()
     let shouldUpdate = false

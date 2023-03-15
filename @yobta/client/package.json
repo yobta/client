@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@yobta/protocol": "workspace:*",
-    "@yobta/stores": "^0.2.1",
+    "@yobta/stores": "^0.2.3",
     "nanoid": "^4.0.0"
   },
   "devDependencies": {
