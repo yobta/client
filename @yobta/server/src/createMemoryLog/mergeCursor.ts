@@ -34,29 +34,27 @@ export const mergeCursor: YobtaServerLogMergeToChannel = (
     return log
   }
   const head: YobtaServerLogItem[] = []
-  let tail: YobtaChannelLogCursor | undefined
   for (const entry of log) {
     if (
       'channel' in entry &&
       entry.channel === operation.channel &&
       entry.snapshotId === operation.snapshotId
     ) {
-      tail = entry
+      if (entry.committed >= operation.committed) {
+        return log
+      }
       break
     }
     head.push(entry)
   }
-  if (!tail || tail.committed < operation.committed) {
-    const entry: YobtaChannelLogCursor = {
-      snapshotId: operation.snapshotId,
-      nextSnapshotId: operation.nextSnapshotId,
-      channel: operation.channel,
-      collection,
-      committed: operation.committed,
-      merged: Date.now(),
-      deleted: false,
-    }
-    head.push(entry)
-  }
+  head.push({
+    snapshotId: operation.snapshotId,
+    nextSnapshotId: operation.nextSnapshotId,
+    channel: operation.channel,
+    collection,
+    committed: operation.committed,
+    merged: Date.now(),
+    deleted: false,
+  })
   return head
 }
