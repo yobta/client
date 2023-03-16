@@ -14,7 +14,10 @@ type Snapshot = {
   name: string
 }
 
+const merged = 456
+
 it('adds inserted key entries to empty log', () => {
+  const log: YobtaServerLogItem[] = []
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-id',
     type: YOBTA_COLLECTION_INSERT,
@@ -27,14 +30,19 @@ it('adds inserted key entries to empty log', () => {
     snapshotId: 'id-2',
     channel: 'channel',
   }
-  const result = mergeData([], 'test', operation)
+  const result = mergeData({
+    collection: 'test',
+    log,
+    merged,
+    operation,
+  })
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
-      merged: expect.any(Number),
+      merged,
       key: 'id',
       value: 'id-2',
     },
@@ -43,13 +51,12 @@ it('adds inserted key entries to empty log', () => {
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
-      merged: expect.any(Number),
+      merged,
       key: 'name',
       value: 'john',
     },
   ])
 })
-
 it('is immutable', () => {
   const log: YobtaServerLogItem[] = []
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
@@ -64,10 +71,9 @@ it('is immutable', () => {
     snapshotId: 'id-2',
     channel: 'channel',
   }
-  const result = mergeData(log, 'test', operation)
+  const result = mergeData({ log, collection: 'test', merged, operation })
   expect(result).not.toBe(log)
 })
-
 it('adds inserted key entries to populated log', () => {
   const log: YobtaServerLogItem[] = [
     {
@@ -92,7 +98,7 @@ it('adds inserted key entries to populated log', () => {
     snapshotId: 'id-2',
     channel: 'channel',
   }
-  const result = mergeData(log, 'test', operation)
+  const result = mergeData({ log, collection: 'test', merged, operation })
   expect(result).toEqual([
     ...log,
     {
@@ -100,7 +106,7 @@ it('adds inserted key entries to populated log', () => {
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
-      merged: expect.any(Number),
+      merged,
       key: 'id',
       value: 'id-2',
     },
@@ -109,14 +115,14 @@ it('adds inserted key entries to populated log', () => {
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
-      merged: expect.any(Number),
+      merged,
       key: 'name',
       value: 'john',
     },
   ])
 })
-
 it('adds updated key entries to empty log', () => {
+  const log: YobtaServerLogItem[] = []
   const operation: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-id',
     type: YOBTA_COLLECTION_UPDATE,
@@ -128,20 +134,19 @@ it('adds updated key entries to empty log', () => {
     snapshotId: 'id',
     channel: 'channel',
   }
-  const result = mergeData([], 'test', operation)
+  const result = mergeData({ log, collection: 'test', merged, operation })
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id',
       collection: 'test',
       committed: 1,
-      merged: expect.any(Number),
+      merged,
       key: 'name',
       value: 'john',
     },
   ])
 })
-
 it('overwrites updated log entry and respects entries order', () => {
   const log: YobtaServerLogItem[] = [
     {
@@ -174,14 +179,14 @@ it('overwrites updated log entry and respects entries order', () => {
     snapshotId: 'id-1',
     channel: 'channel',
   }
-  const result = mergeData(log, 'test', operation)
+  const result = mergeData({ log, collection: 'test', merged, operation })
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id-1',
       collection: 'test',
       committed: 5,
-      merged: expect.any(Number),
+      merged,
       key: 'name',
       value: 'jane',
     },
@@ -196,7 +201,6 @@ it('overwrites updated log entry and respects entries order', () => {
     },
   ])
 })
-
 it('throws when keys are not properly filtered', () => {
   const log: YobtaServerLogItem[] = [
     {
@@ -210,29 +214,39 @@ it('throws when keys are not properly filtered', () => {
     },
   ]
   expect(() =>
-    mergeData(log, 'test-collection', {
-      id: 'op-id',
-      type: YOBTA_COLLECTION_UPDATE,
-      data: {
-        name: 'jane',
+    mergeData({
+      log,
+      collection: 'test-collection',
+      merged,
+      operation: {
+        id: 'op-id',
+        type: YOBTA_COLLECTION_UPDATE,
+        data: {
+          name: 'jane',
+        },
+        committed: 1,
+        merged: 0,
+        snapshotId: 'id-1',
+        channel: 'channel',
       },
-      committed: 1,
-      merged: 0,
-      snapshotId: 'id-1',
-      channel: 'channel',
     }),
   ).toThrow()
   expect(() =>
-    mergeData(log, 'test-collection', {
-      id: 'op-id',
-      type: YOBTA_COLLECTION_UPDATE,
-      data: {
-        name: 'jane',
+    mergeData({
+      log,
+      collection: 'test-collection',
+      merged,
+      operation: {
+        id: 'op-id',
+        type: YOBTA_COLLECTION_UPDATE,
+        data: {
+          name: 'jane',
+        },
+        committed: 2,
+        merged: 0,
+        snapshotId: 'id-1',
+        channel: 'channel',
       },
-      committed: 2,
-      merged: 0,
-      snapshotId: 'id-1',
-      channel: 'channel',
     }),
   ).toThrow()
 })

@@ -7,20 +7,23 @@ import {
 import { YobtaServerLogItem } from './createMemoryLog.js'
 
 interface YobtaServerLogMergeData {
-  <Operation extends YobtaClientDataOperation<YobtaCollectionAnySnapshot>>(
-    log: readonly YobtaServerLogItem[],
-    collection: string,
-    operation: Operation,
-  ): YobtaServerLogItem[]
+  <
+    Operation extends YobtaClientDataOperation<YobtaCollectionAnySnapshot>,
+  >(props: {
+    log: readonly YobtaServerLogItem[]
+    collection: string
+    merged: number
+    operation: Operation
+  }): YobtaServerLogItem[]
 }
 
-export const mergeData: YobtaServerLogMergeData = (
+export const mergeData: YobtaServerLogMergeData = ({
   log,
   collection,
+  merged,
   operation,
-) => {
+}) => {
   const head: YobtaServerLogItem[] = []
-  const merged = Date.now()
   const updatedKeys = new Set<string>()
   for (const entry of log) {
     if (
@@ -36,7 +39,7 @@ export const mergeData: YobtaServerLogMergeData = (
         head.push({
           ...entry,
           committed: operation.committed,
-          merged: Date.now(),
+          merged,
           value: operation.data[entry.key],
         })
         updatedKeys.add(entry.key)
