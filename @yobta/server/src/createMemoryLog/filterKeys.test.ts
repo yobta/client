@@ -1,6 +1,7 @@
 import {
   YobtaCollectionInsertOperation,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -31,6 +32,7 @@ it('returns same operation if log is empty', () => {
 it('returns same operation if committed is greater then in log', () => {
   const log: YobtaServerLogItem[] = [
     {
+      type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -39,6 +41,7 @@ it('returns same operation if committed is greater then in log', () => {
       value: 'id',
     },
     {
+      type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -66,6 +69,7 @@ it('returns same operation if committed is greater then in log', () => {
 it('omits key if committed is same as in log', () => {
   const log: YobtaServerLogItem[] = [
     {
+      type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -74,6 +78,7 @@ it('omits key if committed is same as in log', () => {
       value: 'id',
     },
     {
+      type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id',
       collection: 'collection',
       committed: 2,
@@ -111,6 +116,7 @@ it('omits key if committed is same as in log', () => {
 it('omits key if committed is less then in log', () => {
   const log: YobtaServerLogItem[] = [
     {
+      type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -119,6 +125,7 @@ it('omits key if committed is less then in log', () => {
       value: 'id',
     },
     {
+      type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id',
       collection: 'collection',
       committed: 4,

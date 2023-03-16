@@ -1,6 +1,7 @@
 import {
   YobtaClientDataOperation,
   YobtaCollectionAnySnapshot,
+  YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -22,9 +23,9 @@ export const filterKeys: YobtaServerLogFilterKeys = (
   for (const k in operation.data) {
     const entry = log.find(
       e =>
-        'key' in e &&
-        e.key === k &&
         e.snapshotId === operation.snapshotId &&
+        e.type === YOBTA_COLLECTION_REVALIDATE &&
+        e.key === k &&
         e.collection === collection,
     )
     if (!entry || entry.committed < operation.committed) {

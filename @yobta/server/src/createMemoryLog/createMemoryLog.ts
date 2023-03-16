@@ -110,7 +110,6 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
           nextSnapshotId: entry.nextSnapshotId,
           committed: entry.committed,
           merged: entry.merged,
-          deleted: entry.deleted,
           data,
         }
       return operation

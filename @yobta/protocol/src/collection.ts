@@ -32,7 +32,6 @@ export type YobtaCollectionInsertOperation<
   operationId?: never
   committed: number
   merged: number
-  deleted?: never
 }
 
 export const YOBTA_COLLECTION_UPDATE = 'yobta-collection-update'
@@ -48,7 +47,19 @@ export type YobtaCollectionUpdateOperation<
   operationId?: never
   committed: number
   merged: number
-  deleted?: never
+}
+
+export const YOBTA_COLLECTION_DELETE = 'yobta-collection-delete'
+export type YobtaCollectionDeleteOperation = {
+  id: YobtaOperationId
+  type: typeof YOBTA_COLLECTION_DELETE
+  channel: string
+  data?: never
+  snapshotId: YobtaCollectionId
+  nextSnapshotId?: never
+  operationId?: never
+  committed: number
+  merged: number
 }
 
 export type YobtaCollectionTuple<Snapshot extends YobtaCollectionAnySnapshot> =
@@ -69,7 +80,6 @@ export type YobtaCollectionRevalidateOperation<
   operationId?: never
   committed: number
   merged: number
-  deleted: boolean
 }
 
 export type YobtaCollectionOperation<
