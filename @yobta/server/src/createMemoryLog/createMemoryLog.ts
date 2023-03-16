@@ -6,7 +6,6 @@ import {
   YobtaCollectionTuple,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_REVALIDATE,
-  YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
 import { nanoid } from 'nanoid'
