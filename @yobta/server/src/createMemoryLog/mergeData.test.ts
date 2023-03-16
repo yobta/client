@@ -142,7 +142,7 @@ it('adds updated key entries to empty log', () => {
   ])
 })
 
-it('overwrites updated log entry', () => {
+it('overwrites updated log entry and respects entries order', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
