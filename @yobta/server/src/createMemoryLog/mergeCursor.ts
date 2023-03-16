@@ -25,17 +25,19 @@ export type YobtaChannelLogIsertEntry = {
 }
 // // #endregion
 
+const supportedTypes = YOBTA_COLLECTION_INSERT
+
 export const mergeCursor: YobtaServerLogMergeToChannel = (
   log,
   collection,
   operation,
 ) => {
   const shouldPush =
-    operation.type === YOBTA_COLLECTION_INSERT &&
+    operation.type === supportedTypes &&
     !log.some(
       entry =>
         entry.snapshotId === operation.snapshotId &&
-        entry.type === YOBTA_COLLECTION_INSERT &&
+        entry.type === supportedTypes &&
         entry.channel === operation.channel,
     )
 

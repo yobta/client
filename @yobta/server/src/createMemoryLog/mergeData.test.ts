@@ -50,6 +50,24 @@ it('adds inserted key entries to empty log', () => {
   ])
 })
 
+it('is immutable', () => {
+  const log: YobtaServerLogItem[] = []
+  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id-2',
+      name: 'john',
+    },
+    committed: 2,
+    merged: 0,
+    snapshotId: 'id-2',
+    channel: 'channel',
+  }
+  const result = mergeData(log, 'test', operation)
+  expect(result).not.toBe(log)
+})
+
 it('adds inserted key entries to populated log', () => {
   const log: YobtaServerLogItem[] = [
     {
@@ -162,19 +180,19 @@ it('overwrites updated log entry', () => {
       type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id-1',
       collection: 'test',
-      committed: 3,
-      merged: 4,
-      key: 'some key',
-      value: 'some value',
+      committed: 5,
+      merged: expect.any(Number),
+      key: 'name',
+      value: 'jane',
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: 'id-1',
       collection: 'test',
-      committed: 5,
-      merged: expect.any(Number),
-      key: 'name',
-      value: 'jane',
+      committed: 3,
+      merged: 4,
+      key: 'some key',
+      value: 'some value',
     },
   ])
 })

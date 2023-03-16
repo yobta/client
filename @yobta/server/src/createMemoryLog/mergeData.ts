@@ -20,24 +20,36 @@ export const mergeData: YobtaServerLogMergeData = (
   operation,
 ) => {
   const head: YobtaServerLogItem[] = []
-  const tail: YobtaServerLogItem[] = []
   const merged = Date.now()
+  const updatedKeys = new Set<string>()
   for (const entry of log) {
     if (
-      'key' in entry &&
       entry.snapshotId === operation.snapshotId &&
+      entry.type === YOBTA_COLLECTION_REVALIDATE &&
       entry.collection === collection &&
       entry.key in operation.data
     ) {
       if (entry.committed >= operation.committed) {
+        // TODO: change to logger and skip
         throw new Error("Can't merge data with lower committed timestamp")
+      } else {
+        head.push({
+          ...entry,
+          committed: operation.committed,
+          merged: Date.now(),
+          value: operation.data[entry.key],
+        })
+        updatedKeys.add(entry.key)
       }
     } else {
       head.push(entry)
     }
   }
   for (const key in operation.data) {
-    tail.push({
+    if (updatedKeys.has(key)) {
+      break
+    }
+    head.push({
       type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: operation.snapshotId,
       collection,
@@ -47,5 +59,5 @@ export const mergeData: YobtaServerLogMergeData = (
       value: operation.data[key],
     })
   }
-  return head.concat(tail)
+  return head
 }
