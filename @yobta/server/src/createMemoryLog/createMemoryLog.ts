@@ -4,7 +4,9 @@ import {
   YobtaCollectionId,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionTuple,
+  YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_REVALIDATE,
+  YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
 import { nanoid } from 'nanoid'
@@ -33,7 +35,8 @@ export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = {
   ) => VoidFunction
 }
 
-export type YobtaServerLogEntry = {
+export type YobtaServerLogSnapshotEntry = {
+  type: typeof YOBTA_COLLECTION_REVALIDATE
   snapshotId: YobtaCollectionId
   collection: string
   committed: number
@@ -42,16 +45,37 @@ export type YobtaServerLogEntry = {
   key: string
   value: YobtaJsonValue | undefined
 }
-export type YobtaChannelLogCursor = {
+
+export type YobtaChannelLogInsertEntry = {
+  type: typeof YOBTA_COLLECTION_INSERT
   snapshotId: YobtaCollectionId
   nextSnapshotId?: YobtaCollectionId
-  collection: string
   channel: string
+  collection: string
   committed: number
   merged: number
-  deleted: boolean
 }
-export type YobtaServerLogItem = YobtaServerLogEntry | YobtaChannelLogCursor
+// export type YobtaChannelLogDeleteEntry = {
+// type: typeof YOBTA_COLLECTION_DELETE
+//   snapshotId: YobtaCollectionId
+//   nextSnapshotId?: never
+//   channel: string
+// collection: string
+//   committed: number
+//   merged: number
+// }
+// export type YobtaChannelLogMoveEntry = {
+// type: typeof YOBTA_COLLECTION_MOVE
+//   snapshotId: YobtaCollectionId
+//   nextSnapshotId: YobtaCollectionId
+//   channel: string
+// collection: string
+//   committed: number
+//   merged: number
+// }
+export type YobtaServerLogItem =
+  | YobtaServerLogSnapshotEntry
+  | YobtaChannelLogInsertEntry
 // #endregion
 
 export const createMemoryLog: YobtaMemoryLogFactory = <
@@ -66,11 +90,11 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
         'channel' in entry &&
         entry.channel === channel &&
         entry.merged > minMerged,
-    ) as YobtaChannelLogCursor[]
+    ) as YobtaChannelLogInsertEntry[]
     return cursors.map(entry => {
       const snapshots = log.filter(
         ({ snapshotId }) => snapshotId === entry.snapshotId && 'key' in entry,
-      ) as YobtaServerLogEntry[]
+      ) as YobtaServerLogSnapshotEntry[]
       const data: YobtaCollectionTuple<YobtaCollectionAnySnapshot>[] =
         snapshots.map(({ key, value, committed, merged }) => [
           key,

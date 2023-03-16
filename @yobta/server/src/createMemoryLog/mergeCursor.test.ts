@@ -25,20 +25,65 @@ it('returns same log if operation is not insert', () => {
     snapshotId: 'id',
     channel: 'channel',
   }
-  const result = mergeCursor([], 'collection', operation)
-  expect(result).toEqual([])
+  const log: YobtaServerLogItem[] = []
+  const result = mergeCursor(log, 'collection', operation)
+  expect(result).toBe(log)
+  expect(result).toEqual(log)
 })
-
-it('appends insert operation to log', () => {
+it('inserts appends new entry to empty log', () => {
+  const log: YobtaServerLogItem[] = []
+  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id-2',
+      name: 'john',
+    },
+    committed: 4,
+    merged: 0,
+    snapshotId: 'id-2',
+    channel: 'channel',
+  }
+  const result = mergeCursor(log, 'collection', operation)
+  expect(result).toEqual([
+    {
+      type: YOBTA_COLLECTION_INSERT,
+      snapshotId: 'id-2',
+      collection: 'collection',
+      committed: 4,
+      channel: 'channel',
+      merged: expect.any(Number),
+      nextSnapshotId: undefined,
+    },
+  ])
+})
+it('updates merged to the current time', () => {
+  const log: YobtaServerLogItem[] = []
+  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id-2',
+      name: 'john',
+    },
+    committed: 4,
+    merged: 0,
+    snapshotId: 'id-2',
+    channel: 'channel',
+  }
+  const result = mergeCursor(log, 'collection', operation)
+  expect(result[0].merged).toBeCloseTo(Date.now(), -10)
+})
+it('appends new entry to filled log', () => {
   const log: YobtaServerLogItem[] = [
     {
+      type: YOBTA_COLLECTION_INSERT,
       snapshotId: 'id-1',
       collection: 'collection',
       committed: 2,
       channel: 'channel',
       merged: 3,
       nextSnapshotId: undefined,
-      deleted: false,
     },
   ]
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
@@ -48,114 +93,65 @@ it('appends insert operation to log', () => {
       id: 'id-2',
       name: 'john',
     },
-    committed: 2,
+    committed: 4,
     merged: 0,
     snapshotId: 'id-2',
     channel: 'channel',
   }
   const result = mergeCursor(log, 'collection', operation)
   expect(result).toEqual([
-    ...log,
     {
-      snapshotId: 'id-2',
-      collection: 'collection',
-      committed: 2,
-      channel: 'channel',
-      merged: expect.any(Number),
-      nextSnapshotId: undefined,
-      deleted: false,
-    },
-  ])
-})
-
-it('updates existing operation with the new operation', () => {
-  const log: YobtaServerLogItem[] = [
-    {
+      type: YOBTA_COLLECTION_INSERT,
       snapshotId: 'id-1',
       collection: 'collection',
       committed: 2,
       channel: 'channel',
       merged: 3,
       nextSnapshotId: undefined,
-      deleted: true,
     },
-  ]
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
-    id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
-    data: {
-      id: 'id-1',
-      name: 'john',
-    },
-    committed: 3,
-    merged: 0,
-    snapshotId: 'id-1',
-    channel: 'channel',
-  }
-  const result = mergeCursor(log, 'collection', operation)
-  expect(result).toEqual([
     {
-      snapshotId: 'id-1',
+      type: YOBTA_COLLECTION_INSERT,
+      snapshotId: 'id-2',
       collection: 'collection',
-      committed: 3,
+      committed: 4,
       channel: 'channel',
       merged: expect.any(Number),
       nextSnapshotId: undefined,
-      deleted: false,
     },
   ])
 })
-
-it('ignores insert operation if the committed is the same', () => {
-  const log: YobtaServerLogItem[] = [
-    {
-      snapshotId: 'id-1',
-      collection: 'collection',
-      committed: 2,
-      channel: 'channel',
-      merged: 3,
-      nextSnapshotId: undefined,
-      deleted: false,
-    },
-    {
-      snapshotId: 'id-2',
-      collection: 'collection',
-      committed: 3,
-      channel: 'channel',
-      merged: 4,
-      nextSnapshotId: undefined,
-      deleted: false,
-    },
-  ]
+it('does not mutate the log', () => {
+  const log: YobtaServerLogItem[] = []
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-id',
     type: YOBTA_COLLECTION_INSERT,
     data: {
-      id: 'id-1',
+      id: 'id-2',
       name: 'john',
     },
-    committed: 2,
+    committed: 4,
     merged: 0,
-    snapshotId: 'id-1',
+    snapshotId: 'id-2',
     channel: 'channel',
   }
   const result = mergeCursor(log, 'collection', operation)
+  expect(result).toBe(log)
   expect(result).toEqual(log)
+  expect(result.length).toBe(1)
 })
-
-it('ignores insert operation if the committed is less then in log', () => {
+it('is idempotant', () => {
   const log: YobtaServerLogItem[] = [
     {
+      type: YOBTA_COLLECTION_INSERT,
       snapshotId: 'id-1',
       collection: 'collection',
       committed: 2,
       channel: 'channel',
       merged: 3,
       nextSnapshotId: undefined,
-      deleted: false,
     },
   ]
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  mergeCursor(log, 'collection', {
     id: 'op-id',
     type: YOBTA_COLLECTION_INSERT,
     data: {
@@ -166,7 +162,40 @@ it('ignores insert operation if the committed is less then in log', () => {
     merged: 0,
     snapshotId: 'id-1',
     channel: 'channel',
-  }
-  const result = mergeCursor(log, 'collection', operation)
-  expect(result).toEqual(log)
+  })
+  mergeCursor(log, 'collection', {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id-1',
+      name: 'john',
+    },
+    committed: 2,
+    merged: 0,
+    snapshotId: 'id-1',
+    channel: 'channel',
+  })
+  const result = mergeCursor(log, 'collection', {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id-1',
+      name: 'john',
+    },
+    committed: 4,
+    merged: 0,
+    snapshotId: 'id-1',
+    channel: 'channel',
+  })
+  expect(result).toEqual([
+    {
+      type: YOBTA_COLLECTION_INSERT,
+      snapshotId: 'id-1',
+      collection: 'collection',
+      channel: 'channel',
+      committed: 2,
+      merged: 3,
+      nextSnapshotId: undefined,
+    },
+  ])
 })

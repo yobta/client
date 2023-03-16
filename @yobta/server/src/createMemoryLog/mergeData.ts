@@ -1,6 +1,7 @@
 import {
   YobtaClientDataOperation,
   YobtaCollectionAnySnapshot,
+  YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -37,6 +38,7 @@ export const mergeData: YobtaServerLogMergeData = (
   }
   for (const key in operation.data) {
     tail.push({
+      type: YOBTA_COLLECTION_REVALIDATE,
       snapshotId: operation.snapshotId,
       collection,
       committed: operation.committed,

@@ -15,46 +15,40 @@ interface YobtaServerLogMergeToChannel {
     operation: Operation,
   ): YobtaServerLogItem[]
 }
-export type YobtaChannelLogEntry = {
+export type YobtaChannelLogIsertEntry = {
+  type: typeof YOBTA_COLLECTION_INSERT
   snapshotId: YobtaCollectionId
   nextSnapshotId?: YobtaCollectionId
   channel: string
   committed: number
   merged: number
-  deleted: boolean
 }
-// #endregion
+// // #endregion
 
 export const mergeCursor: YobtaServerLogMergeToChannel = (
   log,
   collection,
   operation,
 ) => {
-  if (operation.type !== YOBTA_COLLECTION_INSERT) {
-    return log
+  const shouldPush =
+    operation.type === YOBTA_COLLECTION_INSERT &&
+    !log.some(
+      entry =>
+        entry.snapshotId === operation.snapshotId &&
+        entry.type === YOBTA_COLLECTION_INSERT &&
+        entry.channel === operation.channel,
+    )
+
+  if (shouldPush) {
+    log.push({
+      type: operation.type,
+      snapshotId: operation.snapshotId,
+      nextSnapshotId: operation.nextSnapshotId,
+      channel: operation.channel,
+      collection,
+      committed: operation.committed,
+      merged: Date.now(),
+    })
   }
-  const head: YobtaServerLogItem[] = []
-  for (const entry of log) {
-    if (
-      'channel' in entry &&
-      entry.channel === operation.channel &&
-      entry.snapshotId === operation.snapshotId
-    ) {
-      if (entry.committed >= operation.committed) {
-        return log
-      }
-      break
-    }
-    head.push(entry)
-  }
-  head.push({
-    snapshotId: operation.snapshotId,
-    nextSnapshotId: operation.nextSnapshotId,
-    channel: operation.channel,
-    collection,
-    committed: operation.committed,
-    merged: Date.now(),
-    deleted: false,
-  })
-  return head
+  return log
 }
