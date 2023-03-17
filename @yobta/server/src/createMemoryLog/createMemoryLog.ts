@@ -47,7 +47,7 @@ export type YobtaServerLogSnapshotEntry = {
   value: YobtaJsonValue | undefined
 }
 
-export type YobtaChannelLogInsertEntry = {
+export type YobtaServerLogChannelInsertEntry = {
   type: typeof YOBTA_COLLECTION_INSERT
   snapshotId: YobtaCollectionId
   nextSnapshotId?: YobtaCollectionId
@@ -56,7 +56,7 @@ export type YobtaChannelLogInsertEntry = {
   committed: number
   merged: number
 }
-export type YobtaChannelLogDeleteEntry = {
+export type YobtaServerLogChannelDeleteEntry = {
   type: typeof YOBTA_COLLECTION_DELETE
   snapshotId: YobtaCollectionId
   nextSnapshotId?: never
@@ -65,7 +65,7 @@ export type YobtaChannelLogDeleteEntry = {
   committed: number
   merged: number
 }
-export type YobtaChannelLogMoveEntry = {
+export type YobtaServerLogChannelMoveEntry = {
   type: typeof YOBTA_COLLECTION_MOVE
   snapshotId: YobtaCollectionId
   nextSnapshotId: YobtaCollectionId
@@ -76,9 +76,9 @@ export type YobtaChannelLogMoveEntry = {
 }
 export type YobtaServerLogItem =
   | YobtaServerLogSnapshotEntry
-  | YobtaChannelLogInsertEntry
-  | YobtaChannelLogDeleteEntry
-  | YobtaChannelLogMoveEntry
+  | YobtaServerLogChannelInsertEntry
+  | YobtaServerLogChannelDeleteEntry
+  | YobtaServerLogChannelMoveEntry
 // #endregion
 
 export const createMemoryLog: YobtaMemoryLogFactory = <
@@ -90,7 +90,7 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
   const find: YobtaLog<Snapshot>['find'] = async (channel, minMerged) => {
     const cursors = log.filter(
       entry => entry.channel === channel && entry.merged > minMerged,
-    ) as YobtaChannelLogInsertEntry[]
+    ) as YobtaServerLogChannelInsertEntry[]
     return cursors.map(entry => {
       const snapshots = log.filter(
         ({ snapshotId, type }) =>
