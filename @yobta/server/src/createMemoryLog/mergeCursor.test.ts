@@ -13,6 +13,8 @@ type Snapshot = {
   name: string
 }
 
+const merged = 4566465
+
 it('returns same log if operation is not insert', () => {
   const operation: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-id',
@@ -26,7 +28,12 @@ it('returns same log if operation is not insert', () => {
     channel: 'channel',
   }
   const log: YobtaServerLogItem[] = []
-  const result = mergeCursor(log, 'collection', operation)
+  const result = mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation,
+  })
   expect(result).toBe(log)
   expect(result).toEqual(log)
 })
@@ -44,7 +51,12 @@ it('inserts appends new entry to empty log', () => {
     snapshotId: 'id-2',
     channel: 'channel',
   }
-  const result = mergeCursor(log, 'collection', operation)
+  const result = mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation,
+  })
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_INSERT,
@@ -52,7 +64,7 @@ it('inserts appends new entry to empty log', () => {
       collection: 'collection',
       committed: 4,
       channel: 'channel',
-      merged: expect.any(Number),
+      merged,
       nextSnapshotId: undefined,
     },
   ])
@@ -71,8 +83,13 @@ it('updates merged to the current time', () => {
     snapshotId: 'id-2',
     channel: 'channel',
   }
-  const result = mergeCursor(log, 'collection', operation)
-  expect(result[0].merged).toBeCloseTo(Date.now(), -10)
+  const result = mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation,
+  })
+  expect(result[0].merged).toBe(merged)
 })
 it('appends new entry to filled log', () => {
   const log: YobtaServerLogItem[] = [
@@ -98,7 +115,12 @@ it('appends new entry to filled log', () => {
     snapshotId: 'id-2',
     channel: 'channel',
   }
-  const result = mergeCursor(log, 'collection', operation)
+  const result = mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation,
+  })
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_INSERT,
@@ -115,7 +137,7 @@ it('appends new entry to filled log', () => {
       collection: 'collection',
       committed: 4,
       channel: 'channel',
-      merged: expect.any(Number),
+      merged,
       nextSnapshotId: undefined,
     },
   ])
@@ -134,7 +156,12 @@ it('does not mutate the log', () => {
     snapshotId: 'id-2',
     channel: 'channel',
   }
-  const result = mergeCursor(log, 'collection', operation)
+  const result = mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation,
+  })
   expect(result).toBe(log)
   expect(result).toEqual(log)
   expect(result.length).toBe(1)
@@ -151,41 +178,56 @@ it('is idempotant', () => {
       nextSnapshotId: undefined,
     },
   ]
-  mergeCursor(log, 'collection', {
-    id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
-    data: {
-      id: 'id-1',
-      name: 'john',
+  mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation: {
+      id: 'op-id',
+      type: YOBTA_COLLECTION_INSERT,
+      data: {
+        id: 'id-1',
+        name: 'john',
+      },
+      committed: 1,
+      merged: 0,
+      snapshotId: 'id-1',
+      channel: 'channel',
     },
-    committed: 1,
-    merged: 0,
-    snapshotId: 'id-1',
-    channel: 'channel',
   })
-  mergeCursor(log, 'collection', {
-    id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
-    data: {
-      id: 'id-1',
-      name: 'john',
+  mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation: {
+      id: 'op-id',
+      type: YOBTA_COLLECTION_INSERT,
+      data: {
+        id: 'id-1',
+        name: 'john',
+      },
+      committed: 2,
+      merged: 0,
+      snapshotId: 'id-1',
+      channel: 'channel',
     },
-    committed: 2,
-    merged: 0,
-    snapshotId: 'id-1',
-    channel: 'channel',
   })
-  const result = mergeCursor(log, 'collection', {
-    id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
-    data: {
-      id: 'id-1',
-      name: 'john',
+  const result = mergeCursor({
+    log,
+    collection: 'collection',
+    merged,
+    operation: {
+      id: 'op-id',
+      type: YOBTA_COLLECTION_INSERT,
+      data: {
+        id: 'id-1',
+        name: 'john',
+      },
+      committed: 4,
+      merged: 0,
+      snapshotId: 'id-1',
+      channel: 'channel',
     },
-    committed: 4,
-    merged: 0,
-    snapshotId: 'id-1',
-    channel: 'channel',
   })
   expect(result).toEqual([
     {

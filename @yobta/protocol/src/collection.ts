@@ -62,6 +62,32 @@ export type YobtaCollectionDeleteOperation = {
   merged: number
 }
 
+export const YOBTA_COLLECTION_RESTORE = 'yobta-collection-restore'
+export type YobtaCollectionRestoreOperation = {
+  id: YobtaOperationId
+  type: typeof YOBTA_COLLECTION_RESTORE
+  channel: string
+  data?: never
+  snapshotId: YobtaCollectionId
+  nextSnapshotId?: never
+  operationId?: never
+  committed: number
+  merged: number
+}
+
+export const YOBTA_COLLECTION_MOVE = 'yobta-collection-move'
+export type YobtaCollectionMoveOperation = {
+  id: YobtaOperationId
+  type: typeof YOBTA_COLLECTION_MOVE
+  channel: string
+  data?: never
+  snapshotId: YobtaCollectionId
+  nextSnapshotId: YobtaCollectionId
+  operationId?: never
+  committed: number
+  merged: number
+}
+
 export type YobtaCollectionTuple<Snapshot extends YobtaCollectionAnySnapshot> =
   {
     [Key in keyof Snapshot]: [Key, Snapshot[Key], number, number]

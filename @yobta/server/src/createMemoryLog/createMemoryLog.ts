@@ -4,7 +4,9 @@ import {
   YobtaCollectionId,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionTuple,
+  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
@@ -54,27 +56,29 @@ export type YobtaChannelLogInsertEntry = {
   committed: number
   merged: number
 }
-// export type YobtaChannelLogDeleteEntry = {
-// type: typeof YOBTA_COLLECTION_DELETE
-//   snapshotId: YobtaCollectionId
-//   nextSnapshotId?: never
-//   channel: string
-// collection: string
-//   committed: number
-//   merged: number
-// }
-// export type YobtaChannelLogMoveEntry = {
-// type: typeof YOBTA_COLLECTION_MOVE
-//   snapshotId: YobtaCollectionId
-//   nextSnapshotId: YobtaCollectionId
-//   channel: string
-// collection: string
-//   committed: number
-//   merged: number
-// }
+export type YobtaChannelLogDeleteEntry = {
+  type: typeof YOBTA_COLLECTION_DELETE
+  snapshotId: YobtaCollectionId
+  nextSnapshotId?: never
+  channel: string
+  collection: string
+  committed: number
+  merged: number
+}
+export type YobtaChannelLogMoveEntry = {
+  type: typeof YOBTA_COLLECTION_MOVE
+  snapshotId: YobtaCollectionId
+  nextSnapshotId: YobtaCollectionId
+  channel: string
+  collection: string
+  committed: number
+  merged: number
+}
 export type YobtaServerLogItem =
   | YobtaServerLogSnapshotEntry
   | YobtaChannelLogInsertEntry
+  | YobtaChannelLogDeleteEntry
+  | YobtaChannelLogMoveEntry
 // #endregion
 
 export const createMemoryLog: YobtaMemoryLogFactory = <
@@ -121,7 +125,7 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
     const operation = filterKeys(log, collection, rawOperation)
     const merged = Date.now()
     const withData = mergeData({ log, collection, merged, operation })
-    log = mergeCursor(withData, collection, operation)
+    log = mergeCursor({ log: withData, collection, merged, operation })
     next(operation)
     return { ...operation, merged }
   }

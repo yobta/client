@@ -2,7 +2,10 @@ import { YobtaJsonValue } from '@yobta/stores'
 
 import {
   YobtaCollectionAnySnapshot,
+  YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
   YobtaCollectionUpdateOperation,
 } from './collection.js'
 import { YobtaOperationId } from './unsorted.js'
@@ -18,6 +21,9 @@ export type YobtaClientDataOperation<
 > =
   | YobtaCollectionInsertOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
 
 export const YOBTA_ERROR = 'yobta-error'
 export type YobtaError = {

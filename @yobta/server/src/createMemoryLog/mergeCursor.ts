@@ -9,11 +9,14 @@ import { YobtaServerLogItem } from './createMemoryLog.js'
 
 // #region types
 interface YobtaServerLogMergeToChannel {
-  <Operation extends YobtaClientDataOperation<YobtaCollectionAnySnapshot>>(
-    log: YobtaServerLogItem[],
-    collection: string,
-    operation: Operation,
-  ): YobtaServerLogItem[]
+  <
+    Operation extends YobtaClientDataOperation<YobtaCollectionAnySnapshot>,
+  >(props: {
+    collection: string
+    log: YobtaServerLogItem[]
+    merged: number
+    operation: Operation
+  }): YobtaServerLogItem[]
 }
 export type YobtaChannelLogIsertEntry = {
   type: typeof YOBTA_COLLECTION_INSERT
@@ -27,11 +30,12 @@ export type YobtaChannelLogIsertEntry = {
 
 const supportedTypes = YOBTA_COLLECTION_INSERT
 
-export const mergeCursor: YobtaServerLogMergeToChannel = (
-  log,
+export const mergeCursor: YobtaServerLogMergeToChannel = ({
   collection,
+  log,
+  merged,
   operation,
-) => {
+}) => {
   const shouldPush =
     operation.type === supportedTypes &&
     !log.some(
@@ -49,7 +53,7 @@ export const mergeCursor: YobtaServerLogMergeToChannel = (
       channel: operation.channel,
       collection,
       committed: operation.committed,
-      merged: Date.now(),
+      merged,
     })
   }
   return log
