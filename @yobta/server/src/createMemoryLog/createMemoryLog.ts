@@ -10,7 +10,6 @@ import {
   YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
-import { nanoid } from 'nanoid'
 
 import { filterKeys } from './filterKeys.js'
 import { mergeCursor } from './mergeCursor.js'
@@ -116,7 +115,7 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
         ])
       const operation: YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot> =
         {
-          id: nanoid(),
+          id: `revalidate-${entry.snapshotId}`,
           type: YOBTA_COLLECTION_REVALIDATE,
           channel,
           snapshotId: entry.snapshotId,
