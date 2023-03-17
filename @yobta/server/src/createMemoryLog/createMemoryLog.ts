@@ -4,10 +4,10 @@ import {
   YobtaCollectionId,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionTuple,
-  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'

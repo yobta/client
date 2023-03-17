@@ -3,6 +3,9 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_DELETE,
+  YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_MOVE,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -28,7 +31,12 @@ export type YobtaChannelLogIsertEntry = {
 }
 // // #endregion
 
-const supportedTypes = YOBTA_COLLECTION_INSERT
+const isSupportedTypes = new Set([
+  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_DELETE,
+  YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_MOVE,
+])
 
 export const mergeCursor: YobtaServerLogMergeToChannel = ({
   collection,
@@ -36,26 +44,70 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
   merged,
   operation,
 }) => {
-  const shouldPush =
-    operation.type === supportedTypes &&
-    !log.some(
-      entry =>
-        entry.snapshotId === operation.snapshotId &&
-        entry.type === supportedTypes &&
-        entry.channel === operation.channel,
-    )
-
+  switch (operation.type) {
+    case YOBTA_COLLECTION_INSERT:
+    case YOBTA_COLLECTION_DELETE:
+    case YOBTA_COLLECTION_RESTORE:
+    case YOBTA_COLLECTION_MOVE:
+      break
+    default:
+      return log
+  }
+  const shouldPush = !log.some(
+    entry =>
+      entry.snapshotId === operation.snapshotId &&
+      isSupportedTypes.has(entry.type) &&
+      entry.channel === operation.channel,
+  )
   if (shouldPush) {
-    log.push({
-      type: operation.type,
-      operationId: operation.id,
-      snapshotId: operation.snapshotId,
-      nextSnapshotId: operation.nextSnapshotId,
-      channel: operation.channel,
-      collection,
-      committed: operation.committed,
-      merged,
-    })
+    switch (operation.type) {
+      case YOBTA_COLLECTION_INSERT:
+        log.push({
+          type: YOBTA_COLLECTION_INSERT,
+          operationId: operation.id,
+          collection,
+          channel: operation.channel,
+          snapshotId: operation.snapshotId,
+          nextSnapshotId: operation.nextSnapshotId,
+          committed: operation.committed,
+          merged,
+        })
+        break
+      case YOBTA_COLLECTION_DELETE:
+        log.push({
+          type: YOBTA_COLLECTION_DELETE,
+          operationId: operation.id,
+          collection,
+          channel: operation.channel,
+          snapshotId: operation.snapshotId,
+          committed: operation.committed,
+          merged,
+        })
+        break
+      case YOBTA_COLLECTION_RESTORE:
+        log.push({
+          type: YOBTA_COLLECTION_RESTORE,
+          operationId: operation.id,
+          collection,
+          channel: operation.channel,
+          snapshotId: operation.snapshotId,
+          committed: operation.committed,
+          merged,
+        })
+        break
+      case YOBTA_COLLECTION_MOVE:
+        log.push({
+          type: YOBTA_COLLECTION_MOVE,
+          operationId: operation.id,
+          collection,
+          channel: operation.channel,
+          snapshotId: operation.snapshotId,
+          nextSnapshotId: operation.nextSnapshotId,
+          committed: operation.committed,
+          merged,
+        })
+        break
+    }
   }
   return log
 }
