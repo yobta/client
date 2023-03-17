@@ -3,6 +3,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 
@@ -10,6 +11,7 @@ import {
   YobtaServerLogChannelDeleteEntry,
   YobtaServerLogChannelInsertEntry,
   YobtaServerLogChannelMoveEntry,
+  YobtaServerLogChannelRestoreEntry,
   YobtaServerLogItem,
 } from './createMemoryLog.js'
 import { filterKeys } from './filterKeys.js'
@@ -206,9 +208,18 @@ it('has no issues with rest log entry types', () => {
     committed: 3,
     merged: 4,
   }
+  const restoreEntry: YobtaServerLogChannelRestoreEntry = {
+    type: YOBTA_COLLECTION_RESTORE,
+    operationId: 'op-id-3',
+    snapshotId: 'id',
+    channel: 'channel',
+    collection: 'collection',
+    committed: 5,
+    merged: 6,
+  }
   const moveEntry: YobtaServerLogChannelMoveEntry = {
     type: YOBTA_COLLECTION_MOVE,
-    operationId: 'op-id-3',
+    operationId: 'op-id-4',
     snapshotId: 'id',
     nextSnapshotId: 'id-2',
     channel: 'channel',
@@ -216,7 +227,12 @@ it('has no issues with rest log entry types', () => {
     committed: 5,
     merged: 6,
   }
-  const log: YobtaServerLogItem[] = [insertEntry, deleteEntry, moveEntry]
+  const log: YobtaServerLogItem[] = [
+    insertEntry,
+    deleteEntry,
+    restoreEntry,
+    moveEntry,
+  ]
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-id',
     type: YOBTA_COLLECTION_INSERT,

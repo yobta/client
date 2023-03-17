@@ -7,6 +7,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
@@ -71,6 +72,18 @@ export type YobtaServerLogChannelDeleteEntry = {
   key?: never
   value?: never
 }
+export type YobtaServerLogChannelRestoreEntry = {
+  type: typeof YOBTA_COLLECTION_RESTORE
+  operationId: string
+  collection: string
+  channel: string
+  snapshotId: YobtaCollectionId
+  nextSnapshotId?: never
+  committed: number
+  merged: number
+  key?: never
+  value?: never
+}
 export type YobtaServerLogChannelMoveEntry = {
   type: typeof YOBTA_COLLECTION_MOVE
   operationId: string
@@ -87,6 +100,7 @@ export type YobtaServerLogItem =
   | YobtaServerLogSnapshotEntry
   | YobtaServerLogChannelInsertEntry
   | YobtaServerLogChannelDeleteEntry
+  | YobtaServerLogChannelRestoreEntry
   | YobtaServerLogChannelMoveEntry
 // #endregion
 
