@@ -46,7 +46,6 @@ export type YobtaServerLogSnapshotEntry = {
   key: string
   value: YobtaJsonValue | undefined
 }
-
 export type YobtaServerLogChannelInsertEntry = {
   type: typeof YOBTA_COLLECTION_INSERT
   snapshotId: YobtaCollectionId

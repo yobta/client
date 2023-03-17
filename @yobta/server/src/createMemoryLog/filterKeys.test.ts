@@ -1,10 +1,17 @@
 import {
   YobtaCollectionInsertOperation,
+  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_REVALIDATE,
 } from '@yobta/protocol'
 
-import { YobtaServerLogItem } from './createMemoryLog.js'
+import {
+  YobtaServerLogChannelDeleteEntry,
+  YobtaServerLogChannelInsertEntry,
+  YobtaServerLogChannelMoveEntry,
+  YobtaServerLogItem,
+} from './createMemoryLog.js'
 import { filterKeys } from './filterKeys.js'
 
 type Snapshot = {
@@ -12,7 +19,7 @@ type Snapshot = {
   name: string
 }
 
-it('returns same operation if log is empty', () => {
+it('returns same operation.data if log is empty', () => {
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
     id: 'op-id',
     type: YOBTA_COLLECTION_INSERT,
@@ -28,7 +35,24 @@ it('returns same operation if log is empty', () => {
   const result = filterKeys([], 'collection', operation)
   expect(result).toEqual(operation)
 })
-
+it('does not mutate log', () => {
+  const log: YobtaServerLogItem[] = []
+  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id',
+      name: 'john',
+    },
+    channel: 'channel',
+    snapshotId: 'id',
+    committed: 1,
+    merged: 2,
+  }
+  const logCopy = [...log]
+  filterKeys(log, 'collection', operation)
+  expect(log).toEqual(logCopy)
+})
 it('returns same operation if committed is greater then in log', () => {
   const log: YobtaServerLogItem[] = [
     {
@@ -65,7 +89,6 @@ it('returns same operation if committed is greater then in log', () => {
   const result = filterKeys(log, 'collection', operation)
   expect(result).toEqual(operation)
 })
-
 it('omits key if committed is same as in log', () => {
   const log: YobtaServerLogItem[] = [
     {
@@ -112,7 +135,6 @@ it('omits key if committed is same as in log', () => {
     channel: 'channel',
   })
 })
-
 it('omits key if committed is less then in log', () => {
   const log: YobtaServerLogItem[] = [
     {
@@ -158,4 +180,46 @@ it('omits key if committed is less then in log', () => {
     snapshotId: 'id',
     channel: 'channel',
   })
+})
+it('has no issues with rest log entry types', () => {
+  const insertEntry: YobtaServerLogChannelInsertEntry = {
+    type: YOBTA_COLLECTION_INSERT,
+    snapshotId: 'id',
+    channel: 'channel',
+    collection: 'collection',
+    committed: 1,
+    merged: 2,
+  }
+  const deleteEntry: YobtaServerLogChannelDeleteEntry = {
+    type: YOBTA_COLLECTION_DELETE,
+    snapshotId: 'id',
+    channel: 'channel',
+    collection: 'collection',
+    committed: 3,
+    merged: 4,
+  }
+  const moveEntry: YobtaServerLogChannelMoveEntry = {
+    type: YOBTA_COLLECTION_MOVE,
+    snapshotId: 'id',
+    nextSnapshotId: 'id-2',
+    channel: 'channel',
+    collection: 'collection',
+    committed: 5,
+    merged: 6,
+  }
+  const log: YobtaServerLogItem[] = [insertEntry, deleteEntry, moveEntry]
+  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id',
+      name: 'john',
+    },
+    committed: 1,
+    merged: 2,
+    snapshotId: 'id',
+    channel: 'channel',
+  }
+  const result = filterKeys(log, 'collection', operation)
+  expect(result).toEqual(operation)
 })
