@@ -38,40 +38,51 @@ export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = {
 
 export type YobtaServerLogSnapshotEntry = {
   type: typeof YOBTA_COLLECTION_REVALIDATE
-  snapshotId: YobtaCollectionId
+  operationId: string
   collection: string
-  committed: number
   channel?: never
+  snapshotId: YobtaCollectionId
+  nextSnapshotId?: never
+  committed: number
   merged: number
   key: string
   value: YobtaJsonValue | undefined
 }
 export type YobtaServerLogChannelInsertEntry = {
   type: typeof YOBTA_COLLECTION_INSERT
+  operationId: string
+  collection: string
+  channel: string
   snapshotId: YobtaCollectionId
   nextSnapshotId?: YobtaCollectionId
-  channel: string
-  collection: string
   committed: number
   merged: number
+  key?: never
+  value?: never
 }
 export type YobtaServerLogChannelDeleteEntry = {
   type: typeof YOBTA_COLLECTION_DELETE
+  operationId: string
+  collection: string
+  channel: string
   snapshotId: YobtaCollectionId
   nextSnapshotId?: never
-  channel: string
-  collection: string
   committed: number
   merged: number
+  key?: never
+  value?: never
 }
 export type YobtaServerLogChannelMoveEntry = {
   type: typeof YOBTA_COLLECTION_MOVE
+  operationId: string
+  collection: string
+  channel: string
   snapshotId: YobtaCollectionId
   nextSnapshotId: YobtaCollectionId
-  channel: string
-  collection: string
   committed: number
   merged: number
+  key?: never
+  value?: never
 }
 export type YobtaServerLogItem =
   | YobtaServerLogSnapshotEntry

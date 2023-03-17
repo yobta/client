@@ -48,6 +48,7 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
   if (shouldPush) {
     log.push({
       type: operation.type,
+      operationId: operation.id,
       snapshotId: operation.snapshotId,
       nextSnapshotId: operation.nextSnapshotId,
       channel: operation.channel,

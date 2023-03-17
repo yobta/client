@@ -62,6 +62,7 @@ it('adds inserted key entries to empty log', () => {
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id',
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
@@ -71,6 +72,7 @@ it('adds inserted key entries to empty log', () => {
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id',
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
@@ -84,6 +86,7 @@ it('adds inserted key entries to populated log', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'test',
       committed: 1,
@@ -93,7 +96,7 @@ it('adds inserted key entries to populated log', () => {
     },
   ]
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
-    id: 'op-id',
+    id: 'op-id-2',
     type: YOBTA_COLLECTION_INSERT,
     data: {
       id: 'id-2',
@@ -109,6 +112,7 @@ it('adds inserted key entries to populated log', () => {
     ...log,
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-2',
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
@@ -118,6 +122,7 @@ it('adds inserted key entries to populated log', () => {
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-2',
       snapshotId: 'id-2',
       collection: 'test',
       committed: 2,
@@ -170,7 +175,7 @@ it('ignores move opetation', () => {
 it('adds updated key entries to empty log', () => {
   const log: YobtaServerLogItem[] = []
   const operation: YobtaCollectionUpdateOperation<Snapshot> = {
-    id: 'op-id',
+    id: 'op-id-1',
     type: YOBTA_COLLECTION_UPDATE,
     data: {
       name: 'john',
@@ -184,6 +189,7 @@ it('adds updated key entries to empty log', () => {
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id',
       collection: 'test',
       committed: 1,
@@ -197,6 +203,7 @@ it('overwrites updated log entry and respects entries order', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'test',
       committed: 1,
@@ -206,6 +213,7 @@ it('overwrites updated log entry and respects entries order', () => {
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-2',
       snapshotId: 'id-1',
       collection: 'test',
       committed: 3,
@@ -229,6 +237,7 @@ it('overwrites updated log entry and respects entries order', () => {
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'test',
       committed: 5,
@@ -238,6 +247,7 @@ it('overwrites updated log entry and respects entries order', () => {
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-2',
       snapshotId: 'id-1',
       collection: 'test',
       committed: 3,
@@ -251,6 +261,7 @@ it('throws when keys are not properly filtered', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'test-collection',
       committed: 2,

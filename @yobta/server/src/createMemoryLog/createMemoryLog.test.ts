@@ -1,6 +1,5 @@
 import {
   YobtaCollectionInsertOperation,
-  YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,

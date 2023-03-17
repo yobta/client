@@ -40,7 +40,7 @@ it('returns same log if operation is not insert', () => {
 it('inserts appends new entry to empty log', () => {
   const log: YobtaServerLogItem[] = []
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
-    id: 'op-id',
+    id: 'op-id-1',
     type: YOBTA_COLLECTION_INSERT,
     data: {
       id: 'id-2',
@@ -60,6 +60,7 @@ it('inserts appends new entry to empty log', () => {
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_INSERT,
+      operationId: 'op-id-1',
       snapshotId: 'id-2',
       collection: 'collection',
       committed: 4,
@@ -95,6 +96,7 @@ it('appends new entry to filled log', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_INSERT,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'collection',
       committed: 2,
@@ -104,7 +106,7 @@ it('appends new entry to filled log', () => {
     },
   ]
   const operation: YobtaCollectionInsertOperation<Snapshot> = {
-    id: 'op-id',
+    id: 'op-id-2',
     type: YOBTA_COLLECTION_INSERT,
     data: {
       id: 'id-2',
@@ -124,6 +126,7 @@ it('appends new entry to filled log', () => {
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_INSERT,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'collection',
       committed: 2,
@@ -133,6 +136,7 @@ it('appends new entry to filled log', () => {
     },
     {
       type: YOBTA_COLLECTION_INSERT,
+      operationId: 'op-id-2',
       snapshotId: 'id-2',
       collection: 'collection',
       committed: 4,
@@ -170,6 +174,7 @@ it('is idempotant', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_INSERT,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'collection',
       committed: 2,
@@ -183,7 +188,7 @@ it('is idempotant', () => {
     collection: 'collection',
     merged,
     operation: {
-      id: 'op-id',
+      id: 'op-id-2',
       type: YOBTA_COLLECTION_INSERT,
       data: {
         id: 'id-1',
@@ -200,7 +205,7 @@ it('is idempotant', () => {
     collection: 'collection',
     merged,
     operation: {
-      id: 'op-id',
+      id: 'op-id-3',
       type: YOBTA_COLLECTION_INSERT,
       data: {
         id: 'id-1',
@@ -217,7 +222,7 @@ it('is idempotant', () => {
     collection: 'collection',
     merged,
     operation: {
-      id: 'op-id',
+      id: 'op-id-4',
       type: YOBTA_COLLECTION_INSERT,
       data: {
         id: 'id-1',
@@ -232,6 +237,7 @@ it('is idempotant', () => {
   expect(result).toEqual([
     {
       type: YOBTA_COLLECTION_INSERT,
+      operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'collection',
       channel: 'channel',

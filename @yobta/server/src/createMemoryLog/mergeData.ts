@@ -59,6 +59,7 @@ export const mergeData: YobtaServerLogMergeData = ({
         }
         head.push({
           type: YOBTA_COLLECTION_REVALIDATE,
+          operationId: operation.id,
           snapshotId: operation.snapshotId,
           collection,
           committed: operation.committed,

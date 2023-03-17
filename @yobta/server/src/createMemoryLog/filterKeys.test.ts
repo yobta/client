@@ -57,6 +57,7 @@ it('returns same operation if committed is greater then in log', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -66,6 +67,7 @@ it('returns same operation if committed is greater then in log', () => {
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-2',
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -93,6 +95,7 @@ it('omits key if committed is same as in log', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -102,6 +105,7 @@ it('omits key if committed is same as in log', () => {
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-2',
       snapshotId: 'id',
       collection: 'collection',
       committed: 2,
@@ -139,6 +143,7 @@ it('omits key if committed is less then in log', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
       snapshotId: 'id',
       collection: 'collection',
       committed: 1,
@@ -148,6 +153,7 @@ it('omits key if committed is less then in log', () => {
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-2',
       snapshotId: 'id',
       collection: 'collection',
       committed: 4,
@@ -184,6 +190,7 @@ it('omits key if committed is less then in log', () => {
 it('has no issues with rest log entry types', () => {
   const insertEntry: YobtaServerLogChannelInsertEntry = {
     type: YOBTA_COLLECTION_INSERT,
+    operationId: 'op-id-1',
     snapshotId: 'id',
     channel: 'channel',
     collection: 'collection',
@@ -192,6 +199,7 @@ it('has no issues with rest log entry types', () => {
   }
   const deleteEntry: YobtaServerLogChannelDeleteEntry = {
     type: YOBTA_COLLECTION_DELETE,
+    operationId: 'op-id-2',
     snapshotId: 'id',
     channel: 'channel',
     collection: 'collection',
@@ -200,6 +208,7 @@ it('has no issues with rest log entry types', () => {
   }
   const moveEntry: YobtaServerLogChannelMoveEntry = {
     type: YOBTA_COLLECTION_MOVE,
+    operationId: 'op-id-3',
     snapshotId: 'id',
     nextSnapshotId: 'id-2',
     channel: 'channel',
