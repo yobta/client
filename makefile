@@ -46,4 +46,4 @@ test-server:
 test: build
 	pnpm test
 
-check: lint typecheck test
+check: typecheck test lint
