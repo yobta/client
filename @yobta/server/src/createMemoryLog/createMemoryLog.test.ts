@@ -1,5 +1,4 @@
 import {
-  YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
