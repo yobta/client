@@ -5,7 +5,7 @@ import {
   YobtaSubscribeOperation,
 } from '@yobta/protocol'
 
-import { YobtaLog } from '../createMemoryLog/createMemoryLog.js'
+import { YobtaServerLog } from '../createMemoryLog/createMemoryLog.js'
 import { notifySibscribers } from '../subscriptonManager/subscriptonManager.js'
 
 interface YobtaCollectionFactory {
@@ -15,7 +15,7 @@ interface YobtaCollectionFactory {
 }
 type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
-  log: YobtaLog<YobtaCollectionAnySnapshot>
+  log: YobtaServerLog<YobtaCollectionAnySnapshot>
   // read(channel: string, id: YobtaCollectionId): Promise<Snapshot>
   write(
     message: YobtaCollectionMessage<Snapshot>,

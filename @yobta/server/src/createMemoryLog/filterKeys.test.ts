@@ -1,10 +1,15 @@
 import {
+  YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
+  YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
+  YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
 import {
@@ -247,4 +252,74 @@ it('has no issues with rest log entry types', () => {
   }
   const result = filterKeys(log, 'collection', operation)
   expect(result).toEqual(operation)
+})
+it('ignores delete operation', () => {
+  const operation: YobtaCollectionDeleteOperation = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_DELETE,
+    committed: 1,
+    merged: 2,
+    snapshotId: 'id',
+    channel: 'channel',
+  }
+  const result = filterKeys([], 'collection', operation)
+  expect(result).toBe(operation)
+})
+it('ignores restore operation', () => {
+  const operation: YobtaCollectionRestoreOperation = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_RESTORE,
+    committed: 1,
+    merged: 2,
+    snapshotId: 'id',
+    channel: 'channel',
+  }
+  const result = filterKeys([], 'collection', operation)
+  expect(result).toBe(operation)
+})
+it('ignores move operation', () => {
+  const operation: YobtaCollectionMoveOperation = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_MOVE,
+    committed: 1,
+    merged: 2,
+    snapshotId: 'id',
+    nextSnapshotId: 'id-2',
+    channel: 'channel',
+  }
+  const result = filterKeys([], 'collection', operation)
+  expect(result).toBe(operation)
+})
+it('returns a copy of input operation', () => {
+  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_INSERT,
+    data: {
+      id: 'id',
+      name: 'john',
+    },
+    committed: 1,
+    merged: 2,
+    snapshotId: 'id',
+    channel: 'channel',
+  }
+  const result = filterKeys([], 'collection', operation)
+  expect(result).not.toBe(operation)
+  expect(result.data).not.toBe(operation.data)
+})
+it('returns a copy of update operation', () => {
+  const operation: YobtaCollectionUpdateOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_UPDATE,
+    data: {
+      name: 'john',
+    },
+    committed: 1,
+    merged: 2,
+    snapshotId: 'id',
+    channel: 'channel',
+  }
+  const result = filterKeys([], 'collection', operation)
+  expect(result).not.toBe(operation)
+  expect(result.data).not.toBe(operation.data)
 })

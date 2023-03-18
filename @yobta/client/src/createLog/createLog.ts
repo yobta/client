@@ -1,7 +1,10 @@
 import {
   YobtaCollectionAnySnapshot,
+  YobtaCollectionDeleteOperation,
   YobtaCollectionId,
   YobtaCollectionInsertOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionUpdateOperation,
   YobtaOperationId,
@@ -20,6 +23,9 @@ export type YobtaClientLogOperation<
   | YobtaCollectionInsertOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
   | YobtaRejectOperation
 interface YobtaLogFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(

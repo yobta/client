@@ -29,14 +29,7 @@ export type YobtaChannelLogIsertEntry = {
   committed: number
   merged: number
 }
-// // #endregion
-
-const isSupportedTypes = new Set([
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
-])
+// #endregion
 
 export const mergeCursor: YobtaServerLogMergeToChannel = ({
   collection,
@@ -55,9 +48,12 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
   }
   const shouldPush = !log.some(
     entry =>
-      entry.snapshotId === operation.snapshotId &&
-      isSupportedTypes.has(entry.type) &&
-      entry.channel === operation.channel,
+      (entry.operationId === operation.id &&
+        operation.type !== YOBTA_COLLECTION_INSERT) ||
+      (entry.type === YOBTA_COLLECTION_INSERT &&
+        entry.snapshotId === operation.snapshotId &&
+        entry.type === operation.type &&
+        entry.channel === operation.channel),
   )
   if (shouldPush) {
     switch (operation.type) {

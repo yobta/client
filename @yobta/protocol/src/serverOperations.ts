@@ -1,6 +1,9 @@
 import {
   YobtaCollectionAnySnapshot,
+  YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionUpdateOperation,
 } from './collection.js'
@@ -33,6 +36,9 @@ export type YobtaServerOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionInsertOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
 
 export type YobtaServerDataOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
@@ -40,3 +46,6 @@ export type YobtaServerDataOperation<
   | YobtaCollectionInsertOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation

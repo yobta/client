@@ -1,6 +1,9 @@
 import {
   YobtaCollectionAnySnapshot,
+  YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionUpdateOperation,
   YobtaOperationId,
@@ -18,6 +21,10 @@ type SupportedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionUpdateOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
+  | YobtaRejectOperation
   | YobtaRejectOperation
 
 type Observer = (operation: SupportedOperation) => void
