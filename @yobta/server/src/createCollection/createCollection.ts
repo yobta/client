@@ -5,10 +5,8 @@ import {
   YobtaSubscribeOperation,
 } from '@yobta/protocol'
 
-import { YobtaLog } from '../createMemoryLog/createMemoryLog.js'
-import { createOperationsFromEntries } from '../createOperationsFromEntries/createOperationsFromEntries.js'
+import { YobtaServerLog } from '../createMemoryLog/createMemoryLog.js'
 import { notifySibscribers } from '../subscriptonManager/subscriptonManager.js'
-import { validateCommitTime } from '../validateCommitTime/validateCommitTime.js'
 
 interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
@@ -17,7 +15,7 @@ interface YobtaCollectionFactory {
 }
 type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
-  log: YobtaLog
+  log: YobtaServerLog<YobtaCollectionAnySnapshot>
   // read(channel: string, id: YobtaCollectionId): Promise<Snapshot>
   write(
     message: YobtaCollectionMessage<Snapshot>,
@@ -46,7 +44,6 @@ export const createCollection: YobtaCollectionFactory = <
 >({
   name,
   log,
-  write,
 }: YobtaCollectionProps<Snapshot>) => {
   return {
     get name() {
@@ -55,19 +52,12 @@ export const createCollection: YobtaCollectionFactory = <
     async revalidate(operation) {
       const entries = await log.find(operation.channel, operation.merged)
       if (entries.length) {
-        const operations = createOperationsFromEntries(entries)
-        notifySibscribers(operations)
+        notifySibscribers(entries)
       }
     },
-    async merge({ headers, operation }: YobtaCollectionMessage<Snapshot>) {
-      const fixedOperation = {
-        ...operation,
-        committed: validateCommitTime(operation.committed),
-      }
-      const operations = await write({ headers, operation: fixedOperation })
-      const entries = await log.merge(name, operations)
-      const loggedOperations = entries.map(createOperationsFromEntries).flat()
-      notifySibscribers(loggedOperations)
+    async merge({ operation }: YobtaCollectionMessage<Snapshot>) {
+      const loggedOperation = await log.merge(name, operation)
+      notifySibscribers([loggedOperation])
     },
   }
 }

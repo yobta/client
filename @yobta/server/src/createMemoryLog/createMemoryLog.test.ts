@@ -1,17 +1,19 @@
 import {
   YobtaCollectionInsertOperation,
-  YobtaCollectionUpdateOperation,
+  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
-import locals, { createMemoryLog } from './createMemoryLog.js'
-
-const { mergeOperation } = locals
+import { createMemoryLog } from './createMemoryLog.js'
 
 type MockItem = {
   id: string
-  key: string
+  one: string
+  two?: string
 }
 
 describe('log factory', () => {
@@ -20,6 +22,7 @@ describe('log factory', () => {
     expect(log).toEqual({
       find: expect.any(Function),
       merge: expect.any(Function),
+      observe: expect.any(Function),
     })
   })
 })
@@ -30,58 +33,285 @@ describe('log read', () => {
     const result = await log.find('channel', 0)
     expect(result).toEqual([])
   })
-})
-
-describe('log write', () => {
-  it('writes to a log', async () => {
+  it('returns matching items', async () => {
+    const log = createMemoryLog()
+    await log.merge('my-collection', {
+      id: 'op-1',
+      channel: 'channel',
+      data: { id: 'snapshot-id', one: 'value' },
+      committed: 1,
+      type: YOBTA_COLLECTION_INSERT,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    await log.merge('my-collection', {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_DELETE,
+      channel: 'channel',
+      snapshotId: 'snapshot-id',
+      committed: 1,
+      merged: 0,
+    })
+    const result = await log.find('channel', 0)
+    expect(result).toEqual([
+      {
+        id: 'revalidate-snapshot-id',
+        type: YOBTA_COLLECTION_REVALIDATE,
+        channel: 'channel',
+        snapshotId: 'snapshot-id',
+        nextSnapshotId: undefined,
+        committed: 1,
+        merged: expect.any(Number),
+        data: [
+          ['id', 'snapshot-id', 1, expect.any(Number)],
+          ['one', 'value', 1, expect.any(Number)],
+        ],
+      },
+      {
+        id: 'op-2',
+        channel: 'channel',
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'snapshot-id',
+        committed: 1,
+        merged: expect.any(Number),
+      },
+    ])
+  })
+  it('respects minMerged argument', async () => {
     const log = createMemoryLog()
     const insertOperation: YobtaCollectionInsertOperation<MockItem> = {
       channel: 'channel',
-      data: { key: 'value', id: 'snapshot-id' },
+      data: { id: 'snapshot-id', one: 'value' },
       committed: 1,
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
       snapshotId: 'snapshot-id',
     }
+    const { merged } = await log.merge('my-collection', insertOperation)
+    const result1 = await log.find('channel', merged)
+    expect(result1).toEqual([])
+    const result2 = await log.find('channel', Number(merged) + 1)
+    expect(result2).toEqual([])
+    const result3 = await log.find('channel', Number(merged) - 1)
+    expect(result3).toEqual([expect.any(Object)])
+  })
+  it('supports: update then insert', async () => {
+    const log = createMemoryLog()
     const collection = 'my-collection'
-    const result = await log.merge(collection, [insertOperation])
-    const entry1 = {
-      key: 'key',
-      value: 'value',
-      collection,
+    await log.merge(collection, {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_UPDATE,
       channel: 'channel',
-      committed: 1,
-      merged: expect.any(Number),
-      operationId: 'operation-id',
+      data: { one: 'three', two: 'two' },
+      committed: 2,
+      merged: 0,
       snapshotId: 'snapshot-id',
-    }
-    const entry2 = {
-      key: 'id',
-      value: 'snapshot-id',
+    })
+    await log.merge(collection, {
+      type: YOBTA_COLLECTION_INSERT,
       channel: 'channel',
-      collection,
+      data: { one: 'one', id: 'snapshot-id' },
       committed: 1,
-      merged: expect.any(Number),
-      operationId: 'operation-id',
+      id: 'op-1',
+      merged: 0,
       snapshotId: 'snapshot-id',
-    }
-    expect(result).toEqual([[entry1, entry2]])
-    expect(result[0][0].merged).toBeGreaterThan(0)
-    expect(result[0][1].merged).toBeGreaterThan(0)
-    expect(result[0][0].merged).toBeLessThanOrEqual(result[0][1].merged)
-
-    const snapshot = await log.find('channel', 0)
-    expect(snapshot).toEqual([entry1, entry2])
+    })
+    const result = await log.find('channel', 0)
+    expect(result).toEqual([
+      {
+        id: 'revalidate-snapshot-id',
+        type: YOBTA_COLLECTION_REVALIDATE,
+        channel: 'channel',
+        snapshotId: 'snapshot-id',
+        nextSnapshotId: undefined,
+        committed: 1,
+        merged: expect.any(Number),
+        data: [
+          ['id', 'snapshot-id', 1, expect.any(Number)],
+          ['one', 'three', 2, expect.any(Number)],
+          ['two', 'two', 2, expect.any(Number)],
+        ],
+      },
+    ])
+  })
+  it('supports: delete then insert', async () => {
+    const log = createMemoryLog()
+    const collection = 'my-collection'
+    await log.merge(collection, {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_DELETE,
+      channel: 'channel',
+      committed: 2,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    await log.merge(collection, {
+      id: 'op-1',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'channel',
+      data: { id: 'snapshot-id', one: 'one' },
+      committed: 1,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    const result = await log.find('channel', 0)
+    expect(result).toEqual([
+      {
+        id: 'revalidate-snapshot-id',
+        type: YOBTA_COLLECTION_REVALIDATE,
+        channel: 'channel',
+        snapshotId: 'snapshot-id',
+        nextSnapshotId: undefined,
+        committed: 1,
+        merged: expect.any(Number),
+        data: [
+          ['id', 'snapshot-id', 1, expect.any(Number)],
+          ['one', 'one', 1, expect.any(Number)],
+        ],
+      },
+      {
+        id: 'op-2',
+        type: YOBTA_COLLECTION_DELETE,
+        channel: 'channel',
+        committed: 2,
+        merged: expect.any(Number),
+        snapshotId: 'snapshot-id',
+      },
+    ])
+  })
+  it('supports: insert, restore, delete', async () => {
+    const log = createMemoryLog()
+    const collection = 'my-collection'
+    await log.merge(collection, {
+      id: 'op-1',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'channel',
+      data: { id: 'snapshot-id', one: 'one' },
+      committed: 1,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    await log.merge(collection, {
+      id: 'op-3',
+      type: YOBTA_COLLECTION_RESTORE,
+      channel: 'channel',
+      committed: 3,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    await log.merge(collection, {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_DELETE,
+      channel: 'channel',
+      committed: 2,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    const result = await log.find('channel', 0)
+    expect(result).toEqual([
+      {
+        id: 'revalidate-snapshot-id',
+        type: YOBTA_COLLECTION_REVALIDATE,
+        channel: 'channel',
+        snapshotId: 'snapshot-id',
+        nextSnapshotId: undefined,
+        committed: 1,
+        merged: expect.any(Number),
+        data: [
+          ['id', 'snapshot-id', 1, expect.any(Number)],
+          ['one', 'one', 1, expect.any(Number)],
+        ],
+      },
+      {
+        id: 'op-2',
+        type: YOBTA_COLLECTION_DELETE,
+        channel: 'channel',
+        committed: 2,
+        merged: expect.any(Number),
+        snapshotId: 'snapshot-id',
+      },
+      {
+        id: 'op-3',
+        type: YOBTA_COLLECTION_RESTORE,
+        channel: 'channel',
+        committed: 3,
+        merged: expect.any(Number),
+        snapshotId: 'snapshot-id',
+      },
+    ])
+  })
+  it('supports: move, delete, insert', async () => {
+    const log = createMemoryLog()
+    const collection = 'my-collection'
+    await log.merge(collection, {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_MOVE,
+      channel: 'channel',
+      committed: 2,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+      nextSnapshotId: 'next-snapshot-id',
+    })
+    await log.merge(collection, {
+      id: 'op-3',
+      type: YOBTA_COLLECTION_DELETE,
+      channel: 'channel',
+      committed: 3,
+      merged: 0,
+      snapshotId: 'next-snapshot-id',
+    })
+    await log.merge(collection, {
+      id: 'op-1',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'channel',
+      data: { id: 'snapshot-id', one: 'one' },
+      committed: 1,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    const result = await log.find('channel', 0)
+    expect(result).toEqual([
+      {
+        id: 'revalidate-snapshot-id',
+        type: YOBTA_COLLECTION_REVALIDATE,
+        channel: 'channel',
+        snapshotId: 'snapshot-id',
+        nextSnapshotId: undefined,
+        committed: 1,
+        merged: expect.any(Number),
+        data: [
+          ['id', 'snapshot-id', 1, expect.any(Number)],
+          ['one', 'one', 1, expect.any(Number)],
+        ],
+      },
+      {
+        id: 'op-2',
+        type: YOBTA_COLLECTION_MOVE,
+        channel: 'channel',
+        committed: 2,
+        merged: expect.any(Number),
+        snapshotId: 'snapshot-id',
+        nextSnapshotId: 'next-snapshot-id',
+      },
+      {
+        id: 'op-3',
+        type: YOBTA_COLLECTION_DELETE,
+        channel: 'channel',
+        committed: 3,
+        merged: expect.any(Number),
+        snapshotId: 'next-snapshot-id',
+      },
+    ])
   })
 })
 
-describe('mergeOperation', () => {
-  it('should merge insert operation', () => {
-    const log = new Map()
+describe('log write', () => {
+  it('returns merged operation', async () => {
+    const log = createMemoryLog()
     const insertOperation: YobtaCollectionInsertOperation<MockItem> = {
       channel: 'channel',
-      data: { key: 'value', id: 'snapshot-id' },
+      data: { one: 'value', id: 'snapshot-id' },
       committed: 1,
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
@@ -89,280 +319,62 @@ describe('mergeOperation', () => {
       snapshotId: 'snapshot-id',
     }
     const collection = 'my-collection'
-    const item = mergeOperation(log, collection, insertOperation)
-    expect(item).toEqual([
-      {
-        channel: 'channel',
-        committed: 1,
-        collection,
-        merged: expect.any(Number),
-        key: 'key',
-        value: 'value',
-        operationId: 'operation-id',
-        snapshotId: 'snapshot-id',
-      },
-      {
-        channel: 'channel',
-        collection,
-        committed: 1,
-        merged: expect.any(Number),
-        key: 'id',
-        value: 'snapshot-id',
-        operationId: 'operation-id',
-        snapshotId: 'snapshot-id',
-      },
-    ])
-    expect(log).toEqual(
-      new Map([
-        ['channel.snapshot-id.key', item[0]],
-        ['channel.snapshot-id.id', item[1]],
-      ]),
-    )
-  })
-  it('should merge update operation', () => {
-    const log = new Map()
-    const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
+    const result = await log.merge(collection, insertOperation)
+    expect(result).toEqual({
       channel: 'channel',
-      data: { key: 'value' },
-      committed: 1,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_UPDATE,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const collection = 'my-collection'
-    const item = mergeOperation(log, collection, updateOperation)
-    expect(item).toEqual([
-      {
-        channel: 'channel',
-        committed: 1,
-        collection,
-        merged: expect.any(Number),
-        key: 'key',
-        value: 'value',
-        operationId: 'operation-id',
-        snapshotId: 'snapshot-id',
-      },
-    ])
-    expect(log).toEqual(new Map([['channel.snapshot-id.key', item[0]]]))
-  })
-  it('should merge insert and update operations', () => {
-    const log = new Map()
-    const insertOperation: YobtaCollectionInsertOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'value', id: 'snapshot-id' },
+      data: { one: 'value', id: 'snapshot-id' },
       committed: 1,
       id: 'operation-id',
       type: YOBTA_COLLECTION_INSERT,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'updated value' },
-      committed: 2,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_UPDATE,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const collection = 'my-collection'
-    mergeOperation(log, collection, insertOperation)
-    mergeOperation(log, collection, updateOperation)
-    expect(log).toEqual(
-      new Map([
-        [
-          'channel.snapshot-id.key',
-          {
-            channel: 'channel',
-            committed: 2,
-            collection,
-            merged: expect.any(Number),
-            key: 'key',
-            value: 'updated value',
-            operationId: 'operation-id',
-            snapshotId: 'snapshot-id',
-          },
-        ],
-        [
-          'channel.snapshot-id.id',
-          {
-            channel: 'channel',
-            committed: 1,
-            collection,
-            merged: expect.any(Number),
-            key: 'id',
-            value: 'snapshot-id',
-            operationId: 'operation-id',
-            snapshotId: 'snapshot-id',
-          },
-        ],
-      ]),
-    )
-  })
-  it('should merge update and insert operations', () => {
-    const log = new Map()
-    const insertOperation: YobtaCollectionInsertOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'value', id: 'snapshot-id' },
-      committed: 1,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_INSERT,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'updated value' },
-      committed: 2,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_UPDATE,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const collection = 'my-collection'
-    mergeOperation(log, collection, updateOperation)
-    mergeOperation(log, collection, insertOperation)
-    expect(log).toEqual(
-      new Map([
-        [
-          'channel.snapshot-id.key',
-          {
-            channel: 'channel',
-            collection,
-            committed: 2,
-            merged: expect.any(Number),
-            key: 'key',
-            value: 'updated value',
-            operationId: 'operation-id',
-            snapshotId: 'snapshot-id',
-          },
-        ],
-        [
-          'channel.snapshot-id.id',
-          {
-            channel: 'channel',
-            collection,
-            committed: 1,
-            merged: expect.any(Number),
-            key: 'id',
-            value: 'snapshot-id',
-            operationId: 'operation-id',
-            snapshotId: 'snapshot-id',
-          },
-        ],
-      ]),
-    )
-  })
-  it('is idimpotent', () => {
-    const log1 = new Map()
-    const log2 = new Map()
-    const insertOperation: YobtaCollectionInsertOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'value', id: 'snapshot-id' },
-      committed: 1,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_INSERT,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'updated value' },
-      committed: 2,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_UPDATE,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const collection = 'my-collection'
-    mergeOperation(log1, collection, insertOperation)
-    mergeOperation(log1, collection, updateOperation)
-    mergeOperation(log1, collection, insertOperation)
-
-    mergeOperation(log2, collection, updateOperation)
-    mergeOperation(log2, collection, updateOperation)
-    mergeOperation(log2, collection, insertOperation)
-    mergeOperation(log2, collection, insertOperation)
-    mergeOperation(log2, collection, updateOperation)
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { merged: m1, ...snapshot1 } = log1.get('channel.snapshot-id.key')
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { merged: m2, ...snapshot2 } = log2.get('channel.snapshot-id.key')
-
-    expect(snapshot1).toEqual(snapshot2)
-  })
-  it('wins when committed later', () => {
-    const log = new Map()
-    const insertOperation: YobtaCollectionInsertOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'value', id: 'snapshot-id' },
-      committed: 1,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_INSERT,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const updateOperation1: YobtaCollectionUpdateOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'updated value' },
-      committed: 2,
-      id: 'operation-id-1',
-      type: YOBTA_COLLECTION_UPDATE,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const updateOperation2: YobtaCollectionUpdateOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'updated value 2' },
-      committed: 3,
-      id: 'operation-id-3',
-      type: YOBTA_COLLECTION_UPDATE,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const collection = 'my-collection'
-    mergeOperation(log, collection, insertOperation)
-    mergeOperation(log, collection, updateOperation2)
-    mergeOperation(log, collection, updateOperation1)
-    expect(log.get('channel.snapshot-id.key')).toEqual({
-      channel: 'channel',
-      collection,
-      committed: 3,
       merged: expect.any(Number),
-      key: 'key',
-      value: 'updated value 2',
-      operationId: 'operation-id-3',
+      snapshotId: 'snapshot-id',
+    })
+    expect(result.merged).toBeCloseTo(Date.now(), -10)
+  })
+  it('returns only merged keys', async () => {
+    const log = createMemoryLog()
+    const collection = 'my-collection'
+    await log.merge(collection, {
+      channel: 'channel',
+      data: { one: 'one', id: 'snapshot-id' },
+      committed: 2,
+      id: 'operation-id',
+      type: YOBTA_COLLECTION_INSERT,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    const result = await log.merge(collection, {
+      channel: 'channel',
+      data: { one: 'three', two: 'two' },
+      committed: 1,
+      id: 'operation-id',
+      type: YOBTA_COLLECTION_UPDATE,
+      merged: 0,
+      snapshotId: 'snapshot-id',
+    })
+    expect(result).toEqual({
+      channel: 'channel',
+      data: { two: 'two' },
+      committed: 1,
+      id: 'operation-id',
+      type: YOBTA_COLLECTION_UPDATE,
+      merged: expect.any(Number),
       snapshotId: 'snapshot-id',
     })
   })
-  it('should not mutate entry', () => {
+  it('throws when gets invalid operation', async () => {
+    const log = createMemoryLog()
     const collection = 'my-collection'
-    const entry1 = {
-      channel: 'channel',
-      collection,
-      committed: 1,
-      merged: 2,
-      key: 'key',
-      value: 'value',
-      operationId: 'operation-id',
-      snapshotId: 'snapshot-id',
-    }
-    const updateOperation: YobtaCollectionUpdateOperation<MockItem> = {
-      channel: 'channel',
-      data: { key: 'value' },
-      committed: 3,
-      id: 'operation-id',
-      type: YOBTA_COLLECTION_UPDATE,
-      merged: 0,
-      snapshotId: 'snapshot-id',
-    }
-    const log = new Map([['channel.key', entry1]])
-    const item = mergeOperation(log, collection, updateOperation)
-    expect(item).toEqual([
-      { ...entry1, collection, committed: 3, merged: expect.any(Number) },
-    ])
-    expect(log.get('channel.snapshot-id.key')).not.toBe(entry1)
+    await expect(
+      log.merge(collection, {
+        channel: 'channel',
+        data: { one: 'three', two: 'two' },
+        committed: 1,
+        id: 'operation-id',
+        type: 'invalid-operation-type' as typeof YOBTA_COLLECTION_UPDATE,
+        merged: 0,
+        snapshotId: 'snapshot-id',
+      }),
+    ).rejects.toThrow('Invalid operation')
   })
 })

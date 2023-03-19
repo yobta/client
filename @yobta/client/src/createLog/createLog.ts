@@ -1,8 +1,12 @@
 import {
   YobtaCollectionAnySnapshot,
+  YobtaCollectionDeleteOperation,
   YobtaCollectionId,
   YobtaCollectionInsertOperation,
-  YobtaDataOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
+  YobtaCollectionRevalidateOperation,
+  YobtaCollectionUpdateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
@@ -12,16 +16,24 @@ import { createStore, YobtaReadable } from '@yobta/stores'
 
 import { addEntryToLog } from '../addEntryToLog/addEntryToLog.js'
 
-export type YobtaLogInput<Snapshot extends YobtaCollectionAnySnapshot> =
-  | YobtaDataOperation<Snapshot>
+// #region types
+export type YobtaClientLogOperation<
+  Snapshot extends YobtaCollectionAnySnapshot,
+> =
+  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaCollectionRevalidateOperation<Snapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
   | YobtaRejectOperation
 interface YobtaLogFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
-    operations: YobtaLogInput<Snapshot>[],
+    operations: YobtaClientLogOperation<Snapshot>[],
   ): YobtaLog<Snapshot>
 }
 export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = Readonly<{
-  add(operations: YobtaLogInput<Snapshot>[]): void
+  add(operations: YobtaClientLogOperation<Snapshot>[]): void
 }> &
   YobtaReadable<YobtaLogEntry[]>
 export type YobtaLoggedOperation =
@@ -49,14 +61,15 @@ export type YobtaLogRejectEntry = [
   YobtaOperationId, // target operationId
 ]
 export type YobtaLogEntry = YobtaLogInsertEntry | YobtaLogRejectEntry
+// #endregion
 
 export const createLog: YobtaLogFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
-  initialOperations: YobtaLogInput<Snapshot>[],
+  initialOperations: YobtaClientLogOperation<Snapshot>[],
 ) => {
-  const { last, next, on, observe } = createStore<readonly YobtaLogEntry[]>([])
-  const add = (newOperations: YobtaLogInput<Snapshot>[]): void => {
+  const { last, next, on, observe } = createStore<YobtaLogEntry[]>([])
+  const add = (newOperations: YobtaClientLogOperation<Snapshot>[]): void => {
     let log = last()
     let shouldUpdate = false
     newOperations.forEach(operation => {

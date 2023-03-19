@@ -1,5 +1,5 @@
 import {
-  PatchWithoutId,
+  YobtaCollectionPatchWithoutId,
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YobtaCollectionInsertOperation,
@@ -7,38 +7,39 @@ import {
   YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
+  YobtaCollectionPatchWithId,
 } from '@yobta/protocol'
 import { createDerivedStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
-import { createLog } from '../createLog/createLog.js'
+import { createLog, YobtaClientLogOperation } from '../createLog/createLog.js'
 import { createLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
 import { createLogMerger } from '../createLogMerger/createLogMerger.js'
 import { operationResult } from '../operationResult/operationResult.js'
 import { subscribeToServerMessages } from '../subscribeToServerMessages/subscribeToServerMessages.js'
 
+// #region types
 interface YobtaChannelFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     props: YobtaChannelProps<Snapshot>,
   ): YobtaChannel<Snapshot>
 }
-
 export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
   Readonly<{
     insert: (snapshot: Snapshot) => Promise<Snapshot | undefined>
     update: (
       id: YobtaCollectionId,
-      snapshot: PatchWithoutId<Snapshot>,
+      snapshot: YobtaCollectionPatchWithoutId<Snapshot>,
     ) => Promise<Snapshot | undefined>
   }> &
     YobtaReadable<Snapshot[], never>
-
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
   operations?: YobtaCollectionOperation<Snapshot>[]
   route: string
 }
+// #endregion
 
 export const createChannel: YobtaChannelFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
@@ -59,7 +60,12 @@ export const createChannel: YobtaChannelFactory = <
       route,
       getVersion,
       operation => {
-        log.add([operation])
+        log.add([
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          operation as YobtaClientLogOperation<
+            YobtaCollectionPatchWithId<Snapshot>
+          >,
+        ])
         if (
           operation.type === YOBTA_COLLECTION_INSERT ||
           operation.type === YOBTA_COLLECTION_UPDATE
@@ -87,7 +93,7 @@ export const createChannel: YobtaChannelFactory = <
   }
   const update = async (
     ref: YobtaCollectionId,
-    data: PatchWithoutId<Snapshot>,
+    data: YobtaCollectionPatchWithoutId<Snapshot>,
   ): Promise<Snapshot | undefined> => {
     const operation: YobtaCollectionUpdateOperation<Snapshot> = createOperation(
       {

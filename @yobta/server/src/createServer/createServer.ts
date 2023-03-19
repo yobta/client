@@ -12,8 +12,9 @@ import {
 
 import { stringifyServerOperation } from '../stringifyServerOperation/stringifyServerOperation.js'
 import { registerConnection } from '../subscriptonManager/subscriptonManager.js'
-import { parseClientOperation } from '../clientOperation/index.js'
+import { parseClientMessage } from '../parseClientMessage/parseClientMessage.js'
 import { broadcastClientMessage } from '../router/router.js'
+import { parseUnknownError } from '../parseUnknownError/parseUnknownError.js'
 
 interface ServerFactory {
   (wss: WebSocketServer): void
@@ -52,19 +53,24 @@ export const createServer: ServerFactory = wss => {
       unsubscribe: mediator.remove,
     }
     connection.on('message', (message: string) => {
-      const { operation, headers } = parseClientOperation(message)
-      const receivedOp = stringifyServerOperation({
-        id: nanoid(),
-        operationId: operation.id,
-        received: Date.now(),
-        type: YOBTA_RECEIVED,
-      })
-      connection.send(receivedOp)
-      broadcastClientMessage(
-        operation.channel,
-        { headers, operation },
-        callbacks,
-      )
+      try {
+        const { operation, headers } = parseClientMessage(message)
+        const receivedOp = stringifyServerOperation({
+          id: nanoid(),
+          operationId: operation.id,
+          received: Date.now(),
+          type: YOBTA_RECEIVED,
+        })
+        connection.send(receivedOp)
+        broadcastClientMessage(
+          operation.channel,
+          { headers, operation },
+          callbacks,
+        )
+      } catch (error) {
+        connection.close(500, parseUnknownError(error).message)
+        // TODO: log error
+      }
     })
     connection.on('close', mediator.clear)
   })

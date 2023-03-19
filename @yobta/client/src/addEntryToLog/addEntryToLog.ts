@@ -3,10 +3,7 @@ import { createLogEntryFromOperation } from '../createLogEntryFromOperation/crea
 import { parseLogEntry } from '../parseLogEntry/parseLogEntry.js'
 
 interface YobtaAddEntryToLog {
-  (
-    entries: readonly YobtaLogEntry[],
-    operation: YobtaLoggedOperation,
-  ): readonly YobtaLogEntry[]
+  (entries: YobtaLogEntry[], operation: YobtaLoggedOperation): YobtaLogEntry[]
 }
 
 export const addEntryToLog: YobtaAddEntryToLog = (entries, operation) => {

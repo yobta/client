@@ -1,12 +1,12 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaRemoteOperation,
+  YobtaServerOperation,
   YobtaSubscribeOperation,
   YOBTA_REJECT,
   YOBTA_RECEIVED,
 } from '@yobta/protocol'
 
-import { YobtaLogInput } from '../createLog/createLog.js'
+import { YobtaClientLogOperation } from '../createLog/createLog.js'
 import { YobtaLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createErrorYobta } from '../errorsStore/errorsStore.js'
 import { getSubscribeOperation } from '../getSubscribeOperation/getSubscribeOperation.js'
@@ -15,7 +15,7 @@ import { dequeueOperation } from '../queue/queue.js'
 import { computeServerTime } from '../serverTime/serverTime.js'
 
 export type YobtaServerSubscriber<Snapshot extends YobtaCollectionAnySnapshot> =
-  (operation: YobtaLogInput<Snapshot>) => void
+  (operation: YobtaClientLogOperation<Snapshot>) => void
 export type YobtaServerSubscription<
   Snapshot extends YobtaCollectionAnySnapshot,
 > = {
@@ -28,24 +28,16 @@ const serverSubscriptionsStore = new Set<
   YobtaServerSubscription<YobtaCollectionAnySnapshot>
 >()
 
-export const addServerSubscription = <
-  Snapshot extends YobtaCollectionAnySnapshot,
->(
-  subscription: YobtaServerSubscription<Snapshot>,
+export const addServerSubscription = (
+  subscription: YobtaServerSubscription<YobtaCollectionAnySnapshot>,
 ): void => {
-  serverSubscriptionsStore.add(
-    subscription as YobtaServerSubscription<YobtaCollectionAnySnapshot>,
-  )
+  serverSubscriptionsStore.add(subscription)
 }
 
-export const removeServerSubscription = <
-  Snapshot extends YobtaCollectionAnySnapshot,
->(
-  subscription: YobtaServerSubscription<Snapshot>,
+export const removeServerSubscription = (
+  subscription: YobtaServerSubscription<YobtaCollectionAnySnapshot>,
 ): void => {
-  serverSubscriptionsStore.delete(
-    subscription as YobtaServerSubscription<YobtaCollectionAnySnapshot>,
-  )
+  serverSubscriptionsStore.delete(subscription)
 }
 
 export const getAllSubscribeOperarions = (): YobtaSubscribeOperation[] => {
@@ -57,16 +49,18 @@ export const getAllSubscribeOperarions = (): YobtaSubscribeOperation[] => {
   return operations
 }
 
-export const notifySubscribers = <Snapshot extends YobtaCollectionAnySnapshot>(
-  operation: YobtaLogInput<Snapshot>,
+export const notifySubscribers = (
+  operation: YobtaClientLogOperation<YobtaCollectionAnySnapshot>,
 ): void => {
   for (const { callback, channel } of serverSubscriptionsStore) {
-    if (operation.channel === channel) callback(operation)
+    if (operation.channel === channel) {
+      callback(operation)
+    }
   }
 }
 
 export const handleRemoteOperation = (
-  operation: YobtaRemoteOperation<YobtaCollectionAnySnapshot>,
+  operation: YobtaServerOperation<YobtaCollectionAnySnapshot>,
 ): void => {
   switch (operation.type) {
     case YOBTA_RECEIVED: {

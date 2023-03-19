@@ -1,4 +1,3 @@
-export * from './clientOperation/index.js'
 export * from './createChannel/createChannel.js'
 export * from './createCollection/createCollection.js'
 export * from './createMemoryLog/createMemoryLog.js'
