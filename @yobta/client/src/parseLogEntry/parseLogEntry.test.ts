@@ -1,10 +1,13 @@
-import { YOBTA_COLLECTION_INSERT } from '@yobta/protocol'
+import {
+  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_MOVE,
+  YOBTA_REJECT,
+} from '@yobta/protocol'
 
-import { YobtaLogEntry } from '../createLog/createLog.js'
 import { parseLogEntry } from './parseLogEntry.js'
 
-it('creates object from entry', () => {
-  const entry: YobtaLogEntry = [
+it('supports insert entries', () => {
+  const object = parseLogEntry([
     'op-id',
     'channel',
     1,
@@ -13,8 +16,7 @@ it('creates object from entry', () => {
     'snapshot-2',
     'snapshot-1',
     undefined,
-  ]
-  const object = parseLogEntry(entry)
+  ])
   expect(object).toEqual({
     id: 'op-id',
     channel: 'channel',
@@ -24,4 +26,59 @@ it('creates object from entry', () => {
     snapshotId: 'snapshot-2',
     nextSnapshotId: 'snapshot-1',
   })
+})
+it('supports reject entries', () => {
+  const object = parseLogEntry([
+    'op-id',
+    'channel',
+    1,
+    2,
+    YOBTA_REJECT,
+    undefined,
+    undefined,
+    'op-id',
+  ])
+  expect(object).toEqual({
+    id: 'op-id',
+    channel: 'channel',
+    committed: 1,
+    merged: 2,
+    type: YOBTA_REJECT,
+    operationId: 'op-id',
+  })
+})
+it('supports move entries', () => {
+  const object = parseLogEntry([
+    'op-id',
+    'channel',
+    1,
+    2,
+    YOBTA_COLLECTION_MOVE,
+    'snapshot-2',
+    'snapshot-1',
+    undefined,
+  ])
+  expect(object).toEqual({
+    id: 'op-id',
+    channel: 'channel',
+    committed: 1,
+    merged: 2,
+    type: YOBTA_COLLECTION_MOVE,
+    snapshotId: 'snapshot-2',
+    nextSnapshotId: 'snapshot-1',
+  })
+})
+it('throws on unknown type', () => {
+  expect(() =>
+    parseLogEntry([
+      'op-id',
+      'channel',
+      1,
+      2,
+      'unknown' as any,
+      'snapshot-2',
+      'snapshot-1',
+      undefined,
+    ]),
+  ).toThrow()
 })

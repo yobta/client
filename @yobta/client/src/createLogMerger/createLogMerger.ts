@@ -2,6 +2,7 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_MOVE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -19,7 +20,7 @@ const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
   snapshot?: Snapshot,
   nextSnapshotId?: YobtaCollectionId,
 ): Snapshot[] => {
-  if (!snapshot) {
+  if (!snapshot || snapshot.id === nextSnapshotId) {
     return snapshots
   }
   const index = nextSnapshotId
@@ -36,8 +37,8 @@ export const createLogMerger: YobtaLogMergerFactory =
   <Snapshot extends YobtaCollectionAnySnapshot>(
     getSnapshot: YobtaGetCollectionSnapshot<Snapshot>,
   ) =>
-  entries => {
-    return entries
+  entries =>
+    entries
       .reduce<YobtaLogEntry[]>((acc, entry) => {
         if (entry[4] === YOBTA_REJECT) {
           return acc.filter(([id]) => id !== entry[7])
@@ -46,10 +47,27 @@ export const createLogMerger: YobtaLogMergerFactory =
         return acc
       }, [])
       .reduce<Snapshot[]>((acc, [, , , , type, snapshotId, nextSnapshotId]) => {
-        if (type === YOBTA_COLLECTION_INSERT) {
-          const snapshot = getSnapshot(snapshotId)
-          return insert(acc, snapshot, nextSnapshotId)
+        switch (type) {
+          case YOBTA_COLLECTION_INSERT: {
+            const snapshot = getSnapshot(snapshotId)
+            return insert(acc, snapshot, nextSnapshotId)
+          }
+          case YOBTA_COLLECTION_MOVE: {
+            const nextAcc = acc.filter(({ id }) => id !== snapshotId)
+            if (
+              nextAcc.length === acc.length ||
+              snapshotId === nextSnapshotId
+            ) {
+              return acc
+            }
+            const snapshot = getSnapshot(snapshotId)
+            return insert(nextAcc, snapshot, nextSnapshotId)
+          }
+          case YOBTA_REJECT: {
+            return acc
+          }
+          default: {
+            throw new Error('Unexpected type')
+          }
         }
-        return acc
       }, [])
-  }

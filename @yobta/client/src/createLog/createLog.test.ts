@@ -1,9 +1,9 @@
 import {
   YobtaCollectionInsertOperation,
-  YobtaCollectionUpdateOperation,
+  YobtaCollectionMoveOperation,
   YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_UPDATE,
+  YOBTA_COLLECTION_MOVE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -91,19 +91,19 @@ describe('add', () => {
     log.add([rejectOpetaion])
     expect(log.last()).toEqual([createLogEntryFromOperation(rejectOpetaion)])
   })
-  it('ignores update operations', () => {
+  it('supports move operations', () => {
     const log = createLog([])
-    const updateOpetaion: YobtaCollectionUpdateOperation<MockSnapshot> = {
+    const insertOpetaion: YobtaCollectionMoveOperation = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_UPDATE,
-      data: { key: 'value' },
+      type: YOBTA_COLLECTION_MOVE,
       channel: 'channel',
+      snapshotId: '1',
+      nextSnapshotId: '2',
     }
-    log.add([updateOpetaion])
-    expect(log.last()).toEqual([])
+    log.add([insertOpetaion])
+    expect(log.last()).toEqual([createLogEntryFromOperation(insertOpetaion)])
   })
   it('adds multiple entries', () => {
     const log = createLog([])
@@ -244,21 +244,5 @@ describe('observe', () => {
     expect(observer).toHaveBeenCalledWith([
       createLogEntryFromOperation(insertOpetaion),
     ])
-  })
-  it('should not receive updates when there are no changes', () => {
-    const log = createLog([])
-    const observer = vi.fn()
-    const updateOpetaion: YobtaCollectionUpdateOperation<MockSnapshot> = {
-      id: '1',
-      committed: 1,
-      merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_UPDATE,
-      data: { key: 'value' },
-      channel: 'channel',
-    }
-    log.observe(observer)
-    log.add([updateOpetaion])
-    expect(observer).not.toHaveBeenCalled()
   })
 })
