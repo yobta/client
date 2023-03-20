@@ -2,6 +2,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -87,6 +88,26 @@ it('supports delete entries', () => {
     merged: 2,
     type: YOBTA_COLLECTION_DELETE,
     snapshotId: 'snapshot-2',
+  })
+})
+it('supports restore entries', () => {
+  const object = parseLogEntry([
+    'op-id',
+    'channel',
+    1,
+    2,
+    YOBTA_COLLECTION_RESTORE,
+    'snapshot-1',
+    undefined,
+    undefined,
+  ])
+  expect(object).toEqual({
+    id: 'op-id',
+    channel: 'channel',
+    committed: 1,
+    merged: 2,
+    type: YOBTA_COLLECTION_RESTORE,
+    snapshotId: 'snapshot-1',
   })
 })
 it('throws on unknown type', () => {

@@ -11,6 +11,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 import { createStore, YobtaReadable } from '@yobta/stores'
@@ -40,6 +41,7 @@ export type YobtaLoggedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionMoveOperation
   | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
   | YobtaRejectOperation
 
 export type YobtaLogInsertEntry = [
@@ -82,11 +84,22 @@ export type YobtaLogDeleteEntry = [
   undefined, // nextSnapshotId
   undefined, // target operationId
 ]
+export type YobtaLogRestoreEntry = [
+  YobtaOperationId, // id
+  string, // channel
+  number, // committed
+  number, // merged
+  typeof YOBTA_COLLECTION_RESTORE, // type
+  YobtaCollectionId, // snapshotId
+  undefined, // nextSnapshotId
+  undefined, // target operationId
+]
 export type YobtaLogEntry =
   | YobtaLogInsertEntry
   | YobtaLogRejectEntry
   | YobtaLogMoveEntry
   | YobtaLogDeleteEntry
+  | YobtaLogRestoreEntry
 // #endregion
 
 export const createLog: YobtaLogFactory = <
@@ -103,6 +116,7 @@ export const createLog: YobtaLogFactory = <
         case YOBTA_COLLECTION_INSERT:
         case YOBTA_COLLECTION_MOVE:
         case YOBTA_COLLECTION_DELETE:
+        case YOBTA_COLLECTION_RESTORE:
         case YOBTA_REJECT:
           log = addEntryToLog(log, operation)
           shouldUpdate = true

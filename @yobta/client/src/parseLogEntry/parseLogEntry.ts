@@ -4,6 +4,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -50,6 +51,16 @@ type YobtaParsedLogEntry =
       committed: number
       merged: number
       type: typeof YOBTA_COLLECTION_DELETE
+      snapshotId: YobtaCollectionId
+      nextSnapshotId: undefined
+      operationId: undefined
+    }
+  | {
+      id: YobtaOperationId
+      channel: string
+      committed: number
+      merged: number
+      type: typeof YOBTA_COLLECTION_RESTORE
       snapshotId: YobtaCollectionId
       nextSnapshotId: undefined
       operationId: undefined
@@ -109,6 +120,16 @@ export const parseLogEntry: YobtaParseLogEntry = ([
         snapshotId,
         nextSnapshotId: undefined,
         operationId: undefined,
+      }
+    case YOBTA_COLLECTION_RESTORE:
+      return {
+        id,
+        channel,
+        committed,
+        merged,
+        type,
+        snapshotId,
+        nextSnapshotId: undefined,
       }
     default:
       throw new Error(`Unknown operation type: ${type}`)
