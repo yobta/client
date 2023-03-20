@@ -1,9 +1,11 @@
 import {
   YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
+  YobtaCollectionRestoreOperation,
   YobtaRejectOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -62,6 +64,19 @@ it('supports delete', () => {
     committed: 1,
     merged: 1,
     type: YOBTA_COLLECTION_DELETE,
+    channel: 'channel',
+    snapshotId: 'snapshot-1',
+  }
+  const nextLog = addEntryToLog(log, opetaion)
+  expect(nextLog).toEqual([createLogEntryFromOperation(opetaion)])
+})
+it('supports restore', () => {
+  const log: YobtaLogEntry[] = []
+  const opetaion: YobtaCollectionRestoreOperation = {
+    id: '1',
+    committed: 1,
+    merged: 1,
+    type: YOBTA_COLLECTION_RESTORE,
     channel: 'channel',
     snapshotId: 'snapshot-1',
   }

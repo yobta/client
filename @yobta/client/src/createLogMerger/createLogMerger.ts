@@ -4,6 +4,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -48,9 +49,9 @@ export const createLogMerger: YobtaLogMergerFactory =
           case YOBTA_COLLECTION_DELETE:
             deleted.add(entry[5])
             return acc
-          // case YOBTA_COLLECTION_RESTORE:
-          //   deleted.delete(entry[5])
-          //   return acc
+          case YOBTA_COLLECTION_RESTORE:
+            deleted.delete(entry[5])
+            return acc
           default:
             acc.push(entry)
             return acc

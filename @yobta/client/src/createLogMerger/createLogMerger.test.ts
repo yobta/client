@@ -3,6 +3,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -455,6 +456,103 @@ describe('deletions', () => {
       ],
     ])
     expect(result).toEqual([store['item-1']])
+  })
+})
+describe('undos', () => {
+  it('ignores restore if log is empty', () => {
+    const result = merge([
+      [
+        'operation-1',
+        'channel-1',
+        1,
+        1,
+        YOBTA_COLLECTION_RESTORE,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+    ])
+    expect(result).toEqual([])
+  })
+  it('resolves insert:a, delete:a, restore:a', () => {
+    const result = merge([
+      [
+        'operation-1',
+        'channel-1',
+        1,
+        1,
+        YOBTA_COLLECTION_INSERT,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+      [
+        'operation-2',
+        'channel-1',
+        2,
+        2,
+        YOBTA_COLLECTION_DELETE,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+      [
+        'operation-3',
+        'channel-1',
+        3,
+        3,
+        YOBTA_COLLECTION_RESTORE,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+    ])
+    expect(result).toEqual([store['item-1']])
+  })
+  it('resolves insert:a, delete:a, restore:a, delete:a', () => {
+    const result = merge([
+      [
+        'operation-1',
+        'channel-1',
+        1,
+        1,
+        YOBTA_COLLECTION_INSERT,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+      [
+        'operation-2',
+        'channel-1',
+        2,
+        2,
+        YOBTA_COLLECTION_DELETE,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+      [
+        'operation-3',
+        'channel-1',
+        3,
+        3,
+        YOBTA_COLLECTION_RESTORE,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+      [
+        'operation-4',
+        'channel-1',
+        4,
+        4,
+        YOBTA_COLLECTION_DELETE,
+        'item-1',
+        undefined,
+        undefined,
+      ],
+    ])
+    expect(result).toEqual([])
   })
 })
 describe('rejects', () => {
