@@ -5,10 +5,7 @@ import {
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
-import {
-  YobtaLogRejectEntry,
-  YobtaLogInsertEntry,
-} from '../createLog/createLog.js'
+import { YobtaLogInsertEntry } from '../createLog/createLog.js'
 import { createLogMerger } from './createLogMerger.js'
 
 type MockSnapshot = {
