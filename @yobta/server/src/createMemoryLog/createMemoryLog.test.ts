@@ -91,9 +91,9 @@ describe('log read', () => {
     const { merged } = await log.merge('my-collection', insertOperation)
     const result1 = await log.find('channel', merged)
     expect(result1).toEqual([])
-    const result2 = await log.find('channel', Number(merged) + 1)
+    const result2 = await log.find('channel', merged + 1)
     expect(result2).toEqual([])
-    const result3 = await log.find('channel', Number(merged) - 1)
+    const result3 = await log.find('channel', merged - 1)
     expect(result3).toEqual([expect.any(Object)])
   })
   it('supports: update then insert', async () => {
