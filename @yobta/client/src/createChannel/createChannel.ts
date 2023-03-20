@@ -3,11 +3,13 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YobtaCollectionInsertOperation,
-  YobtaCollectionOperation,
   YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
-  YobtaCollectionPatchWithId,
+  YOBTA_COLLECTION_REVALIDATE,
+  YOBTA_COLLECTION_DELETE,
+  YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_MOVE,
 } from '@yobta/protocol'
 import { createDerivedStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
@@ -36,7 +38,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
     YobtaReadable<Snapshot[], never>
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
-  operations?: YobtaCollectionOperation<Snapshot>[]
+  operations?: YobtaClientLogOperation<Snapshot>[]
   route: string
 }
 // #endregion
@@ -60,17 +62,21 @@ export const createChannel: YobtaChannelFactory = <
       route,
       getVersion,
       operation => {
-        log.add([
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-          operation as YobtaClientLogOperation<
-            YobtaCollectionPatchWithId<Snapshot>
-          >,
-        ])
-        if (
-          operation.type === YOBTA_COLLECTION_INSERT ||
-          operation.type === YOBTA_COLLECTION_UPDATE
-        ) {
-          collection.merge(operation)
+        switch (operation.type) {
+          case YOBTA_COLLECTION_INSERT:
+          case YOBTA_COLLECTION_REVALIDATE: {
+            collection.merge([operation])
+            break
+          }
+        }
+        switch (operation.type) {
+          case YOBTA_COLLECTION_INSERT:
+          case YOBTA_COLLECTION_REVALIDATE:
+          case YOBTA_COLLECTION_DELETE:
+          case YOBTA_COLLECTION_RESTORE:
+          case YOBTA_COLLECTION_MOVE:
+            log.add([operation])
+            break
         }
       },
     )
@@ -104,7 +110,6 @@ export const createChannel: YobtaChannelFactory = <
       },
     )
     collection.commit(operation)
-    log.add([operation])
     await operationResult(operation.id)
     return collection.get(ref)
   }

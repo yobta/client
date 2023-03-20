@@ -2,7 +2,7 @@ import {
   YobtaCollectionId,
   YobtaOperationId,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_UPDATE,
+  YOBTA_COLLECTION_MOVE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -28,20 +28,20 @@ type YobtaParsedLogEntry =
       channel: string
       committed: number
       merged: number
-      type: typeof YOBTA_COLLECTION_UPDATE
-      snapshotId: YobtaCollectionId
+      type: typeof YOBTA_REJECT
+      snapshotId: undefined
       nextSnapshotId: undefined
-      operationId: undefined
+      operationId: YobtaOperationId
     }
   | {
       id: YobtaOperationId
       channel: string
       committed: number
       merged: number
-      type: typeof YOBTA_REJECT
-      snapshotId: undefined
-      nextSnapshotId: undefined
-      operationId: YobtaOperationId
+      type: typeof YOBTA_COLLECTION_MOVE
+      snapshotId: YobtaCollectionId
+      nextSnapshotId: YobtaCollectionId
+      operationId: undefined
     }
 
 export const parseLogEntry: YobtaParseLogEntry = ([
@@ -53,14 +53,42 @@ export const parseLogEntry: YobtaParseLogEntry = ([
   snapshotId,
   nextSnapshotId,
   operationId,
-]) =>
-  ({
-    id,
-    channel,
-    committed,
-    merged,
-    type,
-    snapshotId,
-    nextSnapshotId,
-    operationId,
-  } as YobtaParsedLogEntry)
+]) => {
+  switch (type) {
+    case YOBTA_COLLECTION_INSERT:
+      return {
+        id,
+        channel,
+        committed,
+        merged,
+        type,
+        snapshotId,
+        nextSnapshotId,
+        operationId: undefined,
+      }
+    case YOBTA_REJECT:
+      return {
+        id,
+        channel,
+        committed,
+        merged,
+        type,
+        snapshotId: undefined,
+        nextSnapshotId: undefined,
+        operationId,
+      }
+    case YOBTA_COLLECTION_MOVE:
+      return {
+        id,
+        channel,
+        committed,
+        merged,
+        type,
+        snapshotId,
+        nextSnapshotId,
+        operationId: undefined,
+      }
+    default:
+      throw new Error(`Unknown operation type: ${type}`)
+  }
+}

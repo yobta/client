@@ -6,10 +6,10 @@ import {
   YobtaCollectionMoveOperation,
   YobtaCollectionRestoreOperation,
   YobtaCollectionRevalidateOperation,
-  YobtaCollectionUpdateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_MOVE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 import { createStore, YobtaReadable } from '@yobta/stores'
@@ -21,7 +21,6 @@ export type YobtaClientLogOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
 > =
   | YobtaCollectionInsertOperation<Snapshot>
-  | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
@@ -38,6 +37,7 @@ export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = Readonly<{
   YobtaReadable<YobtaLogEntry[]>
 export type YobtaLoggedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
+  | YobtaCollectionMoveOperation
   | YobtaRejectOperation
 
 export type YobtaLogInsertEntry = [
@@ -60,7 +60,20 @@ export type YobtaLogRejectEntry = [
   undefined, // nextSnapshotId
   YobtaOperationId, // target operationId
 ]
-export type YobtaLogEntry = YobtaLogInsertEntry | YobtaLogRejectEntry
+export type YobtaLogMoveEntry = [
+  YobtaOperationId, // id
+  string, // channel
+  number, // committed
+  number, // merged
+  typeof YOBTA_COLLECTION_MOVE, // type
+  YobtaCollectionId, // snapshotId
+  YobtaCollectionId, // nextSnapshotId
+  undefined, // target operationId
+]
+export type YobtaLogEntry =
+  | YobtaLogInsertEntry
+  | YobtaLogRejectEntry
+  | YobtaLogMoveEntry
 // #endregion
 
 export const createLog: YobtaLogFactory = <
@@ -73,12 +86,13 @@ export const createLog: YobtaLogFactory = <
     let log = last()
     let shouldUpdate = false
     newOperations.forEach(operation => {
-      if (
-        operation.type === YOBTA_COLLECTION_INSERT ||
-        operation.type === YOBTA_REJECT
-      ) {
-        log = addEntryToLog(log, operation)
-        shouldUpdate = true
+      switch (operation.type) {
+        case YOBTA_COLLECTION_INSERT:
+        case YOBTA_COLLECTION_MOVE:
+        case YOBTA_REJECT:
+          log = addEntryToLog(log, operation)
+          shouldUpdate = true
+          break
       }
     })
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

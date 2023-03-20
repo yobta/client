@@ -2,7 +2,9 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YobtaCollectionPatchWithId,
-  YobtaCollectionOperation,
+  YobtaCollectionUpdateOperation,
+  YobtaCollectionRevalidateOperation,
+  YobtaCollectionInsertOperation,
 } from '@yobta/protocol'
 import {
   YobtaReadable,
@@ -14,6 +16,24 @@ import {
 import { queueOperation } from '../queue/queue.js'
 
 // #region types
+export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
+  commit(operation: ClientOperation<Snapshot>): void
+  merge(operations: ServerOperation<Snapshot>[]): void
+  get: YobtaGetCollectionSnapshot<Snapshot>
+  last(): YobtaCollectionState<Snapshot>
+} & YobtaReadable<YobtaCollectionState<Snapshot>, never>
+export type YobtaGetCollectionSnapshot<
+  Snapshot extends YobtaCollectionAnySnapshot,
+> = (id: YobtaCollectionId) => YobtaMaybeSnapshot<Snapshot>
+
+type ClientOperation<Snapshot extends YobtaCollectionAnySnapshot> =
+  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
+type ServerOperation<Snapshot extends YobtaCollectionAnySnapshot> =
+  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaCollectionRevalidateOperation<Snapshot>
+
 type Versions<Snapshot extends YobtaCollectionAnySnapshot> = {
   [K in keyof Snapshot]: number
 }
@@ -25,27 +45,13 @@ export type YobtaCollectionState<Snapshot extends YobtaCollectionAnySnapshot> =
 type ItemWithMeta<
   Snapshot extends YobtaCollectionAnySnapshot,
   PartialSnapshot extends YobtaCollectionAnySnapshot = YobtaCollectionPatchWithId<Snapshot>,
-> = [
-  PartialSnapshot,
-  Versions<PartialSnapshot>,
-  ...YobtaCollectionOperation<Snapshot>[],
-]
+> = [PartialSnapshot, Versions<PartialSnapshot>, ...ClientOperation<Snapshot>[]]
 interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
-    initial: YobtaCollectionOperation<Snapshot>[],
+    initial: ServerOperation<Snapshot>[],
     ...plugins: YobtaStorePlugin<YobtaCollectionState<Snapshot>, never>[]
   ): YobtaCollection<Snapshot>
 }
-export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
-  commit(operation: YobtaCollectionOperation<Snapshot>): void
-  merge(...operations: YobtaCollectionOperation<Snapshot>[]): void
-  get: YobtaGetCollectionSnapshot<Snapshot>
-  last(): YobtaCollectionState<Snapshot>
-} & YobtaReadable<YobtaCollectionState<Snapshot>, never>
-
-export type YobtaGetCollectionSnapshot<
-  Snapshot extends YobtaCollectionAnySnapshot,
-> = (id: YobtaCollectionId) => YobtaMaybeSnapshot<Snapshot>
 // #endregion
 
 const getOrCreateItem = <Snapshot extends YobtaCollectionAnySnapshot>(
@@ -61,12 +67,13 @@ const getOrCreateItem = <Snapshot extends YobtaCollectionAnySnapshot>(
 
 const mergeOne = <Snapshot extends YobtaCollectionAnySnapshot>(
   [snapshot, versions, ...pendingOperations]: ItemWithMeta<Snapshot>,
-  operation: YobtaCollectionOperation<Snapshot>,
+  operation: ServerOperation<Snapshot>,
 ): ItemWithMeta<Snapshot> => {
   const nextSnapshot = { ...snapshot } as YobtaCollectionAnySnapshot
   const nextVersions = { ...versions } as Versions<YobtaCollectionAnySnapshot>
   for (const key in operation.data) {
     if (operation.committed > (versions[key] || 0)) {
+      // @ts-ignore
       nextSnapshot[key] = operation.data[key]
       nextVersions[key] = operation.committed
     }
@@ -84,7 +91,7 @@ const mergeOne = <Snapshot extends YobtaCollectionAnySnapshot>(
 
 const mergeSome = <Snapshot extends YobtaCollectionAnySnapshot>(
   state: YobtaCollectionState<Snapshot>,
-  operations: YobtaCollectionOperation<Snapshot>[],
+  operations: ServerOperation<Snapshot>[],
 ): YobtaCollectionState<Snapshot> =>
   operations.reduce((acc, operation) => {
     const item = getOrCreateItem(acc, operation.snapshotId)
@@ -96,7 +103,7 @@ const mergeSome = <Snapshot extends YobtaCollectionAnySnapshot>(
 export const createCollection: YobtaCollectionFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
-  initial: YobtaCollectionOperation<Snapshot>[],
+  initial: ServerOperation<Snapshot>[],
   ...plugins: YobtaStorePlugin<YobtaCollectionState<Snapshot>, never>[]
 ) => {
   const { last, next, observe, on } = createStore<
@@ -115,7 +122,7 @@ export const createCollection: YobtaCollectionFactory = <
     ...plugins,
   )
   const getState = (): YobtaCollectionState<Snapshot> => new Map(last())
-  const commit = (operation: YobtaCollectionOperation<Snapshot>): void => {
+  const commit = (operation: ClientOperation<Snapshot>): void => {
     const state = getState()
     const item = getOrCreateItem(state, operation.snapshotId)
     if (!item.slice(2).some(({ id }) => id === operation.id)) {
@@ -124,7 +131,7 @@ export const createCollection: YobtaCollectionFactory = <
       next(state)
     }
   }
-  const merge = (...operations: YobtaCollectionOperation<Snapshot>[]): void => {
+  const merge = (operations: ServerOperation<Snapshot>[]): void => {
     const state = mergeSome(getState(), operations)
     next(state)
   }

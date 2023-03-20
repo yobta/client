@@ -4,9 +4,15 @@ import {
   YobtaSubscribeOperation,
   YOBTA_REJECT,
   YOBTA_RECEIVED,
+  YobtaRejectOperation,
+  YobtaCollectionInsertOperation,
+  YobtaCollectionUpdateOperation,
+  YobtaCollectionRevalidateOperation,
+  YobtaCollectionDeleteOperation,
+  YobtaCollectionRestoreOperation,
+  YobtaCollectionMoveOperation,
 } from '@yobta/protocol'
 
-import { YobtaClientLogOperation } from '../createLog/createLog.js'
 import { YobtaLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createErrorYobta } from '../errorsStore/errorsStore.js'
 import { getSubscribeOperation } from '../getSubscribeOperation/getSubscribeOperation.js'
@@ -15,7 +21,7 @@ import { dequeueOperation } from '../queue/queue.js'
 import { computeServerTime } from '../serverTime/serverTime.js'
 
 export type YobtaServerSubscriber<Snapshot extends YobtaCollectionAnySnapshot> =
-  (operation: YobtaClientLogOperation<Snapshot>) => void
+  (operation: Operation<Snapshot>) => void
 export type YobtaServerSubscription<
   Snapshot extends YobtaCollectionAnySnapshot,
 > = {
@@ -23,6 +29,14 @@ export type YobtaServerSubscription<
   channel: string
   getVersion: YobtaLogVersionGetter
 }
+type Operation<Snapshot extends YobtaCollectionAnySnapshot> =
+  | YobtaRejectOperation
+  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaCollectionRevalidateOperation<Snapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
 
 const serverSubscriptionsStore = new Set<
   YobtaServerSubscription<YobtaCollectionAnySnapshot>
@@ -50,7 +64,7 @@ export const getAllSubscribeOperarions = (): YobtaSubscribeOperation[] => {
 }
 
 export const notifySubscribers = (
-  operation: YobtaClientLogOperation<YobtaCollectionAnySnapshot>,
+  operation: Operation<YobtaCollectionAnySnapshot>,
 ): void => {
   for (const { callback, channel } of serverSubscriptionsStore) {
     if (operation.channel === channel) {
