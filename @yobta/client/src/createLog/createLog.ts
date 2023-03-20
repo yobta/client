@@ -8,6 +8,7 @@ import {
   YobtaCollectionRevalidateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
+  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
   YOBTA_REJECT,
@@ -38,6 +39,7 @@ export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = Readonly<{
 export type YobtaLoggedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionMoveOperation
+  | YobtaCollectionDeleteOperation
   | YobtaRejectOperation
 
 export type YobtaLogInsertEntry = [
@@ -70,10 +72,21 @@ export type YobtaLogMoveEntry = [
   YobtaCollectionId, // nextSnapshotId
   undefined, // target operationId
 ]
+export type YobtaLogDeleteEntry = [
+  YobtaOperationId, // id
+  string, // channel
+  number, // committed
+  number, // merged
+  typeof YOBTA_COLLECTION_DELETE, // type
+  YobtaCollectionId, // snapshotId
+  undefined, // nextSnapshotId
+  undefined, // target operationId
+]
 export type YobtaLogEntry =
   | YobtaLogInsertEntry
   | YobtaLogRejectEntry
   | YobtaLogMoveEntry
+  | YobtaLogDeleteEntry
 // #endregion
 
 export const createLog: YobtaLogFactory = <
@@ -89,6 +102,7 @@ export const createLog: YobtaLogFactory = <
       switch (operation.type) {
         case YOBTA_COLLECTION_INSERT:
         case YOBTA_COLLECTION_MOVE:
+        case YOBTA_COLLECTION_DELETE:
         case YOBTA_REJECT:
           log = addEntryToLog(log, operation)
           shouldUpdate = true

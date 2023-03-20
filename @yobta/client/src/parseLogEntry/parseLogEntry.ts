@@ -1,6 +1,7 @@
 import {
   YobtaCollectionId,
   YobtaOperationId,
+  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
   YOBTA_REJECT,
@@ -41,6 +42,16 @@ type YobtaParsedLogEntry =
       type: typeof YOBTA_COLLECTION_MOVE
       snapshotId: YobtaCollectionId
       nextSnapshotId: YobtaCollectionId
+      operationId: undefined
+    }
+  | {
+      id: YobtaOperationId
+      channel: string
+      committed: number
+      merged: number
+      type: typeof YOBTA_COLLECTION_DELETE
+      snapshotId: YobtaCollectionId
+      nextSnapshotId: undefined
       operationId: undefined
     }
 
@@ -86,6 +97,17 @@ export const parseLogEntry: YobtaParseLogEntry = ([
         type,
         snapshotId,
         nextSnapshotId,
+        operationId: undefined,
+      }
+    case YOBTA_COLLECTION_DELETE:
+      return {
+        id,
+        channel,
+        committed,
+        merged,
+        type,
+        snapshotId,
+        nextSnapshotId: undefined,
         operationId: undefined,
       }
     default:
