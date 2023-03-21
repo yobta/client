@@ -21,6 +21,7 @@ export const YOBTA_REJECT = 'yobta-reject'
 export type YobtaRejectOperation = {
   id: YobtaOperationId
   channel: string
+  data?: never
   reason: string
   operationId: YobtaOperationId
   snapshotId?: never
