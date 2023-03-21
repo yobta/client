@@ -12,6 +12,7 @@ import {
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 import { createStore, YobtaReadable } from '@yobta/stores'
@@ -20,7 +21,7 @@ import { addEntryToLog } from '../addEntryToLog/addEntryToLog.js'
 
 // #region types
 export type YobtaClientLogOperation<
-  Snapshot extends YobtaCollectionAnySnapshot,
+  Snapshot extends YobtaCollectionAnySnapshot = YobtaCollectionAnySnapshot,
 > =
   | YobtaCollectionInsertOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
@@ -29,16 +30,15 @@ export type YobtaClientLogOperation<
   | YobtaCollectionMoveOperation
   | YobtaRejectOperation
 interface YobtaLogFactory {
-  <Snapshot extends YobtaCollectionAnySnapshot>(
-    operations: YobtaClientLogOperation<Snapshot>[],
-  ): YobtaLog<Snapshot>
+  (operations: YobtaClientLogOperation[]): YobtaClientLog
 }
-export type YobtaLog<Snapshot extends YobtaCollectionAnySnapshot> = Readonly<{
-  add(operations: YobtaClientLogOperation<Snapshot>[]): void
+export type YobtaClientLog = Readonly<{
+  add(operations: YobtaClientLogOperation[]): void
 }> &
   YobtaReadable<YobtaLogEntry[]>
 export type YobtaLoggedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
+  | YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionMoveOperation
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
@@ -102,13 +102,9 @@ export type YobtaLogEntry =
   | YobtaLogRestoreEntry
 // #endregion
 
-export const createLog: YobtaLogFactory = <
-  Snapshot extends YobtaCollectionAnySnapshot,
->(
-  initialOperations: YobtaClientLogOperation<Snapshot>[],
-) => {
+export const createLog: YobtaLogFactory = initialOperations => {
   const { last, next, on, observe } = createStore<YobtaLogEntry[]>([])
-  const add = (newOperations: YobtaClientLogOperation<Snapshot>[]): void => {
+  const add: YobtaClientLog['add'] = newOperations => {
     let log = last()
     let shouldUpdate = false
     newOperations.forEach(operation => {
@@ -117,6 +113,7 @@ export const createLog: YobtaLogFactory = <
         case YOBTA_COLLECTION_MOVE:
         case YOBTA_COLLECTION_DELETE:
         case YOBTA_COLLECTION_RESTORE:
+        case YOBTA_COLLECTION_REVALIDATE:
         case YOBTA_REJECT:
           log = addEntryToLog(log, operation)
           shouldUpdate = true

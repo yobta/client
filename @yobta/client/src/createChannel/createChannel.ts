@@ -38,7 +38,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
     YobtaReadable<Snapshot[], never>
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
-  operations?: YobtaClientLogOperation<Snapshot>[]
+  operations?: YobtaClientLogOperation[]
   route: string
 }
 // #endregion
@@ -64,7 +64,8 @@ export const createChannel: YobtaChannelFactory = <
       operation => {
         switch (operation.type) {
           case YOBTA_COLLECTION_INSERT:
-          case YOBTA_COLLECTION_REVALIDATE: {
+          case YOBTA_COLLECTION_REVALIDATE:
+          case YOBTA_COLLECTION_UPDATE: {
             collection.merge([operation])
             break
           }
@@ -75,7 +76,7 @@ export const createChannel: YobtaChannelFactory = <
           case YOBTA_COLLECTION_DELETE:
           case YOBTA_COLLECTION_RESTORE:
           case YOBTA_COLLECTION_MOVE:
-            log.add([operation])
+            log.add([operation as YobtaClientLogOperation])
             break
         }
       },
