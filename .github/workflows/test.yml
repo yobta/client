@@ -29,4 +29,6 @@ jobs:
               args: [--frozen-lockfile, --strict-peer-dependencies]
 
       - name: Run Checks
-        run: make check
+        run: |
+          make build
+          make check
