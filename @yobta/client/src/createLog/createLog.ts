@@ -15,9 +15,10 @@ import {
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
-import { createStore, YobtaReadable } from '@yobta/stores'
+import { createObservable } from '@yobta/stores'
 
-import { addEntryToLog } from '../addEntryToLog/addEntryToLog.js'
+import { addEntryToLog } from './addEntryToLog.js'
+import { createLogEntryFromOperation } from './createLogEntryFromOperation.js'
 
 // #region types
 export type YobtaClientLogOperation<
@@ -34,8 +35,9 @@ interface YobtaLogFactory {
 }
 export type YobtaClientLog = Readonly<{
   add(operations: YobtaClientLogOperation[]): void
-}> &
-  YobtaReadable<YobtaLogEntry[]>
+  last(): YobtaLogEntry[]
+  observe(observer: (entries: YobtaLogEntry[]) => void): VoidFunction
+}>
 export type YobtaLoggedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>
@@ -103,9 +105,10 @@ export type YobtaLogEntry =
 // #endregion
 
 export const createLog: YobtaLogFactory = initialOperations => {
-  const { last, next, on, observe } = createStore<YobtaLogEntry[]>([])
+  const log: YobtaLogEntry[] = []
+  const { next, observe } = createObservable<YobtaLogEntry[]>()
+  const last = (): YobtaLogEntry[] => log
   const add: YobtaClientLog['add'] = newOperations => {
-    let log = last()
     let shouldUpdate = false
     newOperations.forEach(operation => {
       switch (operation.type) {
@@ -114,10 +117,16 @@ export const createLog: YobtaLogFactory = initialOperations => {
         case YOBTA_COLLECTION_DELETE:
         case YOBTA_COLLECTION_RESTORE:
         case YOBTA_COLLECTION_REVALIDATE:
-        case YOBTA_REJECT:
-          log = addEntryToLog(log, operation)
-          shouldUpdate = true
+        case YOBTA_REJECT: {
+          const entry = createLogEntryFromOperation(operation)
+          const updated = addEntryToLog(log, entry)
+          if (updated) {
+            shouldUpdate = true
+          }
           break
+        }
+        default:
+          throw new Error('Unknown operation')
       }
     })
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -130,6 +139,5 @@ export const createLog: YobtaLogFactory = initialOperations => {
     add,
     last,
     observe,
-    on,
   }
 }
