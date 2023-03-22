@@ -9,7 +9,7 @@ import {
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
-import { createLogEntryFromOperation } from '../createLogEntryFromOperation/createLogEntryFromOperation.js'
+import { createLogEntryFromOperation } from './createLogEntryFromOperation.js'
 import { createLog } from './createLog.js'
 
 type MockSnapshot = { id: string; key: string }
@@ -21,7 +21,6 @@ describe('factory', () => {
       add: expect.any(Function),
       last: expect.any(Function),
       observe: expect.any(Function),
-      on: expect.any(Function),
     })
   })
   it('receives initial state', () => {
@@ -150,7 +149,7 @@ describe('add', () => {
       createLogEntryFromOperation(insertOperaion2),
     ])
   })
-  it('should not mutate the original log', () => {
+  it('should mutate', () => {
     const log = createLog([])
     const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
       id: '1',
@@ -163,7 +162,7 @@ describe('add', () => {
     }
     const last = log.last()
     log.add([insertOperaion])
-    expect(last).not.toBe(log.last())
+    expect(last).toBe(log.last())
   })
   it('should sort entries by committed', () => {
     const log = createLog([])
@@ -203,9 +202,34 @@ describe('add', () => {
       channel: 'channel',
     }
     log.add([insertOperaion])
-    const last = log.last()
     log.add([insertOperaion])
-    expect(last).toEqual(log.last())
+    expect(log.last()).toEqual([
+      [
+        '1',
+        'channel',
+        1,
+        1,
+        YOBTA_COLLECTION_INSERT,
+        '1',
+        undefined,
+        undefined,
+      ],
+    ])
+  })
+  it('throws if operation is not supported', () => {
+    const log = createLog([])
+    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: '1',
+      committed: 1,
+      merged: 1,
+      snapshotId: '1',
+      type: 'unknown' as any,
+      data: { id: '1', key: 'value' },
+      channel: 'channel',
+    }
+    expect(() => {
+      log.add([insertOperaion])
+    }).toThrow()
   })
 })
 
@@ -263,5 +287,50 @@ describe('observe', () => {
     expect(observer).toHaveBeenCalledWith([
       createLogEntryFromOperation(insertOperaion),
     ])
+  })
+  it('receives one update for multiple entries', () => {
+    const log = createLog([])
+    const insertOperaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: '1',
+      committed: 1,
+      merged: 1,
+      snapshotId: '1',
+      type: YOBTA_COLLECTION_INSERT,
+      data: { id: '1', key: 'value' },
+      channel: 'channel',
+    }
+    const insertOperaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: '2',
+      committed: 2,
+      merged: 2,
+      snapshotId: '2',
+      type: YOBTA_COLLECTION_INSERT,
+      data: { id: '2', key: 'value' },
+      channel: 'channel',
+    }
+    const observer = vi.fn()
+    log.observe(observer)
+    log.add([insertOperaion1, insertOperaion2])
+    expect(observer).toHaveBeenCalledWith([
+      createLogEntryFromOperation(insertOperaion1),
+      createLogEntryFromOperation(insertOperaion2),
+    ])
+    expect(observer).toHaveBeenCalledTimes(1)
+  })
+  it('should not update when operation is already merged', () => {
+    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+      id: '1',
+      committed: 1,
+      merged: 1,
+      snapshotId: '1',
+      type: YOBTA_COLLECTION_INSERT,
+      data: { id: '1', key: 'value' },
+      channel: 'channel',
+    }
+    const log = createLog([insertOperaion])
+    const observer = vi.fn()
+    log.observe(observer)
+    log.add([insertOperaion])
+    expect(observer).not.toHaveBeenCalled()
   })
 })
