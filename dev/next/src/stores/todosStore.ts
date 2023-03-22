@@ -19,6 +19,8 @@ export const useTodos = createHookFromStore(allTodos, {
   getServerSnapshot: () => [],
 })
 
+export const deleteTodo = allTodos.delete
+
 export const addTodo = async ({ text }: { text: string }): Promise<void> => {
   await allTodos.insert({
     id: Date.now().toString(),

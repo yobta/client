@@ -13,6 +13,9 @@ import { YobtaOperationId } from './unsorted.js'
 export type YobtaClientOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionInsertOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
   | YobtaSubscribeOperation
   | YobtaUnsubscribeOperation
 
