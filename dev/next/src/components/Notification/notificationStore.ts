@@ -3,6 +3,7 @@ import { useStore } from '@yobta/stores/react'
 
 export interface NotificationLike {
   message: string
+  callback?: VoidFunction
 }
 
 const notificationStore = createStore<NotificationLike[]>([])

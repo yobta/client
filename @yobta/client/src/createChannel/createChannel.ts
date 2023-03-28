@@ -11,6 +11,7 @@ import {
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_MOVE,
   YobtaCollectionDeleteOperation,
+  YobtaCollectionRestoreOperation,
 } from '@yobta/protocol'
 import { createDerivedStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
@@ -37,6 +38,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
       snapshot: YobtaCollectionPatchWithoutId<Snapshot>,
     ) => Promise<Snapshot | undefined>
     delete: (id: YobtaCollectionId) => Promise<Snapshot | undefined>
+    restore: (id: YobtaCollectionId) => Promise<Snapshot | undefined>
   }> &
     YobtaReadable<Snapshot[], never>
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
@@ -134,12 +136,26 @@ export const createChannel: YobtaChannelFactory = <
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
+  const restore = async (
+    snapshotId: YobtaCollectionId,
+  ): Promise<Snapshot | undefined> => {
+    const operation: YobtaCollectionRestoreOperation = createOperation({
+      type: YOBTA_COLLECTION_RESTORE,
+      channel: route,
+      snapshotId,
+    })
+    queueOperation(operation)
+    log.add([operation])
+    await operationResult(operation.id)
+    return collection.get(snapshotId)
+  }
   return {
     delete: del,
     insert,
     last,
     observe,
     on,
+    restore,
     update,
   }
 }
