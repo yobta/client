@@ -18,21 +18,29 @@ export const TodoList: TodoListFC = () => {
       )}
       {/* @ts-ignore */}
       <Container
-        // groupName="todo-group"
         onDrop={({ removedIndex, addedIndex }) => {
           moveTodo(todos, removedIndex, addedIndex)
         }}
-        // getChildPayload={(index) => todos[index]}
       >
-        {todos.map(({ id, text }) => (
+        {todos.map(({ id, text, completed }) => (
           // @ts-ignore
           <Draggable
             key={`${id}-${text}`}
             className="mb-1 focus-within:ring-2 yobta-bg-paper-2 rounded"
           >
             <div className={clsx('flex items-center', '')}>
+              <div className="flex items-center justify-center w-14 h-14">
+                <input
+                  type="checkbox"
+                  className="yobta-checkbox"
+                  checked={completed}
+                  onChange={() => {
+                    updateTodo(id, { completed: !completed })
+                  }}
+                />
+              </div>
               <input
-                className="appearance-none w-full pl-4 h-14 bg-transparent outline-none"
+                className="appearance-none w-full h-14 bg-transparent outline-none"
                 defaultValue={text}
                 onBlur={(event) => {
                   const { value } = event.target
