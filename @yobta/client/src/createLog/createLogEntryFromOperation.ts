@@ -18,7 +18,6 @@ export const createLogEntryFromOperation: YobtaCreateLogEntryFromOperation = ({
   channel,
   committed,
   merged,
-  data,
   type,
   snapshotId,
   nextSnapshotId,
