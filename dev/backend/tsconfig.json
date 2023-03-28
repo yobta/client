@@ -8,6 +8,9 @@
   "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"],
   "references": [
     {
+      "path": "../../@yobta/logger/tsconfig.json"
+    },
+    {
       "path": "../../@yobta/server/tsconfig.json"
     }
   ]

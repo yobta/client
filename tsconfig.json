@@ -5,6 +5,9 @@
       "path": "@yobta/client/tsconfig.json"
     },
     {
+      "path": "@yobta/logger/tsconfig.json"
+    },
+    {
       "path": "@yobta/protocol/tsconfig.json"
     },
     {

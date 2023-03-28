@@ -1,6 +1,6 @@
 {
-  "name": "@yobta/server",
-  "version": "1.0.0",
+  "name": "@yobta/logger",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -22,14 +22,9 @@
     "./package.json": "./package.json"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": "^16.0.0 || >=18.0.0"
   },
   "dependencies": {
-    "@types/ws": "^8.5.4",
-    "@yobta/logger": "workspace:*",
-    "@yobta/protocol": "workspace:*",
-    "@yobta/router": "workspace:*",
-    "@yobta/stores": "^0.2.5",
-    "nanoid": "^4.0.0"
+    "@yobta/stores": "^0.2.5"
   }
 }

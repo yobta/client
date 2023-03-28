@@ -1,8 +1,18 @@
 import { WebSocketServer } from 'ws'
-import { createServer } from '@yobta/server'
+import { createServer, serverLogger } from '@yobta/server'
+import pino from 'pino'
+import { connectLogger } from '@yobta/logger'
 
-import { log } from './logger.js'
 import './modules/todos/todos.js'
+
+connectLogger(
+  serverLogger,
+  pino({
+    transport: {
+      target: 'pino-pretty',
+    },
+  }),
+)
 
 // https://blog.jayway.com/2015/04/13/600k-concurrent-websocket-connections-on-aws-using-node-js/
 
@@ -37,4 +47,4 @@ const wss = new WebSocketServer({
 
 createServer(wss)
 
-log('Server started on port 8080')
+serverLogger.info('Server started on port 8080')

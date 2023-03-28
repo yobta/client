@@ -40,6 +40,9 @@ test-client:
 test-router:
 	cd @yobta/router && pnpm test:watch
 
+test-logger:
+	cd @yobta/logger && pnpm test:watch
+
 test-server:
 	cd @yobta/server && pnpm test:watch
 
