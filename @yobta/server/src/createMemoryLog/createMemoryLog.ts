@@ -16,6 +16,7 @@ import {
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
 
+import { serverLogger } from '../serverLogger/serverLogger.js'
 import { filterKeys } from './filterKeys.js'
 import { mergeCursor } from './mergeCursor.js'
 import { mergeData } from './mergeData.js'
@@ -215,15 +216,17 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
       case YOBTA_COLLECTION_MOVE:
         break
       default:
-        // TODO: use logger
+        serverLogger.error(`Invalid operation`)
         throw new Error(`Invalid operation`)
     }
     const operation = filterKeys(log, collection, rawOperation)
     const merged = Date.now()
     const withData = mergeData({ log, collection, merged, operation })
     log = mergeCursor({ log: withData, collection, merged, operation })
-    next(operation)
-    return { ...operation, merged }
+    const mergedOperation = { ...operation, merged }
+    next(mergedOperation)
+    serverLogger.debug(mergedOperation)
+    return mergedOperation
   }
   return {
     find,

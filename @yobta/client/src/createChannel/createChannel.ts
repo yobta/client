@@ -10,6 +10,7 @@ import {
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_MOVE,
+  YobtaCollectionDeleteOperation,
 } from '@yobta/protocol'
 import { createDerivedStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
@@ -20,6 +21,7 @@ import { createOperation } from '../createOperation/createOperation.js'
 import { createLogMerger } from '../createLogMerger/createLogMerger.js'
 import { operationResult } from '../operationResult/operationResult.js'
 import { subscribeToServerMessages } from '../subscribeToServerMessages/subscribeToServerMessages.js'
+import { queueOperation } from '../queue/queue.js'
 
 // #region types
 interface YobtaChannelFactory {
@@ -34,6 +36,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
       id: YobtaCollectionId,
       snapshot: YobtaCollectionPatchWithoutId<Snapshot>,
     ) => Promise<Snapshot | undefined>
+    delete: (id: YobtaCollectionId) => Promise<Snapshot | undefined>
   }> &
     YobtaReadable<Snapshot[], never>
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
@@ -84,13 +87,17 @@ export const createChannel: YobtaChannelFactory = <
     return unsubscribe
   })
   const { last, observe, on } = derivedStore
-  const insert = async (data: Snapshot): Promise<Snapshot | undefined> => {
+  const insert = async (
+    data: Snapshot,
+    nextSnapshotId?: YobtaCollectionId,
+  ): Promise<Snapshot | undefined> => {
     const operation: YobtaCollectionInsertOperation<Snapshot> = createOperation(
       {
         type: YOBTA_COLLECTION_INSERT,
         data,
         channel: route,
         snapshotId: data.id,
+        nextSnapshotId,
       },
     )
     collection.commit(operation)
@@ -99,7 +106,7 @@ export const createChannel: YobtaChannelFactory = <
     return collection.get(data.id)
   }
   const update = async (
-    ref: YobtaCollectionId,
+    snapshotId: YobtaCollectionId,
     data: YobtaCollectionPatchWithoutId<Snapshot>,
   ): Promise<Snapshot | undefined> => {
     const operation: YobtaCollectionUpdateOperation<Snapshot> = createOperation(
@@ -107,14 +114,27 @@ export const createChannel: YobtaChannelFactory = <
         type: YOBTA_COLLECTION_UPDATE,
         data,
         channel: route,
-        snapshotId: ref,
+        snapshotId,
       },
     )
     collection.commit(operation)
     await operationResult(operation.id)
-    return collection.get(ref)
+    return collection.get(snapshotId)
+  }
+  const del = async (
+    snapshotId: YobtaCollectionId,
+  ): Promise<Snapshot | undefined> => {
+    const operation: YobtaCollectionDeleteOperation = createOperation({
+      type: YOBTA_COLLECTION_DELETE,
+      channel: route,
+      snapshotId,
+    })
+    queueOperation(operation)
+    await operationResult(operation.id)
+    return collection.get(snapshotId)
   }
   return {
+    delete: del,
     insert,
     last,
     observe,

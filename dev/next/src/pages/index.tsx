@@ -15,7 +15,7 @@ import {
 import { createStore } from '@yobta/stores'
 import { useStore } from '@yobta/stores/react'
 
-import { addTodo, useTodos } from '../stores/todosStore'
+import { addTodo, deleteTodo, useTodos } from '../stores/todosStore'
 
 const busyStore = createStore(0)
 
@@ -60,7 +60,7 @@ const Home: NextPage = () => {
               <span>{text}</span>
               <button
                 className="bg-red-500 text-white px-2 rounded"
-                // onClick={() => todos.delete(id)}
+                onClick={() => deleteTodo(id)}
               >
                 Delete
               </button>
