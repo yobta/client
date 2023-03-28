@@ -201,7 +201,7 @@ importers:
       '@yobta/client': workspace:*
       '@yobta/protocol': workspace:*
       '@yobta/server': workspace:*
-      '@yobta/stores': 0.2.3
+      '@yobta/stores': 0.2.5
       '@yobta/ui': ^0.0.49
       '@yobta/validator': ^0.0.38
       autoprefixer: ^10.4.13
@@ -233,7 +233,7 @@ importers:
       '@yobta/client': link:../../@yobta/client
       '@yobta/protocol': link:../../@yobta/protocol
       '@yobta/server': link:../../@yobta/server
-      '@yobta/stores': 0.2.3
+      '@yobta/stores': 0.2.5
       '@yobta/ui': 0.0.49
       '@yobta/validator': 0.0.38
       clsx: 1.2.1

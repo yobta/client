@@ -65,6 +65,7 @@ export const createChannel: YobtaChannelFactory = <
       route,
       getVersion,
       operation => {
+        console.log('operation: ', operation)
         switch (operation.type) {
           case YOBTA_COLLECTION_INSERT:
           case YOBTA_COLLECTION_REVALIDATE:

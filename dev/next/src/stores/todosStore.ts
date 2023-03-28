@@ -15,9 +15,7 @@ const allTodos = createChannel({
   route: 'all-todos',
 })
 
-export const useTodos = createHookFromStore(allTodos, {
-  getServerSnapshot: () => [],
-})
+export const useTodos = createHookFromStore(allTodos)
 
 export const deleteTodo = allTodos.delete
 
@@ -28,4 +26,8 @@ export const addTodo = async ({ text }: { text: string }): Promise<void> => {
     completed: false,
     time: Date.now(),
   })
+}
+
+export const deleteTodo = async (id: string): Promise<void> => {
+  await allTodos.delete(id)
 }
