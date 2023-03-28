@@ -1,12 +1,15 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionOperation,
   YobtaSubscribeOperation,
   YobtaUnsubscribeOperation,
+  YobtaCollectionOperation,
   YOBTA_SUBSCRIBE,
   YOBTA_UNSUBSCRIBE,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
+  YOBTA_COLLECTION_DELETE,
+  YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_MOVE,
   YobtaHeaders,
 } from '@yobta/protocol'
 import { YobtaRouteParams } from '@yobta/router'
@@ -14,6 +17,7 @@ import { YobtaRouteParams } from '@yobta/router'
 import { YobtaCollection } from '../createCollection/createCollection.js'
 import { ServerCallbacks } from '../createServer/createServer.js'
 import { onClientMessage } from '../router/router.js'
+import { serverLogger } from '../serverLogger/serverLogger.js'
 
 interface YobtaChannelFactory {
   <Snapshot extends YobtaCollectionAnySnapshot, Route extends string>(
@@ -72,12 +76,16 @@ export const createChannel: YobtaChannelFactory = <
           break
         }
         case YOBTA_COLLECTION_INSERT:
-        case YOBTA_COLLECTION_UPDATE: {
+        case YOBTA_COLLECTION_UPDATE:
+        case YOBTA_COLLECTION_DELETE:
+        case YOBTA_COLLECTION_RESTORE:
+        case YOBTA_COLLECTION_MOVE: {
           await access.write({ params, headers, operation })
           await collection.merge({ headers, operation })
           break
         }
         default:
+          serverLogger.error({ headers, operation }, 'Unknown operation type')
           break
       }
     },

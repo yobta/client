@@ -65,7 +65,6 @@ export const createChannel: YobtaChannelFactory = <
       route,
       getVersion,
       operation => {
-        console.log('operation: ', operation)
         switch (operation.type) {
           case YOBTA_COLLECTION_INSERT:
           case YOBTA_COLLECTION_REVALIDATE:
@@ -131,6 +130,7 @@ export const createChannel: YobtaChannelFactory = <
       snapshotId,
     })
     queueOperation(operation)
+    log.add([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }

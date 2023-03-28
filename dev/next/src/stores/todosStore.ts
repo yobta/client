@@ -27,7 +27,3 @@ export const addTodo = async ({ text }: { text: string }): Promise<void> => {
     time: Date.now(),
   })
 }
-
-export const deleteTodo = async (id: string): Promise<void> => {
-  await allTodos.delete(id)
-}

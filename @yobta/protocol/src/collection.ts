@@ -114,3 +114,6 @@ export type YobtaCollectionOperation<
 > =
   | YobtaCollectionInsertOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Patched>
+  | YobtaCollectionDeleteOperation
+  | YobtaCollectionRestoreOperation
+  | YobtaCollectionMoveOperation
