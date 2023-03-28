@@ -16,6 +16,7 @@ import { parseClientMessage } from '../parseClientMessage/parseClientMessage.js'
 import { broadcastClientMessage } from '../router/router.js'
 import { parseUnknownError } from '../parseUnknownError/parseUnknownError.js'
 import { serverLogger } from '../serverLogger/serverLogger.js'
+import { YobtaServerLogSearchResult } from '../createMemoryLog/createMemoryLog.js'
 
 interface ServerFactory {
   (wss: WebSocketServer): void
@@ -26,6 +27,7 @@ export type ServerCallbacks = {
     operation: YobtaClientOperation<YobtaCollectionAnySnapshot>,
     reason: YobtaRejectOperation['reason'],
   ): void
+  sendBack(operations: YobtaServerLogSearchResult[]): void
   subscribe(operation: YobtaSubscribeOperation): void
   unsubscribe(operation: YobtaUnsubscribeOperation): void
 }
@@ -50,6 +52,11 @@ export const createServer: ServerFactory = wss => {
         }
         const message: string = stringifyServerOperation(rejectOperation)
         connection.send(message)
+      },
+      sendBack(operations) {
+        operations.map(stringifyServerOperation).forEach(message => {
+          connection.send(message)
+        })
       },
       subscribe: mediator.add,
       unsubscribe: mediator.remove,

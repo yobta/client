@@ -55,7 +55,7 @@ describe('log read', () => {
     const result = await log.find('channel', 0)
     expect(result).toEqual([
       {
-        id: 'revalidate-snapshot-id',
+        id: 'op-1',
         type: YOBTA_COLLECTION_REVALIDATE,
         channel: 'channel',
         snapshotId: 'snapshot-id',
@@ -120,7 +120,7 @@ describe('log read', () => {
     const result = await log.find('channel', 0)
     expect(result).toEqual([
       {
-        id: 'revalidate-snapshot-id',
+        id: 'op-1',
         type: YOBTA_COLLECTION_REVALIDATE,
         channel: 'channel',
         snapshotId: 'snapshot-id',
@@ -158,7 +158,7 @@ describe('log read', () => {
     const result = await log.find('channel', 0)
     expect(result).toEqual([
       {
-        id: 'revalidate-snapshot-id',
+        id: 'op-1',
         type: YOBTA_COLLECTION_REVALIDATE,
         channel: 'channel',
         snapshotId: 'snapshot-id',
@@ -211,7 +211,7 @@ describe('log read', () => {
     const result = await log.find('channel', 0)
     expect(result).toEqual([
       {
-        id: 'revalidate-snapshot-id',
+        id: 'op-1',
         type: YOBTA_COLLECTION_REVALIDATE,
         channel: 'channel',
         snapshotId: 'snapshot-id',
@@ -273,7 +273,7 @@ describe('log read', () => {
     const result = await log.find('channel', 0)
     expect(result).toEqual([
       {
-        id: 'revalidate-snapshot-id',
+        id: 'op-1',
         type: YOBTA_COLLECTION_REVALIDATE,
         channel: 'channel',
         snapshotId: 'snapshot-id',

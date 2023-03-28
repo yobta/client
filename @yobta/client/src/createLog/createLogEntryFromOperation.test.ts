@@ -49,7 +49,7 @@ it('supports revalidations', () => {
     'op-id',
     'channel',
     1,
-    4,
+    2,
     YOBTA_COLLECTION_INSERT,
     'snapshot-2',
     'snapshot-1',
