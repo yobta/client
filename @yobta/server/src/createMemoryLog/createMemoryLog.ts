@@ -15,8 +15,8 @@ import {
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
-import { serverLogger } from '../serverLogger/serverLogger.js'
 
+import { serverLogger } from '../serverLogger/serverLogger.js'
 import { filterKeys } from './filterKeys.js'
 import { mergeCursor } from './mergeCursor.js'
 import { mergeData } from './mergeData.js'
