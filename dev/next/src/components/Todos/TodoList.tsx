@@ -30,7 +30,9 @@ export const TodoList: TodoListFC = () => {
             key={`${id}-${text}`}
             className="mb-1 focus-within:ring-2 rounded"
           >
-            <div className={clsx('yobta-list-item yobta-bg-paper-2 ', '')}>
+            <div
+              className={clsx('flex items-center pl-4 yobta-bg-paper-2 ', '')}
+            >
               <input
                 className="appearance-none w-full bg-transparent outline-none"
                 defaultValue={text}
@@ -41,7 +43,7 @@ export const TodoList: TodoListFC = () => {
               />
               <Toggle>
                 <Button
-                  className="rounded-full p-0 w-8 h-8"
+                  className="p-0 w-14 h-14 rounded-l-none"
                   onClick={() => {
                     deleteTodo(id)
                   }}
