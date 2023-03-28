@@ -41,10 +41,7 @@ export const createLogEntryFromOperation: YobtaCreateLogEntryFromOperation = ({
         id,
         channel,
         committed,
-        data.reduce(
-          (acc, [, , , nextMerged]) => Math.max(acc, nextMerged),
-          merged,
-        ),
+        merged,
         YOBTA_COLLECTION_INSERT,
         snapshotId,
         nextSnapshotId,
