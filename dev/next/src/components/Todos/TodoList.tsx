@@ -28,7 +28,7 @@ export const TodoList: TodoListFC = () => {
               defaultValue={text}
               onBlur={(event) => {
                 const { value } = event.target
-                updateTodo(id, { text: value })
+                updateTodo(id, { text: value.trim() })
               }}
             />
             <Toggle>
