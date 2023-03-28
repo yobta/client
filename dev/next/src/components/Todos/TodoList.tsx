@@ -28,13 +28,11 @@ export const TodoList: TodoListFC = () => {
           // @ts-ignore
           <Draggable
             key={`${id}-${text}`}
-            className="mb-1 focus-within:ring-2 rounded"
+            className="mb-1 focus-within:ring-2 yobta-bg-paper-2 rounded"
           >
-            <div
-              className={clsx('flex items-center pl-4 yobta-bg-paper-2 ', '')}
-            >
+            <div className={clsx('flex items-center', '')}>
               <input
-                className="appearance-none w-full bg-transparent outline-none"
+                className="appearance-none w-full pl-4 h-14 bg-transparent outline-none"
                 defaultValue={text}
                 onBlur={(event) => {
                   const { value } = event.target
@@ -50,7 +48,9 @@ export const TodoList: TodoListFC = () => {
                 >
                   <Trash />
                 </Button>
-                <Tooltip id={`delete-${id}`}>Delete Todo</Tooltip>
+                <Tooltip id={`delete-${id}`} preferredPlacement="right">
+                  Delete Todo
+                </Tooltip>
               </Toggle>
             </div>
           </Draggable>
