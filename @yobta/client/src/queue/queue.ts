@@ -33,6 +33,6 @@ export const dequeueOperation = (
   operation: YobtaReceived,
 ): number | undefined => {
   const time = operationsQueue.get(operation.id)?.committed
-  operationsQueue.delete(operation.id)
+  operationsQueue.delete(operation.operationId)
   return time
 }

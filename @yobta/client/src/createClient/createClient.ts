@@ -77,6 +77,7 @@ export const createClient: ClientFactory = ({
     operation: YobtaClientOperation<YobtaCollectionAnySnapshot>,
   ): void => {
     if (connection?.isOpen()) {
+      clientLogger.debug('client send', operation)
       const encoded = encoder.encode({
         headers: getHeaders(),
         operation,
