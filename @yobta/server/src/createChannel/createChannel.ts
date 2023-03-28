@@ -63,12 +63,17 @@ export const createChannel: YobtaChannelFactory = <
 }: YobtaChannelProps<Snapshot, Route>) =>
   onClientMessage<Route, [Message<Snapshot>, ServerCallbacks]>(
     route,
-    async (params, { headers, operation }, { subscribe, unsubscribe }) => {
+    async (
+      params,
+      { headers, operation },
+      { sendBack, subscribe, unsubscribe },
+    ) => {
       switch (operation.type) {
         case YOBTA_SUBSCRIBE: {
           await access.read({ params, headers, operation })
           subscribe(operation)
-          await collection.revalidate(operation)
+          const entries = await collection.revalidate(operation)
+          sendBack(entries)
           break
         }
         case YOBTA_UNSUBSCRIBE: {

@@ -38,10 +38,9 @@ export type YobtaCollectionMessage<
 export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
   // getSnapshot(channel: string, id: YobtaCollectionId): Promise<Snapshot>
-  // revalidate(
-  //   operation: YobtaSubscribeOperation,
-  // ): Promise<YobtaServerLogSearchResult[]>
-  revalidate(operation: YobtaSubscribeOperation): Promise<void>
+  revalidate(
+    operation: YobtaSubscribeOperation,
+  ): Promise<YobtaServerLogSearchResult[]>
   merge(operation: YobtaCollectionMessage<Snapshot>): Promise<void>
 }
 
@@ -55,15 +54,9 @@ export const createCollection: YobtaCollectionFactory = <
     get name() {
       return name
     },
-    async revalidate(operation) {
-      const entries = await log.find(operation.channel, operation.merged)
-      if (entries.length) {
-        notifySibscribers(entries)
-      }
+    revalidate(operation) {
+      return log.find(operation.channel, operation.merged)
     },
-    // revalidate(operation) {
-    //   return log.find(operation.channel, operation.merged)
-    // },
     async merge({ operation }: YobtaCollectionMessage<Snapshot>) {
       const loggedOperation = await log.merge(name, operation)
       notifySibscribers([loggedOperation])
