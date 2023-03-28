@@ -34,7 +34,9 @@ export const TodoList: TodoListFC = () => {
             <Toggle>
               <Button
                 className="rounded-full p-0 w-8 h-8"
-                onClick={() => deleteTodo(id)}
+                onClick={() => {
+                  deleteTodo(id)
+                }}
               >
                 <Trash />
               </Button>
