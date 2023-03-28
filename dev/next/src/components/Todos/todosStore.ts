@@ -31,6 +31,7 @@ export const deleteTodo = (id: YobtaCollectionId): void => {
   })
 }
 export const updateTodo = allTodos.update
+export const moveTodo = allTodos.move
 
 export const addTodo = async ({ text }: { text: string }): Promise<void> => {
   await allTodos.insert({

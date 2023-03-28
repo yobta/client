@@ -82,7 +82,7 @@ export type YobtaCollectionMoveOperation = {
   channel: string
   data?: never
   snapshotId: YobtaCollectionId
-  nextSnapshotId: YobtaCollectionId
+  nextSnapshotId?: YobtaCollectionId
   operationId?: never
   committed: number
   merged: number

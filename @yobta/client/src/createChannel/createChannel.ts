@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import {
   YobtaCollectionPatchWithoutId,
   YobtaCollectionAnySnapshot,
@@ -12,6 +13,7 @@ import {
   YOBTA_COLLECTION_MOVE,
   YobtaCollectionDeleteOperation,
   YobtaCollectionRestoreOperation,
+  YobtaCollectionMoveOperation,
 } from '@yobta/protocol'
 import { createDerivedStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
@@ -39,6 +41,11 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
     ) => Promise<Snapshot | undefined>
     delete: (id: YobtaCollectionId) => Promise<Snapshot | undefined>
     restore: (id: YobtaCollectionId) => Promise<Snapshot | undefined>
+    move: (
+      snapshots: Snapshot[],
+      from?: number | null,
+      to?: number | null,
+    ) => Promise<void>
   }> &
     YobtaReadable<Snapshot[], never>
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
@@ -149,10 +156,32 @@ export const createChannel: YobtaChannelFactory = <
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
+  const move = async (
+    snapshots: Snapshot[],
+    from?: number | null,
+    to?: number | null,
+  ): Promise<void> => {
+    const fixedTo = to === snapshots.length - 1 ? null : to
+    const item = snapshots[from ?? -1]
+    const nextItem = snapshots[fixedTo ?? -1]
+    if (!item) {
+      return
+    }
+    const operation: YobtaCollectionMoveOperation = createOperation({
+      type: YOBTA_COLLECTION_MOVE,
+      channel: route,
+      snapshotId: item.id,
+      nextSnapshotId: nextItem?.id,
+    })
+    queueOperation(operation)
+    log.add([operation])
+    await operationResult(operation.id)
+  }
   return {
     delete: del,
     insert,
     last,
+    move,
     observe,
     on,
     restore,

@@ -96,7 +96,7 @@ export type YobtaServerLogChannelMoveEntry = {
   collection: string
   channel: string
   snapshotId: YobtaCollectionId
-  nextSnapshotId: YobtaCollectionId
+  nextSnapshotId?: YobtaCollectionId
   committed: number
   merged: number
   key?: never

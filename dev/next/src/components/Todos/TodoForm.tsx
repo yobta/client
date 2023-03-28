@@ -27,7 +27,7 @@ const handleSubmit = asyncYobta(
     text: [
       requiredYobta(),
       stringYobta(),
-      minCharactersYobta(2),
+      minCharactersYobta(1),
       maxCharactersYobta(2000),
     ],
   }),

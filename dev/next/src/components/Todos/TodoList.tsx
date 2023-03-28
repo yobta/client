@@ -1,7 +1,8 @@
 import { Button, Toggle, Tooltip, Trash } from '@yobta/ui'
 import clsx from 'clsx'
+import { Container, Draggable } from 'react-smooth-dnd'
 
-import { deleteTodo, updateTodo, useTodos } from './todosStore'
+import { deleteTodo, moveTodo, updateTodo, useTodos } from './todosStore'
 
 interface TodoListFC {
   (): JSX.Element
@@ -9,42 +10,50 @@ interface TodoListFC {
 
 export const TodoList: TodoListFC = () => {
   const todos = useTodos()
+
   return (
     <>
       {todos.length === 0 && (
         <div className="yobta-bg-paper-2 p-4 rounded">No todos</div>
       )}
-      {todos.map(({ id, text }) => {
-        return (
-          <div
+      {/* @ts-ignore */}
+      <Container
+        // groupName="todo-group"
+        onDrop={({ removedIndex, addedIndex }) => {
+          moveTodo(todos, removedIndex, addedIndex)
+        }}
+        // getChildPayload={(index) => todos[index]}
+      >
+        {todos.map(({ id, text }) => (
+          // @ts-ignore
+          <Draggable
             key={`${id}-${text}`}
-            className={clsx(
-              'yobta-list-item yobta-bg-paper-2 mb-1 focus-within:ring-2',
-              'rounded'
-            )}
+            className="mb-1 focus-within:ring-2 rounded"
           >
-            <input
-              className="appearance-none w-full bg-transparent outline-none"
-              defaultValue={text}
-              onBlur={(event) => {
-                const { value } = event.target
-                updateTodo(id, { text: value.trim() })
-              }}
-            />
-            <Toggle>
-              <Button
-                className="rounded-full p-0 w-8 h-8"
-                onClick={() => {
-                  deleteTodo(id)
+            <div className={clsx('yobta-list-item yobta-bg-paper-2 ', '')}>
+              <input
+                className="appearance-none w-full bg-transparent outline-none"
+                defaultValue={text}
+                onBlur={(event) => {
+                  const { value } = event.target
+                  updateTodo(id, { text: value.trim() })
                 }}
-              >
-                <Trash />
-              </Button>
-              <Tooltip id={`delete-${id}`}>Delete Todo</Tooltip>
-            </Toggle>
-          </div>
-        )
-      })}
+              />
+              <Toggle>
+                <Button
+                  className="rounded-full p-0 w-8 h-8"
+                  onClick={() => {
+                    deleteTodo(id)
+                  }}
+                >
+                  <Trash />
+                </Button>
+                <Tooltip id={`delete-${id}`}>Delete Todo</Tooltip>
+              </Toggle>
+            </div>
+          </Draggable>
+        ))}
+      </Container>
     </>
   )
 }

@@ -73,7 +73,7 @@ export type YobtaLogMoveEntry = [
   number, // merged
   typeof YOBTA_COLLECTION_MOVE, // type
   YobtaCollectionId, // snapshotId
-  YobtaCollectionId, // nextSnapshotId
+  YobtaCollectionId | undefined, // nextSnapshotId
   undefined, // target operationId
 ]
 export type YobtaLogDeleteEntry = [
