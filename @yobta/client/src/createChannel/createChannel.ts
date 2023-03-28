@@ -130,6 +130,7 @@ export const createChannel: YobtaChannelFactory = <
       snapshotId,
     })
     queueOperation(operation)
+    log.add([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }

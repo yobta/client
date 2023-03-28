@@ -216,7 +216,7 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
       case YOBTA_COLLECTION_MOVE:
         break
       default:
-        serverLogger.error(`Invalid operation`)
+        serverLogger.error(rawOperation, `Invalid operation`)
         throw new Error(`Invalid operation`)
     }
     const operation = filterKeys(log, collection, rawOperation)
@@ -225,7 +225,7 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
     log = mergeCursor({ log: withData, collection, merged, operation })
     const mergedOperation = { ...operation, merged }
     next(mergedOperation)
-    serverLogger.debug(mergedOperation)
+    serverLogger.debug(mergedOperation, 'memory log')
     return mergedOperation
   }
   return {

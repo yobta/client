@@ -55,9 +55,9 @@ export const createServer: ServerFactory = wss => {
       unsubscribe: mediator.remove,
     }
     connection.on('message', (message: string) => {
-      serverLogger.debug('wss: message', message)
       try {
         const { operation, headers } = parseClientMessage(message)
+        serverLogger.debug({ operation, headers })
         const receivedOp = stringifyServerOperation({
           id: nanoid(),
           operationId: operation.id,
