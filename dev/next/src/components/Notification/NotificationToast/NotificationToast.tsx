@@ -1,9 +1,6 @@
 import { Clock, Cross, Toast } from '@yobta/ui'
 
-import {
-  popNotification,
-  useNotification,
-} from '../../../stores/notificationStore'
+import { popNotification, useNotification } from '../notificationStore'
 
 export const NotificationToast = (): JSX.Element => {
   const notification = useNotification()
