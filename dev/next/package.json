@@ -23,6 +23,7 @@
     "@tailwindcss/line-clamp": "^0.4.2",
     "@tailwindcss/typography": "^0.5.9",
     "@yobta/client": "workspace:*",
+    "@yobta/logger": "workspace:*",
     "@yobta/protocol": "workspace:*",
     "@yobta/server": "workspace:*",
     "@yobta/stores": "0.2.5",

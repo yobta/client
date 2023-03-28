@@ -7,6 +7,9 @@
   "include": ["src"],
   "references": [
     {
+      "path": "../logger/tsconfig.build.json"
+    },
+    {
       "path": "../protocol/tsconfig.build.json"
     }
   ]

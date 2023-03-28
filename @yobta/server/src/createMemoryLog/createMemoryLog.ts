@@ -27,7 +27,7 @@ interface YobtaMemoryLogFactory {
     Snapshot extends YobtaCollectionAnySnapshot = YobtaCollectionAnySnapshot,
   >(): YobtaServerLog<Snapshot>
 }
-type YobtaServerLogSearchResult =
+export type YobtaServerLogSearchResult =
   | YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
@@ -42,7 +42,6 @@ export type YobtaServerLog<Snapshot extends YobtaCollectionAnySnapshot> = {
     observer: (operation: YobtaClientDataOperation<Snapshot>) => void,
   ) => VoidFunction
 }
-
 export type YobtaServerLogSnapshotEntry = {
   type: typeof YOBTA_COLLECTION_REVALIDATE
   operationId: string
@@ -166,7 +165,7 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
             ])
           const operation: YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot> =
             {
-              id: `revalidate-${entry.snapshotId}`,
+              id: entry.operationId,
               type: YOBTA_COLLECTION_REVALIDATE,
               channel,
               snapshotId: entry.snapshotId,

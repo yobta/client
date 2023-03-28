@@ -1,3 +1,4 @@
+import { connectLogger, YobtaAnyLogger } from '@yobta/logger'
 import { YobtaOnlineStore } from '@yobta/stores'
 import {
   YobtaClientOperation,
@@ -22,14 +23,16 @@ import {
   handleRemoteOperation,
 } from '../subscriptions/subscriptions.js'
 import { remoteStore } from '../remoteStore/remoteStore.js'
+import { clientLogger } from '../clientLogger/clientLogger.js'
 
 interface ClientFactory {
   (config: {
-    transport: YobtaTransport
     encoder?: YobtaClientEncoder
-    internetObserver: YobtaOnlineStore
     getHeaders(): YobtaHeaders
+    internetObserver: YobtaOnlineStore
+    logger?: YobtaAnyLogger
     messageTimeoutMs?: number
+    transport: YobtaTransport
   }): () => VoidFunction
 }
 
@@ -37,7 +40,8 @@ export type CrosstabYobta = ReturnType<ClientFactory>
 
 const BEFORE_UNLOAD = 'beforeunload'
 
-export const clientYobta: ClientFactory = ({
+export const createClient: ClientFactory = ({
+  logger,
   transport,
   encoder = encoderYobta(),
   internetObserver,
@@ -51,6 +55,7 @@ export const clientYobta: ClientFactory = ({
       connection = transport({
         onMessage(message) {
           const decoded = encoder.decode(message)
+          clientLogger.debug('Received message', decoded)
           remoteStore.next(decoded)
           timer.stopAll()
         },
@@ -81,6 +86,11 @@ export const clientYobta: ClientFactory = ({
     }
   }
   return () => {
+    let disconnectLogger: VoidFunction | null = null
+    if (logger) {
+      disconnectLogger = connectLogger(clientLogger, logger)
+      clientLogger.debug('Logger connected')
+    }
     const unmount: VoidFunction[] = [
       connectionStore.observe(state => {
         timer.stopAll()
@@ -110,6 +120,10 @@ export const clientYobta: ClientFactory = ({
         u()
       })
       window.removeEventListener(BEFORE_UNLOAD, teardown)
+      if (disconnectLogger) {
+        clientLogger.debug('Logger disconnected')
+        disconnectLogger()
+      }
     }
     window.addEventListener(BEFORE_UNLOAD, teardown)
     return teardown

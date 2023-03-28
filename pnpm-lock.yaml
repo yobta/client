@@ -89,6 +89,7 @@ importers:
       '@types/react': ^18.0.27
       '@types/react-dom': ^18.0.10
       '@vitest/coverage-c8': ^0.28.1
+      '@yobta/logger': workspace:*
       '@yobta/protocol': workspace:*
       '@yobta/stores': ^0.2.3
       c8: ^7.12.0
@@ -105,6 +106,7 @@ importers:
       vite: ^4.0.4
       vitest: ^0.28.1
     dependencies:
+      '@yobta/logger': link:../logger
       '@yobta/protocol': link:../protocol
       '@yobta/stores': 0.2.3
       nanoid: 4.0.1
@@ -199,6 +201,7 @@ importers:
       '@types/react-dom': 18.0.10
       '@vitest/coverage-c8': ^0.27.0
       '@yobta/client': workspace:*
+      '@yobta/logger': workspace:*
       '@yobta/protocol': workspace:*
       '@yobta/server': workspace:*
       '@yobta/stores': 0.2.5
@@ -231,6 +234,7 @@ importers:
       '@tailwindcss/line-clamp': 0.4.2_tailwindcss@3.2.7
       '@tailwindcss/typography': 0.5.9_tailwindcss@3.2.7
       '@yobta/client': link:../../@yobta/client
+      '@yobta/logger': link:../../@yobta/logger
       '@yobta/protocol': link:../../@yobta/protocol
       '@yobta/server': link:../../@yobta/server
       '@yobta/stores': 0.2.5
