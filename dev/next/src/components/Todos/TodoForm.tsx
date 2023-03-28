@@ -52,7 +52,7 @@ export const TodoForm: TodoFormFC = () => {
       <Input
         name="text"
         caption="My Todo"
-        className="rounded-r-none flex-grow"
+        className="rounded-r-none flex-grow yobta-bg-13"
       />
       <button
         className="yobta-button-primary h-12 rounded-l-none shrink-0"

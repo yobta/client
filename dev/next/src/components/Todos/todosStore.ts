@@ -18,6 +18,7 @@ const allTodos = createChannel({
 export const useTodos = createHookFromStore(allTodos)
 
 export const deleteTodo = allTodos.delete
+export const updateTodo = allTodos.update
 
 export const addTodo = async ({ text }: { text: string }): Promise<void> => {
   await allTodos.insert({

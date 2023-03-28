@@ -1,7 +1,7 @@
 import { Button, Toggle, Tooltip, Trash } from '@yobta/ui'
 import clsx from 'clsx'
 
-import { deleteTodo, useTodos } from './todosStore'
+import { deleteTodo, updateTodo, useTodos } from './todosStore'
 
 interface TodoListFC {
   (): JSX.Element
@@ -17,7 +17,7 @@ export const TodoList: TodoListFC = () => {
       {todos.map(({ id, text }) => {
         return (
           <div
-            key={id}
+            key={`${id}-${text}`}
             className={clsx(
               'yobta-list-item yobta-bg-paper-2 mb-1 focus-within:ring-2',
               'rounded'
@@ -25,7 +25,11 @@ export const TodoList: TodoListFC = () => {
           >
             <input
               className="appearance-none w-full bg-transparent outline-none"
-              value={text}
+              defaultValue={text}
+              onBlur={(event) => {
+                const { value } = event.target
+                updateTodo(id, { text: value })
+              }}
             />
             <Toggle>
               <Button
