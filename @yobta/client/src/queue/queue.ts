@@ -29,10 +29,10 @@ export const queueOperation = <Snapshot extends YobtaCollectionAnySnapshot>(
   channel.next(operation)
 }
 
-export const dequeueOperation = (
-  operation: YobtaReceived,
-): number | undefined => {
-  const time = operationsQueue.get(operation.id)?.committed
-  operationsQueue.delete(operation.operationId)
+export const dequeueOperation = ({
+  operationId,
+}: YobtaReceived): number | undefined => {
+  const time = operationsQueue.get(operationId)?.committed
+  operationsQueue.delete(operationId)
   return time
 }
