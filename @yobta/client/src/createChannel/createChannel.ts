@@ -161,7 +161,10 @@ export const createChannel: YobtaChannelFactory = <
     from?: number | null,
     to?: number | null,
   ): Promise<void> => {
-    const fixedTo = to === snapshots.length - 1 ? null : to
+    let fixedTo = to === snapshots.length - 1 ? null : to
+    if (typeof fixedTo === 'number' && fixedTo > (from ?? 0)) {
+      fixedTo = fixedTo + 1
+    }
     const item = snapshots[from ?? -1]
     const nextItem = snapshots[fixedTo ?? -1]
     if (!item) {
