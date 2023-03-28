@@ -15,6 +15,7 @@ import { registerConnection } from '../subscriptonManager/subscriptonManager.js'
 import { parseClientMessage } from '../parseClientMessage/parseClientMessage.js'
 import { broadcastClientMessage } from '../router/router.js'
 import { parseUnknownError } from '../parseUnknownError/parseUnknownError.js'
+import { serverLogger } from '../serverLogger/serverLogger.js'
 
 interface ServerFactory {
   (wss: WebSocketServer): void
@@ -31,6 +32,7 @@ export type ServerCallbacks = {
 
 export const createServer: ServerFactory = wss => {
   wss.on('connection', connection => {
+    serverLogger.debug('wss: client connected')
     const mediator = registerConnection(operation => {
       const message = stringifyServerOperation(operation)
       connection.send(message)
@@ -53,6 +55,7 @@ export const createServer: ServerFactory = wss => {
       unsubscribe: mediator.remove,
     }
     connection.on('message', (message: string) => {
+      serverLogger.debug('wss: message', message)
       try {
         const { operation, headers } = parseClientMessage(message)
         const receivedOp = stringifyServerOperation({
@@ -67,11 +70,15 @@ export const createServer: ServerFactory = wss => {
           { headers, operation },
           callbacks,
         )
-      } catch (error) {
-        connection.close(500, parseUnknownError(error).message)
-        // TODO: log error
+      } catch (unknownError) {
+        const error = parseUnknownError(unknownError)
+        connection.close(500, error.message)
+        serverLogger.error(error)
       }
     })
-    connection.on('close', mediator.clear)
+    connection.on('close', () => {
+      mediator.clear()
+      serverLogger.debug('wss: client disconnected')
+    })
   })
 }
