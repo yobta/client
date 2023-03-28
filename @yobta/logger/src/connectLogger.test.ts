@@ -49,9 +49,8 @@ describe('Connect Logger', () => {
     )
   })
   it('should throw an error if the logger method is not a function', () => {
-    const invalidPartialLogger = {
-      debug: vi.fn(),
-      invalidMethod: 'invalid',
+    const invalidPartialLogger: any = {
+      debug: 'invalid',
     }
     expect(() => connectLogger(yobtaLogger, invalidPartialLogger)).toThrow(
       'Logger method must be a function',
