@@ -50,6 +50,7 @@ export const TodoForm: TodoFormFC = () => {
       key={key}
     >
       <Input
+        autoComplete="off"
         name="text"
         caption="My Todo"
         className="rounded-r-none flex-grow yobta-bg-13"
