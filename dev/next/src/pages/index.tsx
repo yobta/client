@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { useTodos } from '../components/Todos/todosStore'
 import { TodoList } from '../components/Todos/TodoList'
 import { TodoForm } from '../components/Todos/TodoForm'
+import { ClientStatus } from '../components/ClientStatus/ClientStatus'
 
 const Home: NextPage = () => {
   const todos = useTodos()
@@ -17,6 +18,7 @@ const Home: NextPage = () => {
         <section>
           <h1 className="text-2xl my-4 px-4">Todos: {todos.length}</h1>
           <TodoList />
+          <ClientStatus />
         </section>
         <footer className="max-w-lg mx-auto fixed bottom-2 w-full -ml-4">
           <TodoForm />

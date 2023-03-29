@@ -15,9 +15,9 @@ export const ClientStatus: ClientStatusFC = () => {
   })
   const isMain = useStore(mainStore, { getServerSnapshot: () => false })
   return (
-    <>
+    <div className="text-xs mx-4 opacity-60">
       <p>Connection State: {state}</p>
-      <p>Is master: {String(isMain)}</p>
-    </>
+      <p>Is master tab: {String(isMain)}</p>
+    </div>
   )
 }

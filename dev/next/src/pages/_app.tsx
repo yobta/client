@@ -6,7 +6,6 @@ import { ErrorToast } from '../components/Error/ErrorToast'
 import { NotificationToast } from '../components/Notification/NotificationToast'
 import '../styles/globals.css'
 import { useClient } from '../hooks/useClient'
-import { ClientStatus } from '../components/ClientStatus/ClientStatus'
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   useClient()
@@ -16,7 +15,6 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       <ErrorToast />
       <NotificationToast />
       <ConnectionToast />
-      <ClientStatus />
     </ErrorBoundary>
   )
 }
