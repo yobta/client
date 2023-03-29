@@ -49,7 +49,7 @@ export const TodoList: TodoListFC = () => {
               <input
                 className={clsx(
                   'appearance-none flex-1 h-14 bg-transparent outline-none truncate',
-                  completed && 'line-through'
+                  completed && 'yobta-disabled'
                 )}
                 defaultValue={text}
                 onBlur={(event) => {
