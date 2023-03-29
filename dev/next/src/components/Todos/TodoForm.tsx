@@ -13,6 +13,7 @@ import {
   validityYobta,
 } from '@yobta/validator'
 
+import { usePathnameStore } from './pathnameStore'
 import { addTodo } from './todosStore'
 
 interface TodoFormFC {
@@ -25,7 +26,7 @@ const handleSubmit = asyncYobta(
   formYobta(),
   awaitShapeYobta({
     text: [
-      requiredYobta(),
+      requiredYobta("Can't be empty"),
       stringYobta(),
       minCharactersYobta(1),
       maxCharactersYobta(2000),
@@ -34,19 +35,20 @@ const handleSubmit = asyncYobta(
   requiredYobta(),
   validityYobta(),
   awaitSubmitYobta(async (todo) => {
-    busyStore.next(Date.now())
+    busyStore.next(busyStore.last() + 1)
     addTodo(todo)
   })
 )
 
 export const TodoForm: TodoFormFC = () => {
   const key = useStore(busyStore)
+  const pathname = usePathnameStore()
+  const disabled = pathname === '/completed'
   return (
     <form
       noValidate
       onSubmit={handleSubmit}
       className="flex mx-4 shadow-md"
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
       key={key}
     >
       <Input
@@ -54,9 +56,11 @@ export const TodoForm: TodoFormFC = () => {
         name="text"
         caption="New todo"
         className="rounded-r-none flex-grow yobta-bg-13"
+        disabled={disabled}
       />
       <button
         className="yobta-button-primary h-12 rounded-l-none shrink-0"
+        disabled={disabled}
         type="submit"
       >
         <CircleWithPlus /> Add
