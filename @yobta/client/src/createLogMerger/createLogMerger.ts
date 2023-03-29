@@ -17,6 +17,18 @@ interface YobtaLogMergerFactory {
   ): (entries: YobtaLogEntry[]) => Snapshot[]
 }
 
+function findLastIndex<T>(
+  array: T[],
+  predicate: (value: T, index: number, array: T[]) => boolean,
+): number {
+  for (let i = array.length - 1; i >= 0; i--) {
+    if (predicate(array[i], i, array)) {
+      return i
+    }
+  }
+  return -1
+}
+
 const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
   snapshots: Snapshot[],
   snapshot?: Snapshot,
@@ -25,8 +37,9 @@ const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
   if (!snapshot || snapshot.id === nextSnapshotId) {
     return snapshots
   }
+  // todo: find last index
   const index = nextSnapshotId
-    ? snapshots.findIndex(({ id }) => id === nextSnapshotId)
+    ? findLastIndex(snapshots, ({ id }) => id === nextSnapshotId)
     : -1
   if (index === -1) {
     snapshots.push(snapshot)
@@ -40,14 +53,18 @@ export const createLogMerger: YobtaLogMergerFactory =
     getSnapshot: YobtaGetCollectionSnapshot<Snapshot>,
   ) =>
   entries => {
-    const deleted = new Set<YobtaCollectionId>()
+    const deleted = new Map<YobtaCollectionId, number>()
+    const getCount = (id: YobtaCollectionId): number => deleted.get(id) || 0
+    const setCount = (id: YobtaCollectionId, count: number): void => {
+      deleted.set(id, getCount(id) + count)
+    }
     const mergeResult = entries
       .reduce<YobtaLogEntry[]>((acc, entry) => {
         switch (entry[4]) {
           case YOBTA_REJECT:
             return acc.filter(([id]) => id !== entry[7])
           case YOBTA_COLLECTION_DELETE:
-            deleted.add(entry[5])
+            setCount(entry[5], 1)
             return acc
           case YOBTA_COLLECTION_RESTORE:
             deleted.delete(entry[5])
@@ -60,10 +77,6 @@ export const createLogMerger: YobtaLogMergerFactory =
       .reduce<Snapshot[]>((acc, [, , , , type, snapshotId, nextSnapshotId]) => {
         switch (type) {
           case YOBTA_COLLECTION_INSERT: {
-            if (deleted.has(snapshotId)) {
-              deleted.delete(snapshotId)
-              return acc
-            }
             const snapshot = getSnapshot(snapshotId)
             return insert(acc, snapshot, nextSnapshotId)
           }
@@ -86,5 +99,12 @@ export const createLogMerger: YobtaLogMergerFactory =
           }
         }
       }, [])
+      .filter(snapshot => {
+        if (getCount(snapshot.id) > 0) {
+          setCount(snapshot.id, -1)
+          return false
+        }
+        return true
+      })
     return mergeResult
   }
