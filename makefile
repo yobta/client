@@ -11,7 +11,7 @@ build: clean
 watch:
 	pnpm --parallel --filter {@yobta/*} run build:watch
 
-check: typecheck lint test
+check: typecheck test lint
 
 dev-backend:
 	cd dev/backend && pnpm dev

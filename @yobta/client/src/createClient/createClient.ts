@@ -9,7 +9,7 @@ import {
 import {
   YobtaTransport,
   YobtaTransportConnection,
-} from '../websocketYobta/websocketYobta.js'
+} from '../createWsTransport/createWsTransport.js'
 import {
   connectionStore,
   YOBTA_OPEN,

@@ -7,7 +7,7 @@ import {
   YOBTA_OPEN,
 } from '../connectionStore/connectionStore.js'
 
-interface TransportFactory {
+interface YobtaTransportFactory {
   (config: {
     debug?: <Message>(event: Event | CloseEvent | MessageEvent<Message>) => void
     protocols?: string | string[] | undefined
@@ -22,18 +22,20 @@ interface TransportFactory {
   }
 }
 
-export type YobtaTransport = ReturnType<TransportFactory>
+export type YobtaTransport = ReturnType<YobtaTransportFactory>
 export type YobtaTransportConnection = ReturnType<YobtaTransport>
 export type YobtaTransportOnMessage = Parameters<YobtaTransport>[0]['onMessage']
 export type YobtaTransportOnStatus = Parameters<YobtaTransport>[0]['onStatus']
 
-export const websocketYobta: TransportFactory =
+export const createWsTransport: YobtaTransportFactory =
   ({ url, protocols, debug }) =>
   ({ onMessage, onStatus }) => {
     onStatus(YOBTA_CONNECTING)
 
     const client: WebSocket = new WebSocket(url, protocols)
-    const senDebug = (event: Event | CloseEvent | MessageEvent<string>): void => {
+    const senDebug = (
+      event: Event | CloseEvent | MessageEvent<string>,
+    ): void => {
       if (debug) {
         debug(event)
       }
