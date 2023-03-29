@@ -42,7 +42,7 @@ type YobtaParsedLogEntry =
       merged: number
       type: typeof YOBTA_COLLECTION_MOVE
       snapshotId: YobtaCollectionId
-      nextSnapshotId: YobtaCollectionId
+      nextSnapshotId?: YobtaCollectionId
       operationId: undefined
     }
   | {

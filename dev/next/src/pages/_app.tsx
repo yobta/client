@@ -1,12 +1,11 @@
 import type { AppProps } from 'next/app'
 
-import { ConnectionToast } from '../components/Toast/ConnectionToast'
+import { ConnectionToast } from '../components/Notification/ConnectionToast'
 import { ErrorBoundary } from '../components/Error/ErrorBoundary'
-import { ErrorToast } from '../components/Toast/ErrorToast'
-import { NotificationToast } from '../components/Toast/NotificationToast'
+import { ErrorToast } from '../components/Error/ErrorToast'
+import { NotificationToast } from '../components/Notification/NotificationToast'
 import '../styles/globals.css'
 import { useClient } from '../hooks/useClient'
-import { ClientStatus } from '../components/ClientStatus/ClientStatus'
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   useClient()
@@ -16,7 +15,6 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       <ErrorToast />
       <NotificationToast />
       <ConnectionToast />
-      <ClientStatus />
     </ErrorBoundary>
   )
 }
