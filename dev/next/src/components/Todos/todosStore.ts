@@ -1,8 +1,10 @@
 import { createChannel, createCollection } from '@yobta/client'
 import { YobtaCollectionId } from '@yobta/protocol'
+import { createDerivedStore } from '@yobta/stores'
 import { createHookFromStore } from '@yobta/stores/react'
 
 import { pushNotification } from '../Notification/notificationStore'
+import { pathnameStore } from './pathnameStore'
 
 type Todo = {
   id: string
@@ -11,18 +13,34 @@ type Todo = {
   time: number
 }
 
-const todos = createCollection<Todo>([])
+const collection = createCollection<Todo>([])
 
 const allTodos = createChannel({
-  collection: todos,
+  collection,
   route: 'all-todos',
 })
 
-export const useTodos = createHookFromStore(allTodos)
+const derivedTodos = createDerivedStore(
+  (todos, pathname) => {
+    switch (pathname) {
+      case '/pending':
+        return todos.filter((todo) => !todo.completed)
+      case '/completed':
+        return todos.filter((todo) => todo.completed)
+      case '/':
+      default:
+        return todos
+    }
+  },
+  allTodos,
+  pathnameStore
+)
+
+export const useTodos = createHookFromStore(derivedTodos)
 
 export const deleteTodo = (id: YobtaCollectionId): void => {
   allTodos.delete(id)
-  const todo = todos.get(id)
+  const todo = collection.get(id)
   pushNotification({
     message: `Deleted: "${todo?.text}"`,
     action: {
