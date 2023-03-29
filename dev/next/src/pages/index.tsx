@@ -20,7 +20,7 @@ const Home: NextPage = () => {
           <TodoList />
           <ClientStatus />
         </section>
-        <footer className="max-w-lg mx-auto fixed bottom-2 w-full -ml-4">
+        <footer className="max-w-lg mx-auto fixed bottom-4 w-full -ml-4">
           <TodoForm />
         </footer>
       </main>

@@ -29,22 +29,28 @@ export const TodoList: TodoListFC = () => {
           >
             <div className="flex items-center gap-x-2">
               <Toggle>
-                <div className="flex items-center justify-center w-14 h-14 yobta-button shrink-0">
+                <label className="flex items-center justify-center w-14 h-14 yobta-button shrink-0 cursor-pointer">
                   <input
-                    type="checkbox"
-                    className="yobta-checkbox"
                     checked={completed}
+                    className={clsx(
+                      'yobta-checkbox',
+                      completed && 'yobta-ink-info'
+                    )}
                     onChange={() => {
                       updateTodo(id, { completed: !completed })
                     }}
+                    type="checkbox"
                   />
-                </div>
+                </label>
                 <Tooltip id={`toggle-${id}`} preferredPlacement="left">
                   {`Mark as ${completed ? 'in' : ''}complete`}
                 </Tooltip>
               </Toggle>
               <input
-                className="appearance-none flex-1 h-14 bg-transparent outline-none truncate"
+                className={clsx(
+                  'appearance-none flex-1 h-14 bg-transparent outline-none truncate',
+                  completed && 'line-through'
+                )}
                 defaultValue={text}
                 onBlur={(event) => {
                   const { value } = event.target
