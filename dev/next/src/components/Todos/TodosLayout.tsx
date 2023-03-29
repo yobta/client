@@ -13,7 +13,7 @@ export const TodosLayout = (): JSX.Element => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container max-w-lg mx-auto px-4 min-h-screen">
-        <section>
+        <section className="pb-24">
           <TodosHeader />
           <TodoList />
           <ClientStatus />
