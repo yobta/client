@@ -10,7 +10,6 @@ interface TodoListFC {
 
 export const TodoList: TodoListFC = () => {
   const todos = useTodos()
-
   return (
     <>
       {todos.length === 0 && (
