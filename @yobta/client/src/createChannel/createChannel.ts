@@ -34,7 +34,7 @@ interface YobtaChannelFactory {
 }
 export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
   Readonly<{
-    insert: (snapshot: Snapshot) => Promise<Snapshot | undefined>
+    publish: (snapshot: Snapshot) => Promise<Snapshot | undefined>
     update: (
       id: YobtaCollectionId,
       snapshot: YobtaCollectionPatchWithoutId<Snapshot>,
@@ -96,7 +96,7 @@ export const createChannel: YobtaChannelFactory = <
     return unsubscribe
   })
   const { last, observe, on } = derivedStore
-  const insert = async (
+  const publish = async (
     data: Snapshot,
     nextSnapshotId?: YobtaCollectionId,
   ): Promise<Snapshot | undefined> => {
@@ -182,7 +182,7 @@ export const createChannel: YobtaChannelFactory = <
   }
   return {
     delete: del,
-    insert,
+    publish,
     last,
     move,
     observe,
