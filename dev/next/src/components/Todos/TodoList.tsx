@@ -40,7 +40,7 @@ export const TodoList: TodoListFC = () => {
                   />
                 </div>
                 <Tooltip id={`toggle-${id}`} preferredPlacement="left">
-                  {`Mart as ${completed ? 'in' : ''}complete`}
+                  {`Mark as ${completed ? 'in' : ''}complete`}
                 </Tooltip>
               </Toggle>
               <input
