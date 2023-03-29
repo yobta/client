@@ -17,6 +17,8 @@ export const TodoList: TodoListFC = () => {
       )}
       {/* @ts-ignore */}
       <Container
+        dragClass="select-none yobta-selected rounded"
+        lockAxis="y"
         onDrop={({ removedIndex, addedIndex }) => {
           moveTodo(todos, removedIndex, addedIndex)
         }}
@@ -47,10 +49,8 @@ export const TodoList: TodoListFC = () => {
                 </Tooltip>
               </Toggle>
               <input
-                className={clsx(
-                  'appearance-none flex-1 h-14 bg-transparent outline-none truncate',
-                  completed && 'yobta-disabled'
-                )}
+                className="appearance-none flex-1 h-14 bg-transparent outline-none truncate"
+                disabled={completed}
                 defaultValue={text}
                 onBlur={(event) => {
                   const { value } = event.target
