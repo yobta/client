@@ -17,6 +17,18 @@ interface YobtaLogMergerFactory {
   ): (entries: YobtaLogEntry[]) => Snapshot[]
 }
 
+function findLastIndex<T>(
+  array: T[],
+  predicate: (value: T, index: number, array: T[]) => boolean,
+): number {
+  for (let i = array.length - 1; i >= 0; i--) {
+    if (predicate(array[i], i, array)) {
+      return i
+    }
+  }
+  return -1
+}
+
 const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
   snapshots: Snapshot[],
   snapshot?: Snapshot,
@@ -27,7 +39,7 @@ const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
   }
   // todo: find last index
   const index = nextSnapshotId
-    ? snapshots.findIndex(({ id }) => id === nextSnapshotId)
+    ? findLastIndex(snapshots, ({ id }) => id === nextSnapshotId)
     : -1
   if (index === -1) {
     snapshots.push(snapshot)
