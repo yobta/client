@@ -27,19 +27,24 @@ export const TodoList: TodoListFC = () => {
             key={`${id}-${text}`}
             className="mb-1 focus-within:ring-2 yobta-bg-paper-2 rounded"
           >
-            <div className={clsx('flex items-center', '')}>
-              <div className="flex items-center justify-center w-14 h-14">
-                <input
-                  type="checkbox"
-                  className="yobta-checkbox"
-                  checked={completed}
-                  onChange={() => {
-                    updateTodo(id, { completed: !completed })
-                  }}
-                />
-              </div>
+            <div className="flex items-center gap-x-2">
+              <Toggle>
+                <div className="flex items-center justify-center w-14 h-14 yobta-button shrink-0">
+                  <input
+                    type="checkbox"
+                    className="yobta-checkbox"
+                    checked={completed}
+                    onChange={() => {
+                      updateTodo(id, { completed: !completed })
+                    }}
+                  />
+                </div>
+                <Tooltip id={`toggle-${id}`} preferredPlacement="left">
+                  {`Mart as ${completed ? 'in' : ''}complete`}
+                </Tooltip>
+              </Toggle>
               <input
-                className="appearance-none w-full h-14 bg-transparent outline-none"
+                className="appearance-none flex-1 h-14 bg-transparent outline-none truncate"
                 defaultValue={text}
                 onBlur={(event) => {
                   const { value } = event.target
@@ -48,7 +53,7 @@ export const TodoList: TodoListFC = () => {
               />
               <Toggle>
                 <Button
-                  className="p-0 w-14 h-14 rounded-l-none"
+                  className="p-0 w-14 h-14 rounded-l-none shrink-0"
                   onClick={() => {
                     deleteTodo(id)
                   }}

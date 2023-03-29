@@ -1,6 +1,6 @@
 import { createStore } from '@yobta/stores'
 import { useStore } from '@yobta/stores/react'
-import { Input } from '@yobta/ui'
+import { CircleWithPlus, Input } from '@yobta/ui'
 import {
   asyncYobta,
   awaitShapeYobta,
@@ -52,14 +52,14 @@ export const TodoForm: TodoFormFC = () => {
       <Input
         autoComplete="off"
         name="text"
-        caption="My Todo"
+        caption="New todo"
         className="rounded-r-none flex-grow yobta-bg-13"
       />
       <button
         className="yobta-button-primary h-12 rounded-l-none shrink-0"
         type="submit"
       >
-        Add Todo
+        <CircleWithPlus /> Add
       </button>
     </form>
   )

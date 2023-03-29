@@ -24,9 +24,12 @@ export const deleteTodo = (id: YobtaCollectionId): void => {
   allTodos.delete(id)
   const todo = todos.get(id)
   pushNotification({
-    message: `Deleted "${todo?.text}"`,
-    callback: () => {
-      allTodos.restore(id)
+    message: `Deleted: "${todo?.text}"`,
+    action: {
+      label: 'Undo',
+      callback: () => {
+        allTodos.restore(id)
+      },
     },
   })
 }
