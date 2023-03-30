@@ -1,5 +1,5 @@
 import { YobtaClientMessage } from '@yobta/protocol'
-import { createRouter, YobtaRouterCallback } from '@yobta/router'
+import { createRouter, YobtaRouterCallback } from '@yobta/utils'
 
 import { ServerCallbacks } from '../createServer/createServer.js'
 import { serverLogger } from '../serverLogger/serverLogger.js'

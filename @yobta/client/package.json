@@ -26,9 +26,9 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "@yobta/logger": "workspace:*",
     "@yobta/protocol": "workspace:*",
-    "@yobta/stores": "^0.2.3",
+    "@yobta/utils": "workspace:*",
+    "@yobta/stores": "^0.2.5",
     "nanoid": "^4.0.0"
   },
   "devDependencies": {

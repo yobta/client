@@ -7,13 +7,10 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../logger/tsconfig.json"
-    },
-    {
       "path": "../protocol/tsconfig.json"
     },
     {
-      "path": "../router/tsconfig.json"
+      "path": "../utils/tsconfig.json"
     }
   ]
 }

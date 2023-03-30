@@ -12,7 +12,7 @@ import {
   YOBTA_COLLECTION_MOVE,
   YobtaHeaders,
 } from '@yobta/protocol'
-import { YobtaRouteParams } from '@yobta/router'
+import { YobtaRouteParams } from '@yobta/utils'
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
 import { ServerCallbacks } from '../createServer/createServer.js'
