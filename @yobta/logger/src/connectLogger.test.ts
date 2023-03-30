@@ -30,23 +30,12 @@ describe('Connect Logger', () => {
       subscribe: vi.fn(),
     }
     connectLogger(mockLogger, partialLogger)
-    expect(mockLogger.subscribe).toHaveBeenCalledTimes(4)
-    expect(mockLogger.subscribe).toHaveBeenCalledWith(
-      'debug',
-      partialLogger.debug,
-    )
-    expect(mockLogger.subscribe).toHaveBeenCalledWith(
-      'error',
-      partialLogger.error,
-    )
-    expect(mockLogger.subscribe).toHaveBeenCalledWith(
-      'info',
-      partialLogger.info,
-    )
-    expect(mockLogger.subscribe).toHaveBeenCalledWith(
-      'warn',
-      partialLogger.warn,
-    )
+    expect(mockLogger.subscribe.mock.calls).toEqual([
+      ['debug', expect.any(Function)],
+      ['error', expect.any(Function)],
+      ['info', expect.any(Function)],
+      ['warn', expect.any(Function)],
+    ])
   })
   it('should throw an error if the logger method is not a function', () => {
     const invalidPartialLogger: any = {
