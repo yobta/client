@@ -7,18 +7,29 @@ describe('parseUnknownError', () => {
     expect(result).toBe(inputError)
   })
 
-  it('should return a new error with the same message if input is an object with a message property', () => {
+  it('handles objects with message', () => {
     const inputObject = { message: 'Object error message' }
     const result = coerceError(inputObject)
     expect(result).toBeInstanceOf(Error)
     expect(result.message).toBe(inputObject.message)
   })
 
-  it('should return a new error with the input object converted to a string if input is an object without a message property', () => {
+  it('handles objects without a message', () => {
     const inputObject = { foo: 'bar' }
     const result = coerceError(inputObject)
     expect(result).toBeInstanceOf(Error)
-    expect(result.message).toBe(String(inputObject))
+    expect(result.message).toBe('Unknown error')
+    // @ts-ignore
+    expect(result.foo).toBe(inputObject.foo)
+  })
+
+  it('handles objects with complex message types', () => {
+    const inputObject = { message: { foo: 'bar' } }
+    const result = coerceError(inputObject)
+    expect(result).toBeInstanceOf(Error)
+    expect(result.message).toBe('Unknown error')
+    // @ts-ignore
+    expect(result.originalMessage).toBe(inputObject.message)
   })
 
   it('should return a new error with the input value converted to a string if input is not an object nor an instance of Error', () => {
