@@ -13,21 +13,12 @@ import { notifySibscribers } from '../subscriptonManager/subscriptonManager.js'
 
 interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
-    props: YobtaCollectionProps<Snapshot>,
+    props: YobtaCollectionProps,
   ): YobtaCollection<Snapshot>
 }
-type YobtaCollectionProps<Snapshot extends YobtaCollectionAnySnapshot> = {
+type YobtaCollectionProps = {
   name: string
   log: YobtaServerLog<YobtaCollectionAnySnapshot>
-  // read(channel: string, id: YobtaCollectionId): Promise<Snapshot>
-  write(
-    message: YobtaCollectionMessage<Snapshot>,
-  ): Promise<
-    [
-      YobtaCollectionOperation<Snapshot>,
-      ...YobtaCollectionOperation<Snapshot>[],
-    ]
-  >
 }
 export type YobtaCollectionMessage<
   Snapshot extends YobtaCollectionAnySnapshot,
@@ -49,7 +40,7 @@ export const createCollection: YobtaCollectionFactory = <
 >({
   name,
   log,
-}: YobtaCollectionProps<Snapshot>) => {
+}: YobtaCollectionProps) => {
   return {
     get name() {
       return name

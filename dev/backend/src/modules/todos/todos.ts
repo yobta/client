@@ -9,17 +9,14 @@ type Todo = {
   time: number
 }
 
-const todos = createCollection<Todo>({
+const collection = createCollection<Todo>({
   name: 'todos',
   log,
-  async write(message) {
-    return [message.operation]
-  },
 })
 
 createChannel({
   route: 'all-todos',
-  collection: todos,
+  collection,
   access: {
     async read() {},
     async write() {},
