@@ -1,6 +1,8 @@
 import pino from 'pino'
+import { connectLogger } from '@yobta/logger'
+import { serverLogger } from '@yobta/server'
 
-const logger = pino({
+const pinoLogger = pino({
   // level: 'debug',
   transport: {
     target: 'pino-pretty',
@@ -10,10 +12,4 @@ const logger = pino({
   },
 })
 
-export const pinoLogger = {
-  info: logger.info.bind(logger),
-  error: logger.error.bind(logger),
-  warn: logger.warn.bind(logger),
-  debug: logger.debug.bind(logger),
-  log: logger.info.bind(logger),
-}
+connectLogger(serverLogger, pinoLogger)

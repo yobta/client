@@ -173,6 +173,8 @@ createChannel({
 
 ```ts
 import pino from 'pino'
+import { connectLogger } from '@yobta/logger'
+import { serverLogger } from '@yobta/server'
 
 const logger = pino({
   // level: 'debug',
@@ -184,12 +186,15 @@ const logger = pino({
   },
 })
 
-export const pinoLogger = {
+const pinoLogger = {
   info: logger.info.bind(logger),
   error: logger.error.bind(logger),
   warn: logger.warn.bind(logger),
   debug: logger.debug.bind(logger),
+  log: logger.info.bind(logger),
 }
+
+connectLogger(serverLogger, pinoLogger)
 ```
 
 #### Server
@@ -198,11 +203,10 @@ This setup will be updated in the future to support other transports besides WS.
 
 ```ts
 import { WebSocketServer } from 'ws'
-import { createServer, serverLogger } from '@yobta/server'
-import { connectLogger } from '@yobta/logger'
+import { createServer } from '@yobta/server'
 
+import './pinoLogger.js'
 import './modules/todos/todos.js'
-import { pinoLogger } from './pinoLogger.js'
 
 connectLogger(serverLogger, pinoLogger)
 serverLogger.info('Starting backend...')
