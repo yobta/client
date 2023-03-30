@@ -1,4 +1,4 @@
-import { connectLogger, YobtaAnyLogger } from '@yobta/logger'
+import { connectLogger, YobtaAnyLogger } from '@yobta/utils'
 import { YobtaOnlineStore } from '@yobta/stores'
 import {
   YobtaClientOperation,

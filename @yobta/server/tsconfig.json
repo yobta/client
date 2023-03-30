@@ -4,16 +4,13 @@
     "outDir": "lib",
     "rootDir": "src"
   },
-  "include": ["src"],
+  "include": ["src", "../utils/src/coerceError"],
   "references": [
-    {
-      "path": "../logger/tsconfig.json"
-    },
     {
       "path": "../protocol/tsconfig.json"
     },
     {
-      "path": "../router/tsconfig.json"
+      "path": "../utils/tsconfig.json"
     }
   ]
 }

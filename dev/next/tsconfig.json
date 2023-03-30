@@ -22,13 +22,13 @@
       "path": "../../@yobta/client/tsconfig.json"
     },
     {
-      "path": "../../@yobta/logger/tsconfig.json"
-    },
-    {
       "path": "../../@yobta/protocol/tsconfig.json"
     },
     {
       "path": "../../@yobta/server/tsconfig.json"
+    },
+    {
+      "path": "../../@yobta/utils/tsconfig.json"
     }
   ]
 }

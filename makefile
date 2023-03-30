@@ -37,14 +37,11 @@ typecheck:
 test-client:
 	cd @yobta/client && pnpm test:watch
 
-test-router:
-	cd @yobta/router && pnpm test:watch
-
-test-logger:
-	cd @yobta/logger && pnpm test:watch
-
 test-server:
 	cd @yobta/server && pnpm test:watch
+
+test-utils:
+	cd @yobta/utils && pnpm test:watch
 
 test: build
 	pnpm test

@@ -1,5 +1,5 @@
 import pino from 'pino'
-import { connectLogger } from '@yobta/logger'
+import { connectLogger } from '@yobta/utils'
 import { serverLogger } from '@yobta/server'
 
 const pinoLogger = pino({
