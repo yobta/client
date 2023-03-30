@@ -200,7 +200,6 @@ import { createServer, serverLogger } from '@yobta/server'
 import './pinoLogger.js'
 import './modules/todos/todos.js'
 
-connectLogger(serverLogger, pinoLogger)
 serverLogger.info('Starting backend...')
 const wss = new WebSocketServer(...)
 createServer(wss)
