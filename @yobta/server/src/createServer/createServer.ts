@@ -9,12 +9,12 @@ import {
   YOBTA_RECEIVED,
   YOBTA_REJECT,
 } from '@yobta/protocol'
+import { coerceError } from '@yobta/utils'
 
 import { stringifyServerOperation } from '../stringifyServerOperation/stringifyServerOperation.js'
 import { registerConnection } from '../subscriptonManager/subscriptonManager.js'
 import { parseClientMessage } from '../parseClientMessage/parseClientMessage.js'
 import { broadcastClientMessage } from '../router/router.js'
-import { parseUnknownError } from '../parseUnknownError/parseUnknownError.js'
 import { serverLogger } from '../serverLogger/serverLogger.js'
 import { YobtaServerLogSearchResult } from '../createMemoryLog/createMemoryLog.js'
 
@@ -78,7 +78,7 @@ export const createServer: ServerFactory = wss => {
           callbacks,
         )
       } catch (unknownError) {
-        const error = parseUnknownError(unknownError)
+        const error = coerceError(unknownError)
         connection.close(500, error.message)
         serverLogger.error(error)
       }
