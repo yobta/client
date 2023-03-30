@@ -5,7 +5,7 @@ describe('Logger Factory', () => {
   beforeEach(() => {
     logger = createLogger()
   })
-  const methods = ['debug', 'error', 'info', 'log', 'warn']
+  const methods = ['debug', 'error', 'info', 'warn']
   methods.forEach(method => {
     it(`should have a ${method} method`, () => {
       expect(logger).toHaveProperty(method)

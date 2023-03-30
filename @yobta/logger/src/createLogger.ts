@@ -14,7 +14,6 @@ export type YobtaAnyLogger = {
   debug: (...args: any[]) => void
   error: (...args: any[]) => void
   info: (...args: any[]) => void
-  log: (...args: any[]) => void
   warn: (...args: any[]) => void
 }
 type BaseTopics = {
@@ -23,9 +22,6 @@ type BaseTopics = {
 
 export const createLogger: YobtaLoggerFactory = () => {
   const { publish, subscribe } = createPubSub<BaseTopics>()
-  const log: YobtaAnyLogger['log'] = (...args) => {
-    publish('log', ...args)
-  }
   const info: YobtaAnyLogger['info'] = (...args) => {
     publish('info', ...args)
   }
@@ -42,7 +38,6 @@ export const createLogger: YobtaLoggerFactory = () => {
     debug,
     error,
     info,
-    log,
     subscribe,
     warn,
   }

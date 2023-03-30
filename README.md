@@ -44,6 +44,13 @@ Merge supports `insert`, `update`, and `revalidate` operations. The `revalidate`
 ```ts
 import { createCollection } from '@yobta/client'
 
+type Todo = {
+  id: string
+  text: string
+  completed: boolean
+  time: number
+}
+
 const collection = createCollection<Todo>([])
 ```
 
@@ -56,12 +63,12 @@ Channels support `publish`, `update`, `move`, `delete`, `restore`, and `revalida
 ```ts
 const myTodos = createChannel({
   collection,
-  route: `/todos/${userId}`,
+  path: `/todos/user/${userId}`,
 })
 
 const ourTodos = createChannel({
   collection,
-  route: `/todos/${organisationId}`,
+  path: `/todos/organization/${organisationId}`,
 })
 ```
 
@@ -78,6 +85,7 @@ const snapshot = await myTodos.publish(
     id: 'todo-2',
     text: 'More docs',
     completed: false,
+    time: Date.now(),
   },
   nextSnapshotId,
 )
@@ -123,4 +131,102 @@ const snapshot = await channel.restore('todo-1')
 
 ## Server
 
-pending
+### Setup
+
+#### Collection and channels
+
+```ts
+import { createChannel, createCollection, createMemoryLog } from '@yobta/server'
+
+type Todo = {
+  id: string
+  text: string
+  completed: boolean
+  time: number
+}
+
+const collection = createCollection<Todo>({
+  name: 'todos',
+  log: createMemoryLog(),
+})
+
+createChannel({
+  route: 'todos/user/:userId',
+  collection,
+  access: {
+    async read({ headers, operation }) {}, // should throw when denied
+    async write() {},
+  },
+})
+
+createChannel({
+  route: 'todos/organization/:organizationId',
+  collection,
+  access: {
+    async read() {},
+    async write() {},
+  },
+})
+```
+
+#### Logger
+
+```ts
+import pino from 'pino'
+
+const logger = pino({
+  // level: 'debug',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      multiline: true,
+    },
+  },
+})
+
+export const pinoLogger = {
+  info: logger.info.bind(logger),
+  error: logger.error.bind(logger),
+  warn: logger.warn.bind(logger),
+  debug: logger.debug.bind(logger),
+}
+```
+
+#### Server
+
+This setup will be updated in the future to support other transports besides WS.
+
+```ts
+import { WebSocketServer } from 'ws'
+import { createServer, serverLogger } from '@yobta/server'
+import { connectLogger } from '@yobta/logger'
+
+import './modules/todos/todos.js'
+import { pinoLogger } from './pinoLogger.js'
+
+connectLogger(serverLogger, pinoLogger)
+serverLogger.info('Starting backend...')
+const wss = new WebSocketServer(...)
+createServer(wss)
+serverLogger.info('Backend started on port 8080')
+```
+
+#### The Concepts
+
+The server requires only a log for storage. All collections and channels are stored in a single table. In the future, various log adapters will be available for `postgres`, `firebase` and `Mongodb`.
+
+The log serves as the single source of truth, making the framework an excellent option for rapid prototyping and development.
+
+Additionally, there will be an option to replicate the log stream to any external store of your choice:
+
+```ts
+const nodestream = getUpdates(log, merged, channels[]?)
+```
+
+## Roadmap
+
+- SSR and hydration
+- Database adapters for log
+- Queries and pagination
+- Documentation
+- Sample applications
