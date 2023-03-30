@@ -3,7 +3,7 @@ import { connectLogger } from '@yobta/logger'
 import { serverLogger } from '@yobta/server'
 
 const pinoLogger = pino({
-  // level: 'debug',
+  level: 'debug',
   transport: {
     target: 'pino-pretty',
     options: {
