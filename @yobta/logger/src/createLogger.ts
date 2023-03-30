@@ -2,7 +2,7 @@
 import { createPubSub, YobtaPubsubSubscriber } from '@yobta/stores'
 
 interface YobtaLoggerFactory {
-  (): YobtaLogger
+  (options: { callerInfo?: boolean }): YobtaLogger
 }
 export type YobtaLogger = YobtaAnyLogger & {
   subscribe: <Topic extends keyof BaseTopics>(
@@ -10,35 +10,34 @@ export type YobtaLogger = YobtaAnyLogger & {
     subscriber: YobtaPubsubSubscriber<BaseTopics[Topic]>,
   ) => VoidFunction
 }
+export type YobtaLogMethod = (...args: any[]) => void
 export type YobtaAnyLogger = {
-  debug: (...args: any[]) => void
-  error: (...args: any[]) => void
-  info: (...args: any[]) => void
-  warn: (...args: any[]) => void
+  debug: YobtaLogMethod
+  error: YobtaLogMethod
+  info: YobtaLogMethod
+  warn: YobtaLogMethod
 }
 type BaseTopics = {
   [K in keyof YobtaAnyLogger]: Parameters<YobtaAnyLogger[K]>
 }
 
-export const createLogger: YobtaLoggerFactory = () => {
+function getCallerInfo(): string {
+  return new Error().stack?.split('\n')[2].trim() || ''
+}
+
+export const createLogger: YobtaLoggerFactory = ({ callerInfo }) => {
   const { publish, subscribe } = createPubSub<BaseTopics>()
-  const info: YobtaAnyLogger['info'] = (...args) => {
-    publish('info', ...args)
-  }
-  const warn: YobtaAnyLogger['warn'] = (...args) => {
-    publish('warn', ...args)
-  }
-  const error: YobtaAnyLogger['error'] = (...args) => {
-    publish('error', ...args)
-  }
-  const debug: YobtaAnyLogger['debug'] = (...args) => {
-    publish('debug', ...args)
-  }
+  const createMethod =
+    (topic: keyof BaseTopics): YobtaLogMethod =>
+    (...args) => {
+      const argsWithCallerInfo = callerInfo ? [...args, getCallerInfo()] : args
+      publish(topic, ...argsWithCallerInfo)
+    }
   return {
-    debug,
-    error,
-    info,
+    debug: createMethod('debug'),
+    error: createMethod('error'),
+    info: createMethod('info'),
+    warn: createMethod('warn'),
     subscribe,
-    warn,
   }
 }
