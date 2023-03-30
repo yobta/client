@@ -2,7 +2,7 @@
 import { createPubSub, YobtaPubsubSubscriber } from '@yobta/stores'
 
 interface YobtaLoggerFactory {
-  (options: { callerInfo?: boolean }): YobtaLogger
+  (options?: { callerInfo?: boolean }): YobtaLogger
 }
 export type YobtaLogger = YobtaAnyLogger & {
   subscribe: <Topic extends keyof BaseTopics>(
@@ -22,10 +22,10 @@ type BaseTopics = {
 }
 
 function getCallerInfo(): string {
-  return new Error().stack?.split('\n')[2].trim() || ''
+  return String(new Error().stack?.split('\n')[3].trim())
 }
 
-export const createLogger: YobtaLoggerFactory = ({ callerInfo }) => {
+export const createLogger: YobtaLoggerFactory = ({ callerInfo } = {}) => {
   const { publish, subscribe } = createPubSub<BaseTopics>()
   const createMethod =
     (topic: keyof BaseTopics): YobtaLogMethod =>

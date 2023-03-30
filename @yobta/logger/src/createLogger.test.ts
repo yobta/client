@@ -38,3 +38,17 @@ describe('Logger Factory', () => {
     expect(errorSubscriber).not.toHaveBeenCalled()
   })
 })
+
+describe('options', () => {
+  test('callerInfo', () => {
+    const logger = createLogger({ callerInfo: true })
+    const debugSubscriber = vi.fn()
+    logger.subscribe('debug', debugSubscriber)
+    logger.debug('Debug message')
+    expect(debugSubscriber).toHaveBeenCalledTimes(1)
+    expect(debugSubscriber).toHaveBeenCalledWith(
+      'Debug message',
+      expect.any(String),
+    )
+  })
+})
