@@ -5,18 +5,23 @@ interface ConnectLogger {
 }
 
 export const connectLogger: ConnectLogger = (yobtaLogger, partialLogger) => {
-  const unsubscribers = Object.entries(partialLogger).reduce<VoidFunction[]>(
-    (acc, [method, fn]) => {
-      if (method in yobtaLogger && method !== 'subscribe') {
-        if (typeof fn !== 'function') {
-          throw new Error('Logger method must be a function')
-        }
-        acc.push(yobtaLogger.subscribe(method as keyof YobtaAnyLogger, fn))
+  const { debug, error, info, warn } = partialLogger
+  const unsubscribers = Object.entries({ debug, error, info, warn }).reduce<
+    VoidFunction[]
+  >((acc, [method, fn]) => {
+    if (method in yobtaLogger && method !== 'subscribe') {
+      if (typeof fn !== 'function') {
+        throw new Error('Logger method must be a function')
       }
-      return acc
-    },
-    [],
-  )
+      acc.push(
+        yobtaLogger.subscribe(
+          method as keyof YobtaAnyLogger,
+          fn.bind(partialLogger),
+        ),
+      )
+    }
+    return acc
+  }, [])
   return () => {
     unsubscribers.forEach(unsubscribe => {
       unsubscribe()

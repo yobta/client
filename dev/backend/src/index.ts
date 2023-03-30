@@ -1,11 +1,8 @@
 import { WebSocketServer } from 'ws'
 import { createServer, serverLogger } from '@yobta/server'
-import { connectLogger } from '@yobta/logger'
 
+import './pinoLogger.js'
 import './modules/todos/todos.js'
-import { pinoLogger } from './pinoLogger.js'
-
-connectLogger(serverLogger, pinoLogger)
 
 serverLogger.info('Starting backend...')
 
