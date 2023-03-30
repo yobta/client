@@ -154,7 +154,7 @@ createChannel({
   route: 'todos/user/:userId',
   collection,
   access: {
-    async read({ headers, operation }) {}, // should throw when denied
+    async read({ headers, operation, params }) {}, // should throw when denied
     async write() {},
   },
 })
