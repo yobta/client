@@ -5,6 +5,7 @@ import {
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 import { findLastIndex } from '@yobta/utils'
@@ -65,7 +66,8 @@ export const createLogMerger: YobtaLogMergerFactory =
       }, [])
       .reduce<Snapshot[]>((acc, { type, snapshotId, nextSnapshotId }) => {
         switch (type) {
-          case YOBTA_COLLECTION_INSERT: {
+          case YOBTA_COLLECTION_INSERT:
+          case YOBTA_COLLECTION_REVALIDATE: {
             const snapshot = getSnapshot(snapshotId)
             return insert(acc, snapshot, nextSnapshotId)
           }

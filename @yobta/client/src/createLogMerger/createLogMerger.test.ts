@@ -4,6 +4,7 @@ import {
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -35,7 +36,7 @@ const getSnapshot = (id: YobtaCollectionId): MockSnapshot | undefined => {
   return store[id]
 }
 
-const merge = createLogMerger(getSnapshot)
+const merge = createLogMerger<MockSnapshot>(getSnapshot)
 
 describe('insertions', () => {
   it('should merge single insert', () => {
@@ -187,6 +188,23 @@ describe('insertions', () => {
       },
     ])
     expect(result).toEqual([store['item-3'], store['item-2'], store['item-1']])
+  })
+  it('supports revalidate', () => {
+    const result = merge([
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_REVALIDATE,
+        data: [
+          ['id', 'item-1', 1, 1],
+          ['name', 'Item 1', 1, 1],
+        ],
+        snapshotId: 'item-1',
+      },
+    ])
+    expect(result).toEqual([store['item-1']])
   })
 })
 describe('moves', () => {
