@@ -18,7 +18,10 @@ import {
 import { createDerivedStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
-import { createLog, YobtaClientLogOperation } from '../createLog/createLog.js'
+import {
+  createClientLog,
+  YobtaClientLogOperation,
+} from '../createClientLog/createClientLog.js'
 import { createLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
 import { createLogMerger } from '../createLogMerger/createLogMerger.js'
@@ -50,7 +53,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
     YobtaReadable<Snapshot[], never>
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
-  operations?: YobtaClientLogOperation[]
+  operations?: YobtaClientLogOperation<Snapshot>[]
   route: string
 }
 // #endregion
@@ -62,14 +65,14 @@ export const createChannel: YobtaChannelFactory = <
   operations = [],
   route,
 }: YobtaChannelProps<Snapshot>) => {
-  const log = createLog(operations)
-  const derivedStore = createDerivedStore(
+  const log = createClientLog<Snapshot>(operations)
+  const derivedStore = createDerivedStore<Snapshot[]>(
     createLogMerger(collection.get),
     log,
     collection,
   )
   storeEffect(derivedStore, () => {
-    const getVersion = createLogVersionGetter(log.last)
+    const getVersion = createLogVersionGetter<Snapshot>(log.last)
     const unsubscribe = subscribeToServerMessages<Snapshot>(
       route,
       getVersion,
@@ -88,7 +91,7 @@ export const createChannel: YobtaChannelFactory = <
           case YOBTA_COLLECTION_DELETE:
           case YOBTA_COLLECTION_RESTORE:
           case YOBTA_COLLECTION_MOVE:
-            log.add([operation as YobtaClientLogOperation])
+            log.add([operation])
             break
         }
       },

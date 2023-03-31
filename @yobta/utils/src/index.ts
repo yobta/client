@@ -1,6 +1,7 @@
 export * from './coerceError/index.js'
 export * from './createIntervalManager/index.js'
 export * from './createTimeoutManager/index.js'
+export * from './findLastIndex/index.js'
 export * from './logger/index.js'
 export * from './plainObjectDiff/index.js'
 export * from './router/index.js'

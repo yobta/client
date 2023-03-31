@@ -1,14 +1,15 @@
-import { YobtaLogEntry } from '../createLog/createLog.js'
-import { parseLogEntry } from '../parseLogEntry/parseLogEntry.js'
+import { YobtaCollectionAnySnapshot } from '@yobta/protocol'
+
+import { YobtaClientLogOperation } from '../createClientLog/createClientLog.js'
 
 interface YobtaLogVersionGetterFactory {
-  (getState: () => readonly YobtaLogEntry[]): YobtaLogVersionGetter
+  <Snapshot extends YobtaCollectionAnySnapshot>(
+    getState: () => YobtaClientLogOperation<Snapshot>[],
+  ): YobtaLogVersionGetter
 }
 
 export type YobtaLogVersionGetter = () => number
 
 export const createLogVersionGetter: YobtaLogVersionGetterFactory =
-  getState => () => {
-    const log = getState()
-    return log.length ? parseLogEntry(log[log.length - 1]).merged : 0
-  }
+  getState => () =>
+    getState().reduce((acc, { merged }) => Math.max(acc, merged), 0)
