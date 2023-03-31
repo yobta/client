@@ -50,7 +50,7 @@ export const TodoList: TodoListFC = () => {
               </Toggle>
               <input
                 className="appearance-none flex-1 h-14 bg-transparent outline-none truncate"
-                disabled={completed}
+                readOnly={completed}
                 defaultValue={text}
                 onBlur={(event) => {
                   const { value } = event.target

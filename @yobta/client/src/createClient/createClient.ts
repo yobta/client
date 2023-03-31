@@ -1,4 +1,8 @@
-import { connectLogger, YobtaAnyLogger } from '@yobta/utils'
+import {
+  connectLogger,
+  YobtaAnyLogger,
+  createTimeoutManager,
+} from '@yobta/utils'
 import { YobtaOnlineStore } from '@yobta/stores'
 import {
   YobtaClientOperation,
@@ -14,7 +18,6 @@ import {
   connectionStore,
   YOBTA_OPEN,
 } from '../connectionStore/connectionStore.js'
-import { timeoutYobta } from '../timeoutYobta/timeoutYobta.js'
 import { operationsQueue, observeQueue } from '../queue/queue.js'
 import { isMainTab, mainStore } from '../mainStore/mainStore.js'
 import { encoderYobta, YobtaClientEncoder } from '../encoder/encoder.js'
@@ -49,7 +52,7 @@ export const createClient: ClientFactory = ({
   messageTimeoutMs = 3600,
 }) => {
   let connection: YobtaTransportConnection | null = null
-  const timer = timeoutYobta()
+  const timer = createTimeoutManager()
   const connect: VoidFunction = () => {
     if (!connection && isMainTab() && internetObserver.last()) {
       connection = transport({
@@ -101,7 +104,7 @@ export const createClient: ClientFactory = ({
             ...getAllSubscribeOperarions(),
           ].forEach(send)
         } else {
-          timer.start(reconnect, 2000)
+          timer.start(reconnect, 6000)
         }
         !isMainTab() && disconnect()
       }),

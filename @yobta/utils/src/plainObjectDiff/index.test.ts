@@ -1,4 +1,4 @@
-import { plainObjectDiff } from './plainObjectDiff.js'
+import { shallowDiff } from './index.js'
 
 describe('plainObjectDiff', () => {
   it('should return the differences between two plain objects', () => {
@@ -12,7 +12,7 @@ describe('plainObjectDiff', () => {
       age: 31,
       city: 'New York',
     }
-    const diff = plainObjectDiff(oldObject, newObject)
+    const diff = shallowDiff(oldObject, newObject)
     expect(diff).toEqual({
       name: 'Jane',
       age: 31,
@@ -30,7 +30,7 @@ describe('plainObjectDiff', () => {
       age: 30,
       city: 'New York',
     }
-    const diff = plainObjectDiff(oldObject, newObject)
+    const diff = shallowDiff(oldObject, newObject)
     expect(diff).toBeNull()
   })
 })

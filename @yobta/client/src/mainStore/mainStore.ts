@@ -1,15 +1,13 @@
 import { storeEffect, createStore } from '@yobta/stores'
-
-import { intervalYobta } from '../intervalYobta/intervalYobta.js'
-import { timeoutYobta } from '../timeoutYobta/timeoutYobta.js'
+import { createTimeoutManager, createIntervalManager } from '@yobta/utils'
 
 const PING = 'PING'
 const PONG = 'PONG'
 const HONK = 'HONK'
 
 let channel: BroadcastChannel | null = null
-const interval = intervalYobta()
-const timeout = timeoutYobta()
+const interval = createIntervalManager()
+const timeout = createTimeoutManager()
 
 const post = (message: string): void => {
   channel?.postMessage(message)
