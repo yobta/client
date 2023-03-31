@@ -1,13 +1,13 @@
 import { YobtaAnyPlainObject } from '@yobta/stores'
 
-interface PlainObjectDiff {
+interface YobtaShallowDiff {
   <PlainObject extends YobtaAnyPlainObject>(
     oldObject: YobtaAnyPlainObject,
     newObject: Partial<PlainObject>,
   ): Partial<PlainObject> | null
 }
 
-export const plainObjectDiff: PlainObjectDiff = (oldObject, newObject) => {
+export const shallowDiff: YobtaShallowDiff = (oldObject, newObject) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const diff: any = {}
   for (const key in oldObject) {

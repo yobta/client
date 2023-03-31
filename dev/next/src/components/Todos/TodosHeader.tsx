@@ -16,7 +16,7 @@ export const TodosHeader = (): JSX.Element => {
   return (
     <header className="my-4 px-4 flex items-center justify-between">
       <h1 className="text-2xl">
-        Todos <sup className="yobta-badge">{todos.length}</sup>
+        Todos <sup>{todos.length}</sup>
       </h1>
       <nav className="flex">
         {options.map(({ label, value }, index) => (

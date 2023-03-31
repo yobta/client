@@ -4,7 +4,11 @@
     "outDir": "lib",
     "rootDir": "src"
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "../utils/src/createTimeoutManager",
+    "../utils/src/createIntervalManager"
+  ],
   "references": [
     {
       "path": "../protocol/tsconfig.json"
