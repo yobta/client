@@ -7,7 +7,6 @@ import {
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
-import { YobtaLogInsertEntry } from '../createLog/createLog.js'
 import { createLogMerger } from './createLogMerger.js'
 
 type MockSnapshot = {
@@ -41,125 +40,151 @@ const merge = createLogMerger(getSnapshot)
 describe('insertions', () => {
   it('should merge single insert', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
   it('should ignore insert entry if snapshot is not found', () => {
-    const entry: YobtaLogInsertEntry = [
-      'operation-1',
-      'channel-1',
-      1,
-      1,
-      YOBTA_COLLECTION_INSERT,
-      'unknown-item',
-      undefined,
-      undefined,
-    ]
-    const result = merge([entry])
+    const result = merge([
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'unknown-item',
+          name: 'Unknown Item',
+        },
+        snapshotId: 'unknown-item',
+      },
+    ])
     expect(result).toEqual([])
   })
   it('resolves a, b => a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        'item-1',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+        nextSnapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-2'], store['item-1']])
   })
   it('resolves a, b => a, c => a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        'item-1',
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_INSERT,
-        'item-3',
-        'item-1',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+        nextSnapshotId: 'item-1',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-3',
+          name: 'Item 3',
+        },
+        snapshotId: 'item-3',
+        nextSnapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-2'], store['item-3'], store['item-1']])
   })
   it('resolves a, b => a, c => b', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        'item-1',
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_INSERT,
-        'item-3',
-        'item-2',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+        nextSnapshotId: 'item-1',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-3',
+          name: 'Item 3',
+        },
+        snapshotId: 'item-3',
+        nextSnapshotId: 'item-2',
+      },
     ])
     expect(result).toEqual([store['item-3'], store['item-2'], store['item-1']])
   })
@@ -167,181 +192,190 @@ describe('insertions', () => {
 describe('moves', () => {
   it('ignores move if log is empty', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_MOVE,
-        'item-1',
-        'item-2',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_MOVE,
+        snapshotId: 'item-1',
+        nextSnapshotId: 'item-2',
+      },
     ])
     expect(result).toEqual([])
   })
-  it('resolves a, c => b', () => {
+  it('resolves a, c => -b', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_MOVE,
-        'item-3',
-        'item-2',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_MOVE,
+        snapshotId: 'item-3',
+        nextSnapshotId: 'item-2',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
-  it('resolves a, a => b', () => {
+  it('resolves a, a => -b', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_MOVE,
-        'item-1',
-        'item-2',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_MOVE,
+        snapshotId: 'item-1',
+        nextSnapshotId: 'item-2',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
   it('resolves a, b, b => a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_MOVE,
-        'item-2',
-        'item-1',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_MOVE,
+        snapshotId: 'item-2',
+        nextSnapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-2'], store['item-1']])
   })
   it('resolves a, b, a => a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_MOVE,
-        'item-1',
-        'item-1',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_MOVE,
+        snapshotId: 'item-1',
+        nextSnapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-1'], store['item-2']])
   })
   it('resolves a, b, b => a, a => b', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_MOVE,
-        'item-2',
-        'item-1',
-        undefined,
-      ],
-      [
-        'operation-4',
-        'channel-1',
-        4,
-        4,
-        YOBTA_COLLECTION_MOVE,
-        'item-1',
-        'item-2',
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_MOVE,
+        snapshotId: 'item-2',
+        nextSnapshotId: 'item-1',
+      },
+      {
+        id: 'operation-4',
+        channel: 'channel-1',
+        committed: 4,
+        merged: 4,
+        type: YOBTA_COLLECTION_MOVE,
+        snapshotId: 'item-1',
+        nextSnapshotId: 'item-2',
+      },
     ])
     expect(result).toEqual([store['item-1'], store['item-2']])
   })
@@ -349,111 +383,113 @@ describe('moves', () => {
 describe('deletions', () => {
   it('ignores deletion if log is empty', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_DELETE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([])
   })
   it('resolves insert:a, delete:a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_DELETE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([])
   })
   it('resolves insert:a, insert:b, delete:a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_DELETE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-2']])
   })
   it('resolves insert:a, delete:a, insert:a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_DELETE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
@@ -461,96 +497,88 @@ describe('deletions', () => {
 describe('undos', () => {
   it('ignores restore if log is empty', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_RESTORE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_RESTORE,
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([])
   })
   it('resolves insert:a, delete:a, restore:a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_DELETE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_RESTORE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_RESTORE,
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
   it('resolves insert:a, delete:a, restore:a, delete:a', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_DELETE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_RESTORE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-4',
-        'channel-1',
-        4,
-        4,
-        YOBTA_COLLECTION_DELETE,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_COLLECTION_RESTORE,
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-4',
+        channel: 'channel-1',
+        committed: 4,
+        merged: 4,
+        type: YOBTA_COLLECTION_DELETE,
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([])
   })
@@ -558,131 +586,138 @@ describe('undos', () => {
 describe('rejects', () => {
   it('should ignore reject insert if the order is correct', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-2',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-3',
-        'channel-1',
-        3,
-        3,
-        YOBTA_REJECT,
-        undefined,
-        undefined,
-        'operation-1',
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-2',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_REJECT,
+        operationId: 'operation-1',
+        reason: 'reason',
+      },
     ])
     expect(result).toEqual([store['item-2']])
   })
   it('should ignore reject insert if the order is incorrect', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_REJECT,
-        undefined,
-        undefined,
-        'operation-1',
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_REJECT,
+        operationId: 'operation-1',
+        reason: 'reason',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
-  it('should ignore rejected opertaion that not in the log', () => {
+  it('resolves: r:1, m:1, r:0', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_REJECT,
-        undefined,
-        undefined,
-        'operation-1',
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-x-log-entry',
-        'channel-1',
-        3,
-        3,
-        YOBTA_REJECT,
-        undefined,
-        undefined,
-        'operation-x',
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_REJECT,
+        operationId: 'operation-2',
+        reason: 'reason',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-3',
+        channel: 'channel-1',
+        committed: 3,
+        merged: 3,
+        type: YOBTA_REJECT,
+        operationId: 'operation-0',
+        reason: 'reason',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
-  it('should resolve insert reject insert sequence', () => {
+  it('resolves c:1, r:1, m:1', () => {
     const result = merge([
-      [
-        'operation-1',
-        'channel-1',
-        1,
-        1,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
-      [
-        'operation-2',
-        'channel-1',
-        2,
-        2,
-        YOBTA_REJECT,
-        undefined,
-        undefined,
-        'operation-1',
-      ],
-      [
-        'operation-1',
-        'channel-1',
-        3,
-        3,
-        YOBTA_COLLECTION_INSERT,
-        'item-1',
-        undefined,
-        undefined,
-      ],
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 0,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-1',
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+      {
+        id: 'operation-2',
+        channel: 'channel-1',
+        committed: 2,
+        merged: 2,
+        type: YOBTA_REJECT,
+        operationId: 'operation-1',
+        reason: 'reason',
+      },
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_INSERT,
+        data: {
+          id: 'item-2',
+          name: 'Item 2',
+        },
+        snapshotId: 'item-1',
+      },
     ])
     expect(result).toEqual([store['item-1']])
   })
@@ -691,16 +726,14 @@ describe('unknown operations', () => {
   it('should throw if operation is not supportes unknown', () => {
     expect(() => {
       merge([
-        [
-          'operation-1',
-          'channel-1',
-          1,
-          1,
-          'unknown' as any,
-          'item-1',
-          undefined,
-          undefined,
-        ],
+        {
+          id: 'operation-1',
+          channel: 'channel-1',
+          committed: 1,
+          merged: 1,
+          type: 'unknown' as any,
+          snapshotId: 'item-1',
+        },
       ])
     }).toThrow()
   })

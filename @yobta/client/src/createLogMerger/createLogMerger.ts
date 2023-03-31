@@ -7,26 +7,15 @@ import {
   YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
+import { findLastIndex } from '@yobta/utils'
 
 import { YobtaGetCollectionSnapshot } from '../createCollection/createCollection.js'
-import { YobtaLogEntry } from '../createLog/createLog.js'
+import { YobtaClientLogOperation } from '../createClientLog/createClientLog.js'
 
 interface YobtaLogMergerFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     getSnapshot: YobtaGetCollectionSnapshot<Snapshot>,
-  ): (entries: YobtaLogEntry[]) => Snapshot[]
-}
-
-function findLastIndex<T>(
-  array: T[],
-  predicate: (value: T, index: number, array: T[]) => boolean,
-): number {
-  for (let i = array.length - 1; i >= 0; i--) {
-    if (predicate(array[i], i, array)) {
-      return i
-    }
-  }
-  return -1
+  ): (operations: YobtaClientLogOperation<Snapshot>[]) => Snapshot[]
 }
 
 const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
@@ -52,29 +41,29 @@ export const createLogMerger: YobtaLogMergerFactory =
   <Snapshot extends YobtaCollectionAnySnapshot>(
     getSnapshot: YobtaGetCollectionSnapshot<Snapshot>,
   ) =>
-  entries => {
+  (operations: YobtaClientLogOperation<Snapshot>[]): Snapshot[] => {
     const deleted = new Map<YobtaCollectionId, number>()
     const getCount = (id: YobtaCollectionId): number => deleted.get(id) || 0
     const setCount = (id: YobtaCollectionId, count: number): void => {
       deleted.set(id, getCount(id) + count)
     }
-    const mergeResult = entries
-      .reduce<YobtaLogEntry[]>((acc, entry) => {
-        switch (entry[4]) {
+    const mergeResult = operations
+      .reduce<YobtaClientLogOperation<Snapshot>[]>((acc, operation) => {
+        switch (operation.type) {
           case YOBTA_REJECT:
-            return acc.filter(([id]) => id !== entry[7])
+            return acc.filter(({ id }) => id !== operation.operationId)
           case YOBTA_COLLECTION_DELETE:
-            setCount(entry[5], 1)
+            setCount(operation.snapshotId, 1)
             return acc
           case YOBTA_COLLECTION_RESTORE:
-            deleted.delete(entry[5])
+            deleted.delete(operation.snapshotId)
             return acc
           default:
-            acc.push(entry)
+            acc.push(operation)
             return acc
         }
       }, [])
-      .reduce<Snapshot[]>((acc, [, , , , type, snapshotId, nextSnapshotId]) => {
+      .reduce<Snapshot[]>((acc, { type, snapshotId, nextSnapshotId }) => {
         switch (type) {
           case YOBTA_COLLECTION_INSERT: {
             const snapshot = getSnapshot(snapshotId)
