@@ -17,26 +17,21 @@ export const addOperation: YobtaAddOperationToLog = (
   operation,
   hasConflict,
 ) => {
-  const index = hasConflict
+  const conflictIndex = hasConflict
     ? findLastIndex(operations, ({ id }) => id === operation.id)
     : -1
-  const conflictingOperation = operations[index]
-  if (conflictingOperation) {
-    if (operation.merged && !conflictingOperation.merged) {
-      operations.splice(index, 1)
+  if (conflictIndex > -1) {
+    if (operation.merged && !operations[conflictIndex].merged) {
+      operations.splice(conflictIndex, 1)
     } else {
       return false
     }
   }
   // NOTE: we can't use binary search here because committed is not strictly unique
-  if (operations[operations.length - 1]?.committed <= operation.committed) {
-    operations.push(operation)
-  } else {
-    const insertIndex = findLastIndex(
-      operations,
-      ({ committed }) => committed <= operation.committed,
-    )
-    operations.splice(insertIndex + 1, 0, operation)
-  }
+  const insertIndex = findLastIndex(
+    operations,
+    ({ committed }) => committed <= operation.committed,
+  )
+  operations.splice(insertIndex + 1, 0, operation)
   return true
 }
