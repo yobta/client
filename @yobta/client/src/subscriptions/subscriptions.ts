@@ -18,7 +18,7 @@ import { createErrorYobta } from '../errorsStore/errorsStore.js'
 import { getSubscribeOperation } from '../getSubscribeOperation/getSubscribeOperation.js'
 import { notifyOperationObservers } from '../operationResult/operationResult.js'
 import { dequeueOperation } from '../queue/queue.js'
-import { computeServerTime } from '../serverTime/serverTime.js'
+import { trackServerTime } from '../serverTime/serverTime.js'
 
 export type YobtaServerSubscriber<Snapshot extends YobtaCollectionAnySnapshot> =
   (operation: Operation<Snapshot>) => void
@@ -78,10 +78,8 @@ export const handleRemoteOperation = (
 ): void => {
   switch (operation.type) {
     case YOBTA_RECEIVED: {
-      const committed = dequeueOperation(operation)
-      if (committed) {
-        computeServerTime(committed, operation.received)
-      }
+      trackServerTime(operation.id, operation.received)
+      dequeueOperation(operation.id)
       break
     }
     default: {
