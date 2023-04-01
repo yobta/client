@@ -18,7 +18,7 @@ import {
   connectionStore,
   YOBTA_OPEN,
 } from '../connectionStore/connectionStore.js'
-import { operationsQueue, observeQueue } from '../queue/queue.js'
+import { observeQueue, getQueuedClientOperations } from '../queue/queue.js'
 import { isMainTab, mainStore } from '../mainStore/mainStore.js'
 import { encoderYobta, YobtaClientEncoder } from '../encoder/encoder.js'
 import {
@@ -27,6 +27,7 @@ import {
 } from '../subscriptions/subscriptions.js'
 import { remoteStore } from '../remoteStore/remoteStore.js'
 import { clientLogger } from '../clientLogger/clientLogger.js'
+import { trackClientTime } from '../serverTime/serverTime.js'
 
 interface ClientFactory {
   (config: {
@@ -80,12 +81,13 @@ export const createClient: ClientFactory = ({
     operation: YobtaClientOperation<YobtaCollectionAnySnapshot>,
   ): void => {
     if (connection?.isOpen()) {
-      clientLogger.debug('client send', operation)
+      clientLogger.debug('send', operation)
       const encoded = encoder.encode({
         headers: getHeaders(),
         operation,
       })
       connection.send(encoded)
+      trackClientTime(operation.id)
       timer.start(reconnect, messageTimeoutMs)
     }
   }
@@ -100,7 +102,7 @@ export const createClient: ClientFactory = ({
         timer.stopAll()
         if (state === YOBTA_OPEN) {
           ;[
-            ...operationsQueue.values(),
+            ...getQueuedClientOperations(),
             ...getAllSubscribeOperarions(),
           ].forEach(send)
         } else {

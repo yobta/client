@@ -7,7 +7,7 @@ import {
 import { YobtaLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
 import { getSubscribeOperation } from '../getSubscribeOperation/getSubscribeOperation.js'
-import { operationsQueue, queueOperation } from '../queue/queue.js'
+import { dequeueOperation, queueOperation } from '../queue/queue.js'
 import {
   YobtaServerSubscription,
   YobtaServerSubscriber,
@@ -38,9 +38,8 @@ export const subscribeToServerMessages = <
       channel,
       type: YOBTA_UNSUBSCRIBE,
     })
-    if (operationsQueue.has(operartion.id)) {
-      operationsQueue.delete(operartion.id)
-    } else {
+    const shouldUnsubscribe = !dequeueOperation(operartion.id)
+    if (shouldUnsubscribe) {
       queueOperation(unsubscribe)
     }
   }

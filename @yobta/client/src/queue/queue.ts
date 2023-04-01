@@ -2,37 +2,34 @@ import { broadcastChannelPlugin, createStore } from '@yobta/stores'
 import {
   YobtaOperationId,
   YobtaClientOperation,
-  YobtaReceived,
   YobtaCollectionAnySnapshot,
 } from '@yobta/protocol'
 
-type State = Map<
+const queue = new Map<
   YobtaOperationId,
   YobtaClientOperation<YobtaCollectionAnySnapshot>
->
+>()
 
-export const operationsQueue: State = new Map()
-
-const channel = createStore<YobtaClientOperation<YobtaCollectionAnySnapshot>>(
+const crosstabChannel = createStore<
+  YobtaClientOperation<YobtaCollectionAnySnapshot>
+>(
   {} as YobtaClientOperation<YobtaCollectionAnySnapshot>,
   broadcastChannelPlugin({
     channel: 'yobta-client-op',
   }),
 )
 
-export const observeQueue = channel.observe
+export const observeQueue = crosstabChannel.observe
 
 export const queueOperation = <Snapshot extends YobtaCollectionAnySnapshot>(
   operation: YobtaClientOperation<Snapshot>,
 ): void => {
-  operationsQueue.set(operation.id, operation)
-  channel.next(operation)
+  queue.set(operation.id, operation)
+  crosstabChannel.next(operation)
 }
 
-export const dequeueOperation = ({
-  operationId,
-}: YobtaReceived): number | undefined => {
-  const time = operationsQueue.get(operationId)?.committed
-  operationsQueue.delete(operationId)
-  return time
-}
+export const dequeueOperation = (operationId: YobtaOperationId): boolean =>
+  queue.delete(operationId)
+
+export const getQueuedClientOperations =
+  (): YobtaClientOperation<YobtaCollectionAnySnapshot>[] => [...queue.values()]
