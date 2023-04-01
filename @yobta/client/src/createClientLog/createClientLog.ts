@@ -5,6 +5,7 @@ import {
   YobtaCollectionMoveOperation,
   YobtaCollectionRestoreOperation,
   YobtaCollectionRevalidateOperation,
+  YobtaOperationId,
   YobtaRejectOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
@@ -48,6 +49,7 @@ export const createClientLog: YobtaClientLogFactory = <
   initialOperations: YobtaClientLogOperation<Snapshot>[],
 ) => {
   const log: YobtaClientLogOperation<Snapshot>[] = []
+  const ids = new Set<YobtaOperationId>()
   const { next, observe } =
     createObservable<YobtaClientLogOperation<Snapshot>[]>()
   const last = (): YobtaClientLogOperation<Snapshot>[] => log
@@ -61,8 +63,10 @@ export const createClientLog: YobtaClientLogFactory = <
         case YOBTA_COLLECTION_RESTORE:
         case YOBTA_COLLECTION_REVALIDATE:
         case YOBTA_REJECT: {
-          const updated = addOperation(log, operation)
+          const hasConflict = ids.has(operation.id)
+          const updated = addOperation(log, operation, hasConflict)
           if (updated) {
+            ids.add(operation.id)
             shouldUpdate = true
           }
           break
