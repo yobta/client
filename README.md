@@ -173,7 +173,7 @@ createChannel({
 
 ```ts
 import pino from 'pino'
-import { connectLogger } from '@yobta/logger'
+import { connectLogger } from '@yobta/util'
 import { serverLogger } from '@yobta/server'
 
 const pinoLogger = pino({

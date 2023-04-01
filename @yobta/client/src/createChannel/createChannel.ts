@@ -54,7 +54,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
   operations?: YobtaClientLogOperation<Snapshot>[]
-  route: string
+  path: string
 }
 // #endregion
 
@@ -63,7 +63,7 @@ export const createChannel: YobtaChannelFactory = <
 >({
   collection,
   operations = [],
-  route,
+  path: channel,
 }: YobtaChannelProps<Snapshot>) => {
   const log = createClientLog<Snapshot>(operations)
   const derivedStore = createDerivedStore<Snapshot[]>(
@@ -74,7 +74,7 @@ export const createChannel: YobtaChannelFactory = <
   storeEffect(derivedStore, () => {
     const getVersion = createLogVersionGetter<Snapshot>(log.last)
     const unsubscribe = subscribeToServerMessages<Snapshot>(
-      route,
+      channel,
       getVersion,
       operation => {
         switch (operation.type) {
@@ -107,7 +107,7 @@ export const createChannel: YobtaChannelFactory = <
       {
         type: YOBTA_COLLECTION_INSERT,
         data,
-        channel: route,
+        channel,
         snapshotId: data.id,
         nextSnapshotId,
       },
@@ -125,7 +125,7 @@ export const createChannel: YobtaChannelFactory = <
       {
         type: YOBTA_COLLECTION_UPDATE,
         data,
-        channel: route,
+        channel,
         snapshotId,
       },
     )
@@ -138,7 +138,7 @@ export const createChannel: YobtaChannelFactory = <
   ): Promise<Snapshot | undefined> => {
     const operation: YobtaCollectionDeleteOperation = createOperation({
       type: YOBTA_COLLECTION_DELETE,
-      channel: route,
+      channel,
       snapshotId,
     })
     queueOperation(operation)
@@ -151,7 +151,7 @@ export const createChannel: YobtaChannelFactory = <
   ): Promise<Snapshot | undefined> => {
     const operation: YobtaCollectionRestoreOperation = createOperation({
       type: YOBTA_COLLECTION_RESTORE,
-      channel: route,
+      channel,
       snapshotId,
     })
     queueOperation(operation)
@@ -175,7 +175,7 @@ export const createChannel: YobtaChannelFactory = <
     }
     const operation: YobtaCollectionMoveOperation = createOperation({
       type: YOBTA_COLLECTION_MOVE,
-      channel: route,
+      channel,
       snapshotId: item.id,
       nextSnapshotId: nextItem?.id,
     })

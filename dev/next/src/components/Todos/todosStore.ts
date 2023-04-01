@@ -17,7 +17,7 @@ const collection = createCollection<Todo>([])
 
 const allTodos = createChannel({
   collection,
-  route: 'all-todos',
+  path: 'all-todos',
 })
 
 const derivedTodos = createDerivedStore(
