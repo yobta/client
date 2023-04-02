@@ -35,13 +35,18 @@ export const registerConnection: YobtaConnectionManager = (
   const map = createChannelMap()
   return {
     subscribe(clientId, { channel }) {
-      map.add(channel, clientId)
+      const clientAdded = map.add(channel, clientId)
       subscriptions.subscribe(channel, callback)
+      if (clientAdded) {
+        serverLogger.debug(`Client ${clientId} subscribed to ${channel}`)
+      }
     },
     unsubscribe(clientId, { channel }) {
       const shouldUnsubscribe = map.remove(channel, clientId)
+      serverLogger.debug(`Client ${clientId} unsubscribed from ${channel}`)
       if (shouldUnsubscribe) {
         subscriptions.unsubscribe(channel, callback)
+        serverLogger.debug(`Channel ${channel} is empty, unsubscribing`)
       }
     },
     clear() {
@@ -49,6 +54,7 @@ export const registerConnection: YobtaConnectionManager = (
         subscriptions.unsubscribe(channel, callback)
       }
       map.clear()
+      serverLogger.debug('Connection manager cleared')
     },
   }
 }
