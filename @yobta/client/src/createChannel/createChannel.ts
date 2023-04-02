@@ -26,7 +26,7 @@ import { createLogVersionGetter } from '../createLogVersionGetter/createLogVersi
 import { createOperation } from '../createOperation/createOperation.js'
 import { createLogMerger } from '../createLogMerger/createLogMerger.js'
 import { operationResult } from '../operationResult/operationResult.js'
-import { subscribeToServerMessages } from '../subscribeToServerMessages/subscribeToServerMessages.js'
+import { subscribeToServerMessages } from '../subscriptions/subscriptions.js'
 import { queueOperation } from '../queue/queue.js'
 
 // #region types

@@ -6,10 +6,12 @@ interface YobtaServerParseClientMessage {
 
 export const parseClientMessage: YobtaServerParseClientMessage = message => {
   const {
+    clientId,
     headers,
     operation: { committed, ...rest },
   } = JSON.parse(message) as YobtaClientMessage
   return {
+    clientId,
     headers,
     operation: {
       ...rest,

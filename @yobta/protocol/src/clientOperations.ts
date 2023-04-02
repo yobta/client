@@ -57,6 +57,7 @@ export type YobtaUnsubscribeOperation = {
 export type YobtaHeaders = Record<string, YobtaJsonValue>
 
 export type YobtaClientMessage = {
+  clientId: string
   headers: YobtaHeaders
   operation: YobtaClientOperation<YobtaCollectionAnySnapshot>
 }

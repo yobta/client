@@ -9,6 +9,7 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaHeaders,
 } from '@yobta/protocol'
+import { nanoid } from 'nanoid'
 
 import {
   YobtaTransport,
@@ -53,6 +54,7 @@ export const createClient: ClientFactory = ({
   messageTimeoutMs = 3600,
 }) => {
   let connection: YobtaTransportConnection | null = null
+  const clientId = nanoid()
   const timer = createTimeoutManager()
   const connect: VoidFunction = () => {
     if (!connection && isMainTab() && internetObserver.last()) {
@@ -83,6 +85,7 @@ export const createClient: ClientFactory = ({
     if (connection?.isOpen()) {
       clientLogger.debug('send', operation)
       const encoded = encoder.encode({
+        clientId,
         headers: getHeaders(),
         operation,
       })

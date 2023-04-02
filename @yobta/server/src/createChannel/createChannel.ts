@@ -46,6 +46,7 @@ type YobtaChannelProps<
 }
 
 type Message<Snapshot extends YobtaCollectionAnySnapshot> = {
+  clientId: string
   headers: YobtaHeaders
   operation:
     | YobtaCollectionOperation<Snapshot>
@@ -65,19 +66,19 @@ export const createChannel: YobtaChannelFactory = <
     route,
     async (
       params,
-      { headers, operation },
+      { clientId, headers, operation },
       { sendBack, subscribe, unsubscribe },
     ) => {
       switch (operation.type) {
         case YOBTA_SUBSCRIBE: {
           await access.read({ params, headers, operation })
-          subscribe(operation)
+          subscribe(clientId, operation)
           const entries = await collection.revalidate(operation)
           sendBack(entries)
           break
         }
         case YOBTA_UNSUBSCRIBE: {
-          unsubscribe(operation)
+          unsubscribe(clientId, operation)
           break
         }
         case YOBTA_COLLECTION_INSERT:

@@ -31,7 +31,7 @@ export const TodoList: TodoListFC = () => {
           >
             <div className="flex items-center gap-x-2">
               <Toggle>
-                <label className="flex items-center justify-center w-14 h-14 yobta-button shrink-0 cursor-pointer">
+                <label className="flex items-center justify-center w-14 h-14 yobta-button shrink-0 cursor-pointer rounded-r-none">
                   <input
                     checked={completed}
                     className={clsx(

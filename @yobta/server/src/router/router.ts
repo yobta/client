@@ -16,16 +16,16 @@ export const onClientMessage = <
 
 export const broadcastClientMessage = (
   channel: string,
-  { headers, operation }: YobtaClientMessage,
+  { clientId, headers, operation }: YobtaClientMessage,
   callbacks: ServerCallbacks,
 ): void => {
   try {
-    serverLogger.debug({ channel, operation, headers })
     router.publish<[YobtaClientMessage, ServerCallbacks]>(
       channel,
-      { headers, operation },
+      { clientId, headers, operation },
       callbacks,
     )
+    serverLogger.debug({ clientId, channel, operation, headers })
   } catch (error) {
     serverLogger.error({ channel, operation, headers, error })
     callbacks.reject(operation, 'Channel not found')
