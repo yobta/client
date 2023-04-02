@@ -20,12 +20,12 @@ export const broadcastClientMessage = (
   callbacks: ServerCallbacks,
 ): void => {
   try {
-    serverLogger.debug({ channel, operation, headers })
     router.publish<[YobtaClientMessage, ServerCallbacks]>(
       channel,
       { clientId, headers, operation },
       callbacks,
     )
+    serverLogger.debug({ clientId, channel, operation, headers })
   } catch (error) {
     serverLogger.error({ channel, operation, headers, error })
     callbacks.reject(operation, 'Channel not found')

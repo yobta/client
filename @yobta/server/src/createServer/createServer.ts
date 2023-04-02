@@ -64,7 +64,7 @@ export const createServer: ServerFactory = wss => {
     connection.on('message', (message: string) => {
       try {
         const { clientId, headers, operation } = parseClientMessage(message)
-        serverLogger.debug({ headers, operation })
+        serverLogger.debug({ clientId, headers, operation })
         const receivedOp = stringifyServerOperation({
           id: nanoid(),
           operationId: operation.id,
