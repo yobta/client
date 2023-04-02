@@ -28,8 +28,8 @@ export type ServerCallbacks = {
     reason: YobtaRejectOperation['reason'],
   ): void
   sendBack(operations: YobtaServerLogSearchResult[]): void
-  subscribe(operation: YobtaSubscribeOperation): void
-  unsubscribe(operation: YobtaUnsubscribeOperation): void
+  subscribe(clientId: string, operation: YobtaSubscribeOperation): void
+  unsubscribe(clientId: string, operation: YobtaUnsubscribeOperation): void
 }
 
 export const createServer: ServerFactory = wss => {
@@ -58,13 +58,13 @@ export const createServer: ServerFactory = wss => {
           connection.send(message)
         })
       },
-      subscribe: mediator.add,
-      unsubscribe: mediator.remove,
+      subscribe: mediator.subscribe,
+      unsubscribe: mediator.unsubscribe,
     }
     connection.on('message', (message: string) => {
       try {
-        const { operation, headers } = parseClientMessage(message)
-        serverLogger.debug({ operation, headers })
+        const { clientId, headers, operation } = parseClientMessage(message)
+        serverLogger.debug({ headers, operation })
         const receivedOp = stringifyServerOperation({
           id: nanoid(),
           operationId: operation.id,
@@ -74,7 +74,7 @@ export const createServer: ServerFactory = wss => {
         connection.send(receivedOp)
         broadcastClientMessage(
           operation.channel,
-          { headers, operation },
+          { clientId, headers, operation },
           callbacks,
         )
       } catch (unknownError) {

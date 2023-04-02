@@ -11,15 +11,19 @@ import {
   YobtaCollectionDeleteOperation,
   YobtaCollectionRestoreOperation,
   YobtaCollectionMoveOperation,
+  YobtaUnsubscribeOperation,
+  YOBTA_UNSUBSCRIBE,
 } from '@yobta/protocol'
 
 import { YobtaLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
 import { createErrorYobta } from '../errorsStore/errorsStore.js'
 import { getSubscribeOperation } from '../getSubscribeOperation/getSubscribeOperation.js'
 import { notifyOperationObservers } from '../operationResult/operationResult.js'
-import { dequeueOperation } from '../queue/queue.js'
+import { dequeueOperation, queueOperation } from '../queue/queue.js'
 import { trackServerTime } from '../serverTime/serverTime.js'
+import { createOperation } from '../createOperation/createOperation.js'
 
+// #region types
 export type YobtaServerSubscriber<Snapshot extends YobtaCollectionAnySnapshot> =
   (operation: Operation<Snapshot>) => void
 export type YobtaServerSubscription<
@@ -37,6 +41,7 @@ type Operation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
   | YobtaCollectionMoveOperation
+// #endregion
 
 const serverSubscriptionsStore = new Set<
   YobtaServerSubscription<YobtaCollectionAnySnapshot>
@@ -90,5 +95,37 @@ export const handleRemoteOperation = (
       notifySubscribers(operation)
       break
     }
+  }
+}
+
+export const subscribeToServerMessages = <
+  Snapshot extends YobtaCollectionAnySnapshot,
+>(
+  channel: string,
+  getVersion: YobtaLogVersionGetter,
+  callback: YobtaServerSubscriber<Snapshot>,
+): VoidFunction => {
+  const subscription: YobtaServerSubscription<Snapshot> = {
+    callback,
+    channel,
+    getVersion,
+  }
+  addServerSubscription(
+    subscription as unknown as YobtaServerSubscription<YobtaCollectionAnySnapshot>,
+  )
+  const operartion = getSubscribeOperation(channel, getVersion())
+  queueOperation(operartion)
+  return () => {
+    removeServerSubscription(
+      subscription as unknown as YobtaServerSubscription<YobtaCollectionAnySnapshot>,
+    )
+    dequeueOperation(operartion.id)
+    queueOperation(
+      createOperation<YobtaUnsubscribeOperation>({
+        id: `${channel}/unsubscribe`,
+        channel,
+        type: YOBTA_UNSUBSCRIBE,
+      }),
+    )
   }
 }
