@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 interface YobtaChannelMapFactory {
   (): {
-    add(channel: string, clientId: string): Set<string>
+    add(channel: string, clientId: string): boolean
     remove(channel: string, clientId: string): boolean
     clear(): void
     keys(): string[]
@@ -15,7 +15,9 @@ export const createChannelMap: YobtaChannelMapFactory = () => {
       if (!map[channel]) {
         map[channel] = new Set()
       }
-      return map[channel].add(clientId)
+      const added = !map[channel].has(clientId)
+      map[channel].add(clientId)
+      return added
     },
     remove(channel, clientId) {
       if (map[channel]) {

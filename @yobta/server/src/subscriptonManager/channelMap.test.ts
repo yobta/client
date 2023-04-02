@@ -12,19 +12,19 @@ afterEach(() => {
 
 describe('add', () => {
   it('should add a client to a channel', () => {
-    const channelClients = channelMap.add('channel1', 'client1')
+    const added = channelMap.add('channel1', 'client1')
     expect(channelMap.keys()).toContain('channel1')
-    expect(channelClients.has('client1')).toBe(true)
+    expect(added).toBe(true)
   })
   it('should be idempotent for the same client and channel', () => {
-    const channelClients1 = channelMap.add('channel1', 'client1')
-    const channelClients2 = channelMap.add('channel1', 'client1')
-    channelMap.add('channel1', 'client2')
+    const added1 = channelMap.add('channel1', 'client1')
+    const added2 = channelMap.add('channel1', 'client1')
+    const added3 = channelMap.add('channel1', 'client2')
 
-    expect(channelClients1).toBe(channelClients2)
     expect(channelMap.keys()).toEqual(['channel1'])
-    expect(channelClients1.has('client1')).toBe(true)
-    expect(channelClients1.has('client2')).toBe(true)
+    expect(added1).toBe(true)
+    expect(added2).toBe(false)
+    expect(added3).toBe(true)
 
     expect(channelMap.remove('channel1', 'client2')).toBe(false)
     expect(channelMap.remove('channel1', 'client2')).toBe(false)
