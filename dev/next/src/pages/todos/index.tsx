@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 
-import { TodosLayout } from '../components/Todos/TodosLayout'
+import { TodosLayout } from '../../components/Todos/TodosLayout'
 
 const Home: NextPage = () => {
   return <TodosLayout />

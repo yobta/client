@@ -7,6 +7,8 @@ import {
   YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
+  YobtaCollectionUpdateOperation,
+  YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
 import { createClientLog } from './createClientLog.js'
@@ -73,6 +75,20 @@ describe('add', () => {
     }
     log.add([insertOperaion])
     expect(log.last()).toEqual([insertOperaion])
+  })
+  it('supports update operations', () => {
+    const log = createClientLog([])
+    const operaion: YobtaCollectionUpdateOperation<MockSnapshot> = {
+      id: 'op-1',
+      committed: 1,
+      merged: 1,
+      snapshotId: '1',
+      type: YOBTA_COLLECTION_UPDATE,
+      data: { key: 'value 2' },
+      channel: 'channel',
+    }
+    log.add([operaion])
+    expect(log.last()).toEqual([operaion])
   })
   it('supports revalidate operations', () => {
     const log = createClientLog([])

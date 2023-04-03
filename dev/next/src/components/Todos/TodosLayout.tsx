@@ -1,4 +1,6 @@
 import Head from 'next/head'
+import Link from 'next/link'
+import { Home } from '@yobta/ui'
 
 import { TodoList } from './TodoList'
 import { TodoForm } from './TodoForm'
@@ -12,6 +14,9 @@ export const TodosLayout = (): JSX.Element => {
         <title>Todo App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Link href="/" className="sm:fixed p-4 block">
+        <Home />
+      </Link>
       <main className="container max-w-lg mx-auto px-4 min-h-screen">
         <section className="pb-24">
           <TodosHeader />

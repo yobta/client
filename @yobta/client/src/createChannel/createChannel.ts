@@ -22,9 +22,9 @@ import {
   createClientLog,
   YobtaClientLogOperation,
 } from '../createClientLog/createClientLog.js'
-import { createLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
+import { createLogVersionGetter } from '../createClientLog/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
-import { createLogMerger } from '../createLogMerger/createLogMerger.js'
+import { createLogMerger } from '../createClientLog/createLogMerger.js'
 import { operationResult } from '../operationResult/operationResult.js'
 import { subscribeToServerMessages } from '../subscriptions/subscriptions.js'
 import { queueOperation } from '../queue/queue.js'
@@ -72,31 +72,42 @@ export const createChannel: YobtaChannelFactory = <
     collection,
   )
   storeEffect(derivedStore, () => {
+    let unmouted = false
     const getVersion = createLogVersionGetter<Snapshot>(log.last)
-    const unsubscribe = subscribeToServerMessages<Snapshot>(
-      channel,
-      getVersion,
-      operation => {
-        switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
-          case YOBTA_COLLECTION_REVALIDATE:
-          case YOBTA_COLLECTION_UPDATE: {
-            collection.merge([operation])
-            break
-          }
-        }
-        switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
-          case YOBTA_COLLECTION_REVALIDATE:
-          case YOBTA_COLLECTION_DELETE:
-          case YOBTA_COLLECTION_RESTORE:
-          case YOBTA_COLLECTION_MOVE:
-            log.add([operation])
-            break
-        }
-      },
-    )
-    return unsubscribe
+    let unsubscribe: VoidFunction | undefined
+    collection.store.fetch(channel).then(entries => {
+      if (!unmouted) {
+        log.add(entries)
+        unsubscribe = subscribeToServerMessages<Snapshot>(
+          channel,
+          getVersion,
+          operation => {
+            collection.store.put([operation])
+            switch (operation.type) {
+              case YOBTA_COLLECTION_INSERT:
+              case YOBTA_COLLECTION_REVALIDATE:
+              case YOBTA_COLLECTION_UPDATE: {
+                collection.merge([operation])
+                break
+              }
+            }
+            switch (operation.type) {
+              case YOBTA_COLLECTION_INSERT:
+              case YOBTA_COLLECTION_REVALIDATE:
+              case YOBTA_COLLECTION_DELETE:
+              case YOBTA_COLLECTION_RESTORE:
+              case YOBTA_COLLECTION_MOVE:
+                log.add([operation])
+                break
+            }
+          },
+        )
+      }
+    })
+    return () => {
+      unmouted = true
+      unsubscribe?.()
+    }
   })
   const { last, observe, on } = derivedStore
   const publish = async (
@@ -114,6 +125,7 @@ export const createChannel: YobtaChannelFactory = <
     )
     collection.commit(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(data.id)
   }
@@ -130,6 +142,7 @@ export const createChannel: YobtaChannelFactory = <
       },
     )
     collection.commit(operation)
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -143,6 +156,7 @@ export const createChannel: YobtaChannelFactory = <
     })
     queueOperation(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -156,6 +170,7 @@ export const createChannel: YobtaChannelFactory = <
     })
     queueOperation(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -181,6 +196,7 @@ export const createChannel: YobtaChannelFactory = <
     })
     queueOperation(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
   }
   return {

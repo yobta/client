@@ -6,6 +6,7 @@ import {
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
+  YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
 import { createLogMerger } from './createLogMerger.js'
@@ -738,6 +739,24 @@ describe('rejects', () => {
       },
     ])
     expect(result).toEqual([store['item-1']])
+  })
+})
+describe('updates', () => {
+  it('should ignore updates', () => {
+    const result = merge([
+      {
+        id: 'operation-1',
+        channel: 'channel-1',
+        committed: 1,
+        merged: 1,
+        type: YOBTA_COLLECTION_UPDATE,
+        data: {
+          name: 'Item 1',
+        },
+        snapshotId: 'item-1',
+      },
+    ])
+    expect(result).toEqual([])
   })
 })
 describe('unknown operations', () => {
