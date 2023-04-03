@@ -15,7 +15,7 @@ import {
   YOBTA_UNSUBSCRIBE,
 } from '@yobta/protocol'
 
-import { YobtaLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
+import { YobtaLogVersionGetter } from '../createClientLog/createLogVersionGetter.js'
 import { createErrorYobta } from '../errorsStore/errorsStore.js'
 import { getSubscribeOperation } from '../getSubscribeOperation/getSubscribeOperation.js'
 import { notifyOperationObservers } from '../operationResult/operationResult.js'

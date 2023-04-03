@@ -14,7 +14,7 @@ it('should create item if it does not exist', () => {
   expect(item).toEqual([{ id: 'item-1' }, { id: 0 }])
 })
 it('should get item if it exists', () => {
-  const collection = createCollection<Snapshot>([])
+  const collection = createCollection<Snapshot>()
   collection.merge([
     {
       id: 'op-1',

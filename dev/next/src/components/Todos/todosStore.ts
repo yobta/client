@@ -13,7 +13,7 @@ type Todo = {
   time: number
 }
 
-const collection = createCollection<Todo>([])
+const collection = createCollection<Todo>()
 
 const allTodos = createChannel({
   collection,

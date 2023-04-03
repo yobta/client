@@ -22,9 +22,9 @@ import {
   createClientLog,
   YobtaClientLogOperation,
 } from '../createClientLog/createClientLog.js'
-import { createLogVersionGetter } from '../createLogVersionGetter/createLogVersionGetter.js'
+import { createLogVersionGetter } from '../createClientLog/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
-import { createLogMerger } from '../createLogMerger/createLogMerger.js'
+import { createLogMerger } from '../createClientLog/createLogMerger.js'
 import { operationResult } from '../operationResult/operationResult.js'
 import { subscribeToServerMessages } from '../subscriptions/subscriptions.js'
 import { queueOperation } from '../queue/queue.js'
