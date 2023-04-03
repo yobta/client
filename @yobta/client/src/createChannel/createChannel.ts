@@ -72,11 +72,13 @@ export const createChannel: YobtaChannelFactory = <
     collection,
   )
   storeEffect(derivedStore, () => {
+    let unmouted = false
     const getVersion = createLogVersionGetter<Snapshot>(log.last)
     const unsubscribe = subscribeToServerMessages<Snapshot>(
       channel,
       getVersion,
       operation => {
+        collection.store.put([operation])
         switch (operation.type) {
           case YOBTA_COLLECTION_INSERT:
           case YOBTA_COLLECTION_REVALIDATE:
@@ -96,7 +98,15 @@ export const createChannel: YobtaChannelFactory = <
         }
       },
     )
-    return unsubscribe
+    collection.store.fetch(channel).then(entries => {
+      if (!unmouted) {
+        log.add(entries)
+      }
+    })
+    return () => {
+      unmouted = true
+      unsubscribe()
+    }
   })
   const { last, observe, on } = derivedStore
   const publish = async (
@@ -114,6 +124,7 @@ export const createChannel: YobtaChannelFactory = <
     )
     collection.commit(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(data.id)
   }
@@ -130,6 +141,7 @@ export const createChannel: YobtaChannelFactory = <
       },
     )
     collection.commit(operation)
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -143,6 +155,7 @@ export const createChannel: YobtaChannelFactory = <
     })
     queueOperation(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -156,6 +169,7 @@ export const createChannel: YobtaChannelFactory = <
     })
     queueOperation(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -181,6 +195,7 @@ export const createChannel: YobtaChannelFactory = <
     })
     queueOperation(operation)
     log.add([operation])
+    await collection.store.put([operation])
     await operationResult(operation.id)
   }
   return {

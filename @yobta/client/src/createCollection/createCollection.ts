@@ -6,17 +6,13 @@ import {
   YobtaCollectionRevalidateOperation,
   YobtaCollectionInsertOperation,
 } from '@yobta/protocol'
-import {
-  YobtaReadable,
-  createStore,
-  YobtaStorePlugin,
-  YOBTA_READY,
-} from '@yobta/stores'
+import { YobtaReadable, createStore, YOBTA_READY } from '@yobta/stores'
 
 import { queueOperation } from '../queue/queue.js'
 import { getCollecionEntry } from './getCollecionEntry.js'
 import { mergeOperationsToCollection } from './mergeOperationsToCollection.js'
 import { mergeOperationToCollection } from './mergeOperationToCollection.js'
+import { YobtaClientStore } from '../createMemoryStore/createMemoryStore.js'
 
 // #region types
 export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
@@ -24,6 +20,7 @@ export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   merge(operations: YobtaCollectionMergeOperation<Snapshot>[]): void
   get: YobtaGetCollectionSnapshot<Snapshot>
   last(): YobtaCollectionState<Snapshot>
+  store: YobtaClientStore<Snapshot>
 } & YobtaReadable<YobtaCollectionState<Snapshot>, never>
 export type YobtaGetCollectionSnapshot<
   Snapshot extends YobtaCollectionAnySnapshot,
@@ -60,13 +57,17 @@ export type YobtaCollectionEntry<
   ...YobtaCollectionCommitOperation<Snapshot>[],
 ]
 interface YobtaCollectionFactory {
-  <Snapshot extends YobtaCollectionAnySnapshot>(): YobtaCollection<Snapshot>
+  <Snapshot extends YobtaCollectionAnySnapshot>(
+    store: YobtaClientStore<Snapshot>,
+  ): YobtaCollection<Snapshot>
 }
 // #endregion
 
 export const createCollection: YobtaCollectionFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
->() => {
+>(
+  store: YobtaClientStore<Snapshot>,
+) => {
   const { last, next, observe, on } = createStore<
     YobtaCollectionState<Snapshot>,
     never
@@ -114,5 +115,6 @@ export const createCollection: YobtaCollectionFactory = <
     merge,
     observe,
     on,
+    store,
   }
 }

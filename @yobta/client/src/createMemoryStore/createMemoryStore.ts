@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
-import { YobtaCollectionAnySnapshot } from '@yobta/protocol'
+import {
+  YobtaCollectionAnySnapshot,
+  YobtaCollectionDeleteOperation,
+  YobtaCollectionInsertOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
+  YobtaCollectionRevalidateOperation,
+  YobtaRejectOperation,
+} from '@yobta/protocol'
 
 import {
   createClientLog,
@@ -7,19 +15,19 @@ import {
   YobtaClientLog,
 } from '../createClientLog/createClientLog.js'
 
-interface YobtaStoreFactory {
+interface YobtaClientStoreFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     scope: string,
-  ): YobtaStore<Snapshot>
+  ): YobtaClientStore<Snapshot>
 }
 
-export type YobtaStore<Snapshot extends YobtaCollectionAnySnapshot> = {
+export type YobtaClientStore<Snapshot extends YobtaCollectionAnySnapshot> = {
   fetch(channel?: string): Promise<YobtaClientLogOperation<Snapshot>[]>
   put(entries: YobtaClientLogOperation<Snapshot>[]): Promise<void>
   clear(): Promise<void>
 }
 
-export const createMemoryStore: YobtaStoreFactory = <
+export const createMemoryStore: YobtaClientStoreFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
   scope: string,

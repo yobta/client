@@ -7,12 +7,14 @@ import {
   YobtaCollectionRevalidateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
-  YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
-  YOBTA_COLLECTION_RESTORE,
+  YOBTA_COLLECTION_UPDATE,
   YOBTA_COLLECTION_REVALIDATE,
+  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_DELETE,
+  YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
+  YobtaCollectionUpdateOperation,
 } from '@yobta/protocol'
 import { createObservable } from '@yobta/stores'
 
@@ -36,6 +38,7 @@ export type YobtaClientLogOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
 > =
   | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
   | YobtaCollectionMoveOperation
   | YobtaCollectionDeleteOperation
@@ -58,6 +61,7 @@ export const createClientLog: YobtaClientLogFactory = <
     newOperations.forEach(operation => {
       switch (operation.type) {
         case YOBTA_COLLECTION_INSERT:
+        case YOBTA_COLLECTION_UPDATE:
         case YOBTA_COLLECTION_MOVE:
         case YOBTA_COLLECTION_DELETE:
         case YOBTA_COLLECTION_RESTORE:

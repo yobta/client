@@ -1,4 +1,8 @@
-import { createChannel, createCollection } from '@yobta/client'
+import {
+  createChannel,
+  createCollection,
+  createMemoryStore,
+} from '@yobta/client'
 import { YobtaCollectionId } from '@yobta/protocol'
 import { createDerivedStore } from '@yobta/stores'
 import { createHookFromStore } from '@yobta/stores/react'
@@ -13,7 +17,9 @@ type Todo = {
   time: number
 }
 
-const collection = createCollection<Todo>()
+const store = createMemoryStore<Todo>('todos')
+
+const collection = createCollection<Todo>(store)
 
 const allTodos = createChannel({
   collection,

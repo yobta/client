@@ -2,11 +2,14 @@ import { YOBTA_COLLECTION_INSERT } from '@yobta/protocol'
 
 import { createCollection } from './createCollection.js'
 import { getCollecionEntry } from './getCollecionEntry.js'
+import { createMemoryStore } from '../createMemoryStore/createMemoryStore.js'
 
 type Snapshot = {
   id: string
   name: string
 }
+
+const store = createMemoryStore<Snapshot>('test')
 
 it('should create item if it does not exist', () => {
   const mockState = new Map()
@@ -14,7 +17,7 @@ it('should create item if it does not exist', () => {
   expect(item).toEqual([{ id: 'item-1' }, { id: 0 }])
 })
 it('should get item if it exists', () => {
-  const collection = createCollection<Snapshot>()
+  const collection = createCollection(store)
   collection.merge([
     {
       id: 'op-1',

@@ -7,6 +7,7 @@ import {
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
+  YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 import { findLastIndex } from '@yobta/utils'
 
@@ -59,6 +60,8 @@ export const createLogMerger: YobtaLogMergerFactory =
           case YOBTA_COLLECTION_RESTORE:
             deleted.delete(operation.snapshotId)
             return acc
+          case YOBTA_COLLECTION_UPDATE:
+            return acc
           default:
             acc.push(operation)
             return acc
@@ -81,9 +84,6 @@ export const createLogMerger: YobtaLogMergerFactory =
             }
             const snapshot = getSnapshot(snapshotId)
             return insert(nextAcc, snapshot, nextSnapshotId)
-          }
-          case YOBTA_REJECT: {
-            return acc
           }
           default: {
             throw new Error('Unexpected type')
