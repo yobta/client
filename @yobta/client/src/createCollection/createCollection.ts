@@ -60,34 +60,24 @@ export type YobtaCollectionEntry<
   ...YobtaCollectionCommitOperation<Snapshot>[],
 ]
 interface YobtaCollectionFactory {
-  <Snapshot extends YobtaCollectionAnySnapshot>(
-    initial: YobtaCollectionMergeOperation<Snapshot>[],
-    ...plugins: YobtaStorePlugin<YobtaCollectionState<Snapshot>, never>[]
-  ): YobtaCollection<Snapshot>
+  <Snapshot extends YobtaCollectionAnySnapshot>(): YobtaCollection<Snapshot>
 }
 // #endregion
 
 export const createCollection: YobtaCollectionFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
->(
-  initial: YobtaCollectionMergeOperation<Snapshot>[],
-  ...plugins: YobtaStorePlugin<YobtaCollectionState<Snapshot>, never>[]
-) => {
+>() => {
   const { last, next, observe, on } = createStore<
     YobtaCollectionState<Snapshot>,
     never
-  >(
-    mergeOperationsToCollection(new Map(), initial),
-    ({ addMiddleware }) => {
-      addMiddleware(YOBTA_READY, state => {
-        state.forEach(([, , ...operations]) => {
-          operations.forEach(queueOperation)
-        })
-        return state
+  >(new Map(), ({ addMiddleware }) => {
+    addMiddleware(YOBTA_READY, state => {
+      state.forEach(([, , ...operations]) => {
+        operations.forEach(queueOperation)
       })
-    },
-    ...plugins,
-  )
+      return state
+    })
+  })
   const getState = (): YobtaCollectionState<Snapshot> => new Map(last())
   const commit = (
     operation: YobtaCollectionCommitOperation<Snapshot>,
