@@ -74,38 +74,39 @@ export const createChannel: YobtaChannelFactory = <
   storeEffect(derivedStore, () => {
     let unmouted = false
     const getVersion = createLogVersionGetter<Snapshot>(log.last)
-    const unsubscribe = subscribeToServerMessages<Snapshot>(
-      channel,
-      getVersion,
-      operation => {
-        collection.store.put([operation])
-        switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
-          case YOBTA_COLLECTION_REVALIDATE:
-          case YOBTA_COLLECTION_UPDATE: {
-            collection.merge([operation])
-            break
-          }
-        }
-        switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
-          case YOBTA_COLLECTION_REVALIDATE:
-          case YOBTA_COLLECTION_DELETE:
-          case YOBTA_COLLECTION_RESTORE:
-          case YOBTA_COLLECTION_MOVE:
-            log.add([operation])
-            break
-        }
-      },
-    )
+    let unsubscribe: VoidFunction | undefined
     collection.store.fetch(channel).then(entries => {
       if (!unmouted) {
         log.add(entries)
+        unsubscribe = subscribeToServerMessages<Snapshot>(
+          channel,
+          getVersion,
+          operation => {
+            collection.store.put([operation])
+            switch (operation.type) {
+              case YOBTA_COLLECTION_INSERT:
+              case YOBTA_COLLECTION_REVALIDATE:
+              case YOBTA_COLLECTION_UPDATE: {
+                collection.merge([operation])
+                break
+              }
+            }
+            switch (operation.type) {
+              case YOBTA_COLLECTION_INSERT:
+              case YOBTA_COLLECTION_REVALIDATE:
+              case YOBTA_COLLECTION_DELETE:
+              case YOBTA_COLLECTION_RESTORE:
+              case YOBTA_COLLECTION_MOVE:
+                log.add([operation])
+                break
+            }
+          },
+        )
       }
     })
     return () => {
       unmouted = true
-      unsubscribe()
+      unsubscribe?.()
     }
   })
   const { last, observe, on } = derivedStore

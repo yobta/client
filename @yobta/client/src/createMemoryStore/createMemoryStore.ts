@@ -1,13 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
-import {
-  YobtaCollectionAnySnapshot,
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionInsertOperation,
-  YobtaCollectionMoveOperation,
-  YobtaCollectionRestoreOperation,
-  YobtaCollectionRevalidateOperation,
-  YobtaRejectOperation,
-} from '@yobta/protocol'
+import { YobtaCollectionAnySnapshot } from '@yobta/protocol'
 
 import {
   createClientLog,

@@ -5,9 +5,9 @@ import { usePathnameStore } from './pathnameStore'
 import { useTodos } from './todosStore'
 
 const options = [
-  { label: 'All', value: '/' },
-  { label: 'Pending', value: '/pending' },
-  { label: 'Completed', value: '/completed' },
+  { label: 'All', value: '/todos' },
+  { label: 'Pending', value: '/todos/pending' },
+  { label: 'Completed', value: '/todos/completed' },
 ]
 
 export const TodosHeader = (): JSX.Element => {
