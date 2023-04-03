@@ -1,7 +1,7 @@
 import {
   createChannel,
   createCollection,
-  createMemoryStore,
+  createIndexedDbStore,
 } from '@yobta/client'
 import { YobtaCollectionId } from '@yobta/protocol'
 import { createDerivedStore } from '@yobta/stores'
@@ -17,7 +17,7 @@ type Todo = {
   time: number
 }
 
-const store = createMemoryStore<Todo>('todos')
+const store = createIndexedDbStore<Todo>('todos', 1)
 
 const collection = createCollection<Todo>(store)
 
