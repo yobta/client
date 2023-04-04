@@ -4,7 +4,7 @@ import {
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
-import { mergeOperationToCollection } from './mergeOperationToCollection.js'
+import { merge } from './merge.js'
 
 type Snapshot = {
   id: string
@@ -12,7 +12,7 @@ type Snapshot = {
 }
 
 it('should apply insert operation', () => {
-  const item = mergeOperationToCollection([{ id: 'item-1' }, { id: 0 }], {
+  const item = merge([{ id: 'item-1' }, { id: 0 }], {
     id: 'op-1',
     type: YOBTA_COLLECTION_INSERT,
     channel: 'test',
@@ -27,7 +27,7 @@ it('should apply insert operation', () => {
   ])
 })
 it('should apply update operation', () => {
-  const item = mergeOperationToCollection(
+  const item = merge(
     [
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
@@ -52,7 +52,7 @@ it('should not mutate item', () => {
     { id: 'item-1', name: 'test' },
     { id: 1, name: 1 },
   ]
-  const nextItem = mergeOperationToCollection(item as any, {
+  const nextItem = merge(item as any, {
     id: 'op-2',
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
@@ -68,7 +68,7 @@ it('should not mutate versions', () => {
     { id: 'item-1', name: 'test' },
     { id: 1, name: 1 },
   ]
-  const nextItem = mergeOperationToCollection(item as any, {
+  const nextItem = merge(item as any, {
     id: 'op-2',
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
@@ -98,7 +98,7 @@ it('should remove pending operation', () => {
     committed: 3,
     merged: 3,
   }
-  const item = mergeOperationToCollection(
+  const item = merge(
     [{ id: 'item-1', name: 'test' }, { id: 1, name: 1 }, operation, operation2],
     operation,
   )

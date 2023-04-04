@@ -7,7 +7,6 @@ import {
   YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
-  YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_MOVE,
@@ -15,19 +14,15 @@ import {
   YobtaCollectionRestoreOperation,
   YobtaCollectionMoveOperation,
 } from '@yobta/protocol'
-import { createDerivedStore, storeEffect, YobtaReadable } from '@yobta/stores'
+import { createStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
-import {
-  createClientLog,
-  YobtaClientLogOperation,
-} from '../createClientLog/createClientLog.js'
+import { createClientLog } from '../createClientLog/createClientLog.js'
 import { createLogVersionGetter } from '../createClientLog/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
 import { createLogMerger } from '../createClientLog/createLogMerger.js'
 import { operationResult } from '../operationResult/operationResult.js'
 import { subscribeToServerMessages } from '../subscriptions/subscriptions.js'
-import { queueOperation } from '../queue/queue.js'
 
 // #region types
 interface YobtaChannelFactory {
@@ -53,7 +48,6 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
     YobtaReadable<Snapshot[], never>
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
-  operations?: YobtaClientLogOperation<Snapshot>[]
   path: string
 }
 // #endregion
@@ -62,54 +56,46 @@ export const createChannel: YobtaChannelFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >({
   collection,
-  operations = [],
   path: channel,
 }: YobtaChannelProps<Snapshot>) => {
-  const log = createClientLog<Snapshot>(operations)
-  const derivedStore = createDerivedStore<Snapshot[]>(
-    createLogMerger(collection.get),
-    log,
-    collection,
-  )
-  storeEffect(derivedStore, () => {
+  const log = createClientLog<Snapshot>(channel)
+  const snapshotsStore = createStore<Snapshot[], never>([])
+  const mergeSnapshots = createLogMerger(collection.get)
+  storeEffect(snapshotsStore, () => {
     let unmouted = false
     const getVersion = createLogVersionGetter<Snapshot>(log.last)
-    let unsubscribe: VoidFunction | undefined
-    collection.store.fetch(channel).then(entries => {
+    const unsubscribe: VoidFunction[] = [
+      collection.observe(ops => {
+        if (!unmouted) {
+          log.add(ops)
+          const entries = log.last()
+          const nextSnapshots = mergeSnapshots(entries)
+          snapshotsStore.next(nextSnapshots)
+        }
+      }),
+    ]
+    collection.fetch(channel).then(entries => {
       if (!unmouted) {
         log.add(entries)
-        unsubscribe = subscribeToServerMessages<Snapshot>(
-          channel,
-          getVersion,
-          operation => {
-            collection.store.put([operation])
-            switch (operation.type) {
-              case YOBTA_COLLECTION_INSERT:
-              case YOBTA_COLLECTION_REVALIDATE:
-              case YOBTA_COLLECTION_UPDATE: {
-                collection.merge([operation])
-                break
-              }
-            }
-            switch (operation.type) {
-              case YOBTA_COLLECTION_INSERT:
-              case YOBTA_COLLECTION_REVALIDATE:
-              case YOBTA_COLLECTION_DELETE:
-              case YOBTA_COLLECTION_RESTORE:
-              case YOBTA_COLLECTION_MOVE:
-                log.add([operation])
-                break
-            }
-          },
+        unsubscribe.push(
+          subscribeToServerMessages<Snapshot>(
+            channel,
+            getVersion,
+            operation => {
+              collection.put([operation])
+            },
+          ),
         )
       }
     })
     return () => {
       unmouted = true
-      unsubscribe?.()
+      unsubscribe.forEach(fn => {
+        fn()
+      })
     }
   })
-  const { last, observe, on } = derivedStore
+  const { last, observe, on } = snapshotsStore
   const publish = async (
     data: Snapshot,
     nextSnapshotId?: YobtaCollectionId,
@@ -123,9 +109,7 @@ export const createChannel: YobtaChannelFactory = <
         nextSnapshotId,
       },
     )
-    collection.commit(operation)
-    log.add([operation])
-    await collection.store.put([operation])
+    await collection.put([operation])
     await operationResult(operation.id)
     return collection.get(data.id)
   }
@@ -141,8 +125,7 @@ export const createChannel: YobtaChannelFactory = <
         snapshotId,
       },
     )
-    collection.commit(operation)
-    await collection.store.put([operation])
+    await collection.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -154,9 +137,7 @@ export const createChannel: YobtaChannelFactory = <
       channel,
       snapshotId,
     })
-    queueOperation(operation)
-    log.add([operation])
-    await collection.store.put([operation])
+    await collection.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -168,9 +149,7 @@ export const createChannel: YobtaChannelFactory = <
       channel,
       snapshotId,
     })
-    queueOperation(operation)
-    log.add([operation])
-    await collection.store.put([operation])
+    await collection.put([operation])
     await operationResult(operation.id)
     return collection.get(snapshotId)
   }
@@ -194,9 +173,7 @@ export const createChannel: YobtaChannelFactory = <
       snapshotId: item.id,
       nextSnapshotId: nextItem?.id,
     })
-    queueOperation(operation)
-    log.add([operation])
-    await collection.store.put([operation])
+    await collection.put([operation])
     await operationResult(operation.id)
   }
   return {

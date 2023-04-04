@@ -2,10 +2,10 @@ import { YOBTA_REJECT, YobtaRejectOperation } from '@yobta/protocol'
 
 import { createMemoryStore } from './createMemoryStore.js'
 
-const scope = 'test'
+const channel = 'test'
 
 it('creates a memory store', () => {
-  const store = createMemoryStore(scope)
+  const store = createMemoryStore(channel)
   expect(store).toEqual({
     fetch: expect.any(Function),
     put: expect.any(Function),
@@ -13,12 +13,12 @@ it('creates a memory store', () => {
   })
 })
 it('fetches empty array when not populated', async () => {
-  const store = createMemoryStore(scope)
+  const store = createMemoryStore(channel)
   const operations = await store.fetch()
   expect(operations).toEqual([])
 })
 it('fetches operations when populated', async () => {
-  const store = createMemoryStore(scope)
+  const store = createMemoryStore(channel)
   const operationA: YobtaRejectOperation = {
     id: 'op-2',
     channel: 'channel-a',
@@ -46,7 +46,7 @@ it('fetches operations when populated', async () => {
   expect(allOperations).toEqual([operationA, operationB])
 })
 it('clears operations', async () => {
-  const store = createMemoryStore(scope)
+  const store = createMemoryStore(channel)
   const operationA: YobtaRejectOperation = {
     id: 'op-2',
     channel: 'channel-a',

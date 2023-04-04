@@ -11,7 +11,6 @@ import {
 } from '@yobta/protocol'
 import { findLastIndex } from '@yobta/utils'
 
-import { YobtaGetCollectionSnapshot } from '../createCollection/createCollection.js'
 import { YobtaClientLogOperation } from '../createClientLog/createClientLog.js'
 
 interface YobtaLogMergerFactory {
@@ -19,6 +18,10 @@ interface YobtaLogMergerFactory {
     getSnapshot: YobtaGetCollectionSnapshot<Snapshot>,
   ): (operations: YobtaClientLogOperation<Snapshot>[]) => Snapshot[]
 }
+
+type YobtaGetCollectionSnapshot<Snapshot extends YobtaCollectionAnySnapshot> = (
+  id: YobtaCollectionId,
+) => Readonly<Snapshot> | undefined
 
 const insert = <Snapshot extends YobtaCollectionAnySnapshot>(
   snapshots: Snapshot[],

@@ -56,12 +56,7 @@ export const createIndexedDbStore: YobtaIndexedDbStoreFactory = <
             operations.push(cursor.value)
             cursor.continue()
           } else {
-            resolve(
-              operations.sort(
-                (a, b) =>
-                  a.committed - b.committed || Number(a.id) - Number(b.id),
-              ),
-            )
+            resolve(operations.sort((a, b) => a.committed - b.committed))
           }
         }
         request.onerror = event => {

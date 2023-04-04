@@ -19,11 +19,12 @@ import {
 import { createObservable } from '@yobta/stores'
 
 import { addOperation } from './addOperation.js'
+import { clientLogger } from '../clientLogger/clientLogger.js'
 
 // #region types
 interface YobtaClientLogFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
-    operations: YobtaClientLogOperation<Snapshot>[],
+    scope?: string,
   ): YobtaClientLog<Snapshot>
 }
 export type YobtaClientLog<Snapshot extends YobtaCollectionAnySnapshot> =
@@ -49,7 +50,7 @@ export type YobtaClientLogOperation<
 export const createClientLog: YobtaClientLogFactory = <
   Snapshot extends YobtaCollectionAnySnapshot,
 >(
-  initialOperations: YobtaClientLogOperation<Snapshot>[],
+  scope?: string,
 ) => {
   const log: YobtaClientLogOperation<Snapshot>[] = []
   const ids = new Set<YobtaOperationId>()
@@ -58,7 +59,10 @@ export const createClientLog: YobtaClientLogFactory = <
   const last = (): YobtaClientLogOperation<Snapshot>[] => log
   const add: YobtaClientLog<Snapshot>['add'] = newOperations => {
     let shouldUpdate = false
-    newOperations.forEach(operation => {
+    const ops = scope
+      ? newOperations.filter(({ channel }) => channel === scope)
+      : newOperations
+    ops.forEach(operation => {
       switch (operation.type) {
         case YOBTA_COLLECTION_INSERT:
         case YOBTA_COLLECTION_UPDATE:
@@ -76,7 +80,8 @@ export const createClientLog: YobtaClientLogFactory = <
           break
         }
         default:
-          throw new Error('Unknown operation')
+          clientLogger.error('Unknown operation', operation)
+          break
       }
     })
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -84,7 +89,6 @@ export const createClientLog: YobtaClientLogFactory = <
       next(log)
     }
   }
-  add(initialOperations)
   return {
     add,
     last,
