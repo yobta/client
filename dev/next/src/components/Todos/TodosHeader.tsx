@@ -14,7 +14,7 @@ export const TodosHeader = (): JSX.Element => {
   const pathname = usePathnameStore()
   const todos = useTodos()
   return (
-    <header className="my-4 px-4 flex items-center justify-between">
+    <header className="py-4 px-4 flex items-center justify-between">
       <h1 className="text-2xl">
         Todos <sup>{todos.length}</sup>
       </h1>

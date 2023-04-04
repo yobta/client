@@ -14,7 +14,10 @@ export const TodosLayout = (): JSX.Element => {
         <title>Todo App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Link href="/" className="sm:fixed p-4 block">
+      <Link
+        href="/"
+        className="sm:fixed top-2 left-2 yobta-button w-12 h-12 p-0"
+      >
         <Home />
       </Link>
       <main className="container max-w-lg mx-auto px-4 min-h-screen">
