@@ -29,11 +29,10 @@ const allTodos = createChannel({
 const derivedTodos = createDerivedStore(
   (todos, pathname) => {
     switch (pathname) {
-      case '/pending':
+      case '/todos/pending':
         return todos.filter((todo) => !todo.completed)
-      case '/completed':
+      case '/todos/completed':
         return todos.filter((todo) => todo.completed)
-      case '/':
       default:
         return todos
     }
