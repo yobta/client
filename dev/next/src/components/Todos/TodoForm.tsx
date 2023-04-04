@@ -43,7 +43,7 @@ const handleSubmit = asyncYobta(
 export const TodoForm: TodoFormFC = () => {
   const key = useStore(busyStore)
   const pathname = usePathnameStore()
-  const disabled = pathname === '/completed'
+  const disabled = pathname === '/todos/completed'
   return (
     <form
       noValidate
