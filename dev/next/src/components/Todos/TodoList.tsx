@@ -41,6 +41,7 @@ export const TodoList: TodoListFC = () => {
                     onChange={() => {
                       updateTodo(id, { completed: !completed })
                     }}
+                    key={String(completed)}
                     type="checkbox"
                   />
                 </label>
