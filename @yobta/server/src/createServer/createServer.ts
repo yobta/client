@@ -8,6 +8,7 @@ import {
   YobtaUnsubscribeOperation,
   YOBTA_RECEIVED,
   YOBTA_REJECT,
+  YobtaServerOperation,
 } from '@yobta/protocol'
 import { coerceError } from '@yobta/utils'
 
@@ -16,7 +17,6 @@ import { registerConnection } from '../subscriptonManager/subscriptonManager.js'
 import { parseClientMessage } from '../parseClientMessage/parseClientMessage.js'
 import { broadcastClientMessage } from '../router/router.js'
 import { serverLogger } from '../serverLogger/serverLogger.js'
-import { YobtaServerLogSearchResult } from '../createMemoryLog/createMemoryLog.js'
 
 interface ServerFactory {
   (wss: WebSocketServer): void
@@ -27,7 +27,7 @@ export type ServerCallbacks = {
     operation: YobtaClientOperation<YobtaCollectionAnySnapshot>,
     reason: YobtaRejectOperation['reason'],
   ): void
-  sendBack(operations: YobtaServerLogSearchResult[]): void
+  sendBack(operations: YobtaServerOperation<YobtaCollectionAnySnapshot>[]): void
   subscribe(clientId: string, operation: YobtaSubscribeOperation): void
   unsubscribe(clientId: string, operation: YobtaUnsubscribeOperation): void
 }

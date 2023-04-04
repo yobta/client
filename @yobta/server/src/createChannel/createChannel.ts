@@ -18,6 +18,7 @@ import { YobtaCollection } from '../createCollection/createCollection.js'
 import { ServerCallbacks } from '../createServer/createServer.js'
 import { onClientMessage } from '../router/router.js'
 import { serverLogger } from '../serverLogger/serverLogger.js'
+import { notifySibscribers } from '../subscriptonManager/subscriptonManager.js'
 
 interface YobtaChannelFactory {
   <Snapshot extends YobtaCollectionAnySnapshot, Route extends string>(
@@ -87,7 +88,9 @@ export const createChannel: YobtaChannelFactory = <
         case YOBTA_COLLECTION_RESTORE:
         case YOBTA_COLLECTION_MOVE: {
           await access.write({ params, headers, operation })
-          await collection.merge({ headers, operation })
+          const merged = await collection.merge({ headers, operation })
+          sendBack([merged])
+          notifySibscribers([merged])
           break
         }
         default:

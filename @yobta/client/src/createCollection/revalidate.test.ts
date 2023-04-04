@@ -4,7 +4,7 @@ import {
 } from '@yobta/protocol'
 
 import { YobtaCollectionEntry } from './createCollection.js'
-import { revalidateCollectionEntry } from './revalidateCollectionEntry.js'
+import { revalidate } from './revalidate.js'
 
 type Snapshot = {
   id: string
@@ -12,7 +12,7 @@ type Snapshot = {
 }
 
 it('should apply revalidate operation', () => {
-  const item = revalidateCollectionEntry([{ id: '' }, { id: 0 }], {
+  const item = revalidate([{ id: '' }, { id: 0 }], {
     id: 'op-1',
     type: YOBTA_COLLECTION_REVALIDATE,
     channel: 'channel',
@@ -30,7 +30,7 @@ it('should apply revalidate operation', () => {
   ])
 })
 it('should respect committed', () => {
-  const item = revalidateCollectionEntry(
+  const item = revalidate(
     [
       { id: 'item-1', name: 'john', email: 'j@m.com' },
       { id: 1, name: 5, email: 5 },
@@ -59,7 +59,7 @@ it('should not mutate entry', () => {
     { id: 'item-1', name: 'john' },
     { id: 1, name: 5 },
   ]
-  const nextEntry = revalidateCollectionEntry(entry, {
+  const nextEntry = revalidate(entry, {
     id: 'op-1',
     type: YOBTA_COLLECTION_REVALIDATE,
     channel: 'channel',
@@ -87,7 +87,7 @@ it('should return same pending operations', () => {
       snapshotId: 'item-1',
     },
   ]
-  const nextEntry = revalidateCollectionEntry(entry, {
+  const nextEntry = revalidate(entry, {
     id: 'op-1',
     type: YOBTA_COLLECTION_REVALIDATE,
     channel: 'channel',

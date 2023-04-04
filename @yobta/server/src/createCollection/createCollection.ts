@@ -9,7 +9,6 @@ import {
   YobtaServerLog,
   YobtaServerLogSearchResult,
 } from '../createMemoryLog/createMemoryLog.js'
-import { notifySibscribers } from '../subscriptonManager/subscriptonManager.js'
 
 interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(
@@ -32,7 +31,9 @@ export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   revalidate(
     operation: YobtaSubscribeOperation,
   ): Promise<YobtaServerLogSearchResult[]>
-  merge(operation: YobtaCollectionMessage<Snapshot>): Promise<void>
+  merge(
+    operation: YobtaCollectionMessage<Snapshot>,
+  ): Promise<YobtaCollectionOperation<Snapshot>>
 }
 
 export const createCollection: YobtaCollectionFactory = <
@@ -45,12 +46,8 @@ export const createCollection: YobtaCollectionFactory = <
     get name() {
       return name
     },
-    revalidate(operation) {
-      return log.find(operation.channel, operation.merged)
-    },
-    async merge({ operation }: YobtaCollectionMessage<Snapshot>) {
-      const loggedOperation = await log.merge(name, operation)
-      notifySibscribers([loggedOperation])
-    },
+    revalidate: operation => log.find(operation.channel, operation.merged),
+    merge: ({ operation }: YobtaCollectionMessage<Snapshot>) =>
+      log.merge(name, operation),
   }
 }

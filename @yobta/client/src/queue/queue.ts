@@ -5,6 +5,8 @@ import {
   YobtaCollectionAnySnapshot,
 } from '@yobta/protocol'
 
+import { clientLogger } from '../clientLogger/clientLogger.js'
+
 const queue = new Map<
   YobtaOperationId,
   YobtaClientOperation<YobtaCollectionAnySnapshot>
@@ -25,6 +27,7 @@ export const queueOperation = <Snapshot extends YobtaCollectionAnySnapshot>(
   operation: YobtaClientOperation<Snapshot>,
 ): void => {
   queue.set(operation.id, operation)
+  clientLogger.debug('queueOperation', operation)
   crosstabChannel.next(operation)
 }
 

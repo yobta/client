@@ -27,7 +27,7 @@ export const createMemoryStore: YobtaClientStoreFactory = <
   const map: Record<string, YobtaClientLog<Snapshot>> = {}
   const getLog = (): YobtaClientLog<Snapshot> => {
     if (!map[scope]) {
-      map[scope] = createClientLog<Snapshot>([])
+      map[scope] = createClientLog<Snapshot>()
     }
     return map[scope]
   }
