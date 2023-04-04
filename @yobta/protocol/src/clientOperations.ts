@@ -40,7 +40,6 @@ export const YOBTA_SUBSCRIBE = 'yobta-subscribe'
 export type YobtaSubscribeOperation = {
   id: YobtaOperationId
   channel: string
-  version: number
   committed: number
   merged: number
   type: typeof YOBTA_SUBSCRIBE

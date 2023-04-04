@@ -46,7 +46,7 @@ export const createCollection: YobtaCollectionFactory = <
     get name() {
       return name
     },
-    revalidate: operation => log.find(operation.channel, operation.merged),
+    revalidate: ({ channel, merged }) => log.find(channel, merged),
     merge: ({ operation }: YobtaCollectionMessage<Snapshot>) =>
       log.merge(name, operation),
   }
