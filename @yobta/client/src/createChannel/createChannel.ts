@@ -13,6 +13,7 @@ import {
   YobtaCollectionDeleteOperation,
   YobtaCollectionRestoreOperation,
   YobtaCollectionMoveOperation,
+  YOBTA_BATCH,
 } from '@yobta/protocol'
 import { createStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
@@ -82,7 +83,9 @@ export const createChannel: YobtaChannelFactory = <
             channel,
             getVersion,
             operation => {
-              collection.put([operation])
+              const payLoad =
+                operation.type === YOBTA_BATCH ? operation.data : [operation]
+              collection.put(payLoad)
             },
           ),
         )

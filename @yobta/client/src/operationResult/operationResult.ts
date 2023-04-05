@@ -11,6 +11,7 @@ import {
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_UPDATE,
   YOBTA_REJECT,
+  YobtaBatchOperation,
 } from '@yobta/protocol'
 
 interface OperationResultPromiseFactory {
@@ -21,6 +22,7 @@ type SupportedOperation =
   | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionUpdateOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>
+  | YobtaBatchOperation<YobtaCollectionAnySnapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
   | YobtaCollectionMoveOperation

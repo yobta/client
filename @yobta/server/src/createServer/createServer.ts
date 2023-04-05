@@ -27,7 +27,9 @@ export type ServerCallbacks = {
     operation: YobtaClientOperation<YobtaCollectionAnySnapshot>,
     reason: YobtaRejectOperation['reason'],
   ): void
-  sendBack(operations: YobtaServerOperation<YobtaCollectionAnySnapshot>[]): void
+  sendBack<Snapshot extends YobtaCollectionAnySnapshot>(
+    operations: YobtaServerOperation<Snapshot>[],
+  ): void
   subscribe(clientId: string, operation: YobtaSubscribeOperation): void
   unsubscribe(clientId: string, operation: YobtaUnsubscribeOperation): void
 }

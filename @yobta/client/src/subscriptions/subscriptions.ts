@@ -13,6 +13,7 @@ import {
   YobtaCollectionMoveOperation,
   YobtaUnsubscribeOperation,
   YOBTA_UNSUBSCRIBE,
+  YobtaBatchOperation,
 } from '@yobta/protocol'
 
 import { YobtaLogVersionGetter } from '../createClientLog/createLogVersionGetter.js'
@@ -41,6 +42,7 @@ type Operation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
   | YobtaCollectionMoveOperation
+  | YobtaBatchOperation<Snapshot>
 // #endregion
 
 const serverSubscriptionsStore = new Set<

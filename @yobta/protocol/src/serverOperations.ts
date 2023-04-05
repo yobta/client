@@ -31,6 +31,24 @@ export type YobtaRejectOperation = {
   merged: number
 }
 
+export const YOBTA_BATCH = 'yobta-batch'
+export type YobtaBatchedOperation<Snapshot extends YobtaCollectionAnySnapshot> =
+
+    | YobtaCollectionRevalidateOperation<Snapshot>
+    | YobtaCollectionDeleteOperation
+    | YobtaCollectionRestoreOperation
+    | YobtaCollectionMoveOperation
+
+export type YobtaBatchOperation<Snapshot extends YobtaCollectionAnySnapshot> = {
+  id: YobtaOperationId
+  channel: string
+  committed?: never
+  merged?: never
+  type: typeof YOBTA_BATCH
+  data: YobtaBatchedOperation<Snapshot>[]
+  snapshotId?: never
+}
+
 export type YobtaServerOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaReceived
   | YobtaRejectOperation
@@ -40,6 +58,7 @@ export type YobtaServerOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
   | YobtaCollectionMoveOperation
+  | YobtaBatchOperation<Snapshot>
 
 export type YobtaServerDataOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
