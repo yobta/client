@@ -93,11 +93,11 @@ export const handleRemoteOperation = (
       if (operation.type === YOBTA_REJECT) {
         createErrorYobta(operation)
       }
-      notifyOperationObservers(operation)
       notifySubscribers(operation)
       break
     }
   }
+  notifyOperationObservers(operation)
 }
 
 export const subscribeToServerMessages = <
