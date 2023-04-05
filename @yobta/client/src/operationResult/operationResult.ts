@@ -1,66 +1,41 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionInsertOperation,
-  YobtaCollectionMoveOperation,
-  YobtaCollectionRestoreOperation,
-  YobtaCollectionRevalidateOperation,
-  YobtaCollectionUpdateOperation,
-  YobtaOperationId,
-  YobtaRejectOperation,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_UPDATE,
   YOBTA_REJECT,
-  YobtaBatchOperation,
+  YobtaServerOperation,
+  YobtaClientDataOperation,
 } from '@yobta/protocol'
 
-interface OperationResultPromiseFactory {
-  (operationId: YobtaOperationId): Promise<void>
-}
-
-type SupportedOperation =
-  | YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot>
-  | YobtaCollectionUpdateOperation<YobtaCollectionAnySnapshot>
-  | YobtaCollectionRevalidateOperation<YobtaCollectionAnySnapshot>
-  | YobtaBatchOperation<YobtaCollectionAnySnapshot>
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
-  | YobtaCollectionMoveOperation
-  | YobtaRejectOperation
-  | YobtaRejectOperation
-
-type Observer = (operation: SupportedOperation) => void
+type Observer = (
+  operation: YobtaServerOperation<YobtaCollectionAnySnapshot>,
+) => void
 
 export const operationResultObservers = new Set<Observer>()
 
 export const notifyOperationObservers = (
-  operation: SupportedOperation,
+  operation: YobtaServerOperation<YobtaCollectionAnySnapshot>,
 ): void => {
   operationResultObservers.forEach(observer => {
     observer(operation)
   })
 }
 
-export const operationResult: OperationResultPromiseFactory = operationId =>
+export const operationResult = ({
+  id,
+}: YobtaClientDataOperation<YobtaCollectionAnySnapshot>): Promise<void> =>
   new Promise((resolve, reject) => {
-    const ovserver: Observer = operation => {
-      switch (operation.type) {
-        case YOBTA_COLLECTION_INSERT:
-        case YOBTA_COLLECTION_UPDATE: {
-          if (operation.id === operationId) {
-            resolve()
-            operationResultObservers.delete(ovserver)
-          }
-          break
-        }
-        case YOBTA_REJECT: {
-          if (operation.operationId === operationId) {
-            reject(new Error(operation.reason))
-            operationResultObservers.delete(ovserver)
-          }
-          break
-        }
+    const observer: Observer = serverOperation => {
+      if (
+        serverOperation.type === YOBTA_REJECT &&
+        serverOperation.operationId === id
+      ) {
+        operationResultObservers.delete(observer)
+        reject(new Error(serverOperation.reason))
+        return
+      }
+      if (serverOperation.id === id) {
+        operationResultObservers.delete(observer)
+        resolve()
       }
     }
-    operationResultObservers.add(ovserver)
+    operationResultObservers.add(observer)
   })

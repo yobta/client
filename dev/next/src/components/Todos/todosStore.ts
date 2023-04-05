@@ -62,7 +62,7 @@ export const updateTodo = allTodos.update
 export const moveTodo = allTodos.move
 
 export const addTodo = async ({ text }: { text: string }): Promise<void> => {
-  await allTodos.publish({
+  await allTodos.insert({
     id: Date.now().toString(),
     text,
     completed: false,

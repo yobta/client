@@ -80,7 +80,7 @@ Publishing can be thought of as linking in relational databases.
 
 ```ts
 const nextSnapshotId = 'todo-1'
-const snapshot = await myTodos.publish(
+const snapshot = await myTodos.insert(
   {
     id: 'todo-2',
     text: 'More docs',

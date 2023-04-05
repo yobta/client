@@ -33,7 +33,7 @@ interface YobtaChannelFactory {
 }
 export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
   Readonly<{
-    publish: (snapshot: Snapshot) => Promise<Snapshot | undefined>
+    insert: (snapshot: Snapshot) => Promise<Snapshot | undefined>
     update: (
       id: YobtaCollectionId,
       snapshot: YobtaCollectionPatchWithoutId<Snapshot>,
@@ -99,7 +99,7 @@ export const createChannel: YobtaChannelFactory = <
     }
   })
   const { last, observe, on } = snapshotsStore
-  const publish = async (
+  const insert = async (
     data: Snapshot,
     nextSnapshotId?: YobtaCollectionId,
   ): Promise<Snapshot | undefined> => {
@@ -113,7 +113,7 @@ export const createChannel: YobtaChannelFactory = <
       },
     )
     await collection.put([operation])
-    await operationResult(operation.id)
+    await operationResult(operation)
     return collection.get(data.id)
   }
   const update = async (
@@ -129,7 +129,7 @@ export const createChannel: YobtaChannelFactory = <
       },
     )
     await collection.put([operation])
-    await operationResult(operation.id)
+    await operationResult(operation)
     return collection.get(snapshotId)
   }
   const del = async (
@@ -141,7 +141,7 @@ export const createChannel: YobtaChannelFactory = <
       snapshotId,
     })
     await collection.put([operation])
-    await operationResult(operation.id)
+    await operationResult(operation)
     return collection.get(snapshotId)
   }
   const restore = async (
@@ -153,7 +153,7 @@ export const createChannel: YobtaChannelFactory = <
       snapshotId,
     })
     await collection.put([operation])
-    await operationResult(operation.id)
+    await operationResult(operation)
     return collection.get(snapshotId)
   }
   const move = async (
@@ -177,11 +177,11 @@ export const createChannel: YobtaChannelFactory = <
       nextSnapshotId: nextItem?.id,
     })
     await collection.put([operation])
-    await operationResult(operation.id)
+    await operationResult(operation)
   }
   return {
     delete: del,
-    publish,
+    insert,
     last,
     move,
     observe,
