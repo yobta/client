@@ -74,8 +74,8 @@ export const createChannel: YobtaChannelFactory = <
         case YOBTA_SUBSCRIBE: {
           await access.read({ params, headers, operation })
           subscribe(clientId, operation)
-          const entries = await collection.revalidate(operation)
-          sendBack(entries)
+          const batch = await collection.revalidate(operation)
+          sendBack([batch])
           break
         }
         case YOBTA_UNSUBSCRIBE: {
