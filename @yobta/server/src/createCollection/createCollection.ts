@@ -1,12 +1,8 @@
 import {
-  YOBTA_BATCH,
-  YobtaBatchOperation,
   YobtaCollectionAnySnapshot,
   YobtaCollectionOperation,
   YobtaHeaders,
-  YobtaSubscribeOperation,
 } from '@yobta/protocol'
-import { nanoid } from 'nanoid'
 
 import { YobtaServerLog } from '../createMemoryLog/createMemoryLog.js'
 
@@ -27,9 +23,7 @@ export type YobtaCollectionMessage<
 }
 export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   name: string
-  revalidate(
-    operation: YobtaSubscribeOperation,
-  ): Promise<YobtaBatchOperation<Snapshot>>
+  revalidate: YobtaServerLog<Snapshot>['find']
   merge(
     message: YobtaCollectionMessage<Snapshot>,
   ): Promise<YobtaCollectionOperation<Snapshot>>
@@ -45,16 +39,7 @@ export const createCollection: YobtaCollectionFactory = <
     get name() {
       return name
     },
-    revalidate: async ({ channel, merged }) => {
-      const data = await log.find(channel, merged)
-      const operation: YobtaBatchOperation<Snapshot> = {
-        id: nanoid(),
-        channel,
-        type: YOBTA_BATCH,
-        data,
-      }
-      return operation
-    },
+    revalidate: log.find,
     merge: ({ operation }: YobtaCollectionMessage<Snapshot>) =>
       log.merge(name, operation),
   }

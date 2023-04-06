@@ -11,8 +11,11 @@ import {
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_MOVE,
   YobtaHeaders,
+  YobtaBatchOperation,
+  YOBTA_BATCH,
 } from '@yobta/protocol'
-import { YobtaRouteParams } from '@yobta/utils'
+import { YobtaRouteParams, coerceError } from '@yobta/utils'
+import { nanoid } from 'nanoid'
 
 import { YobtaCollection } from '../createCollection/createCollection.js'
 import { ServerCallbacks } from '../createServer/createServer.js'
@@ -31,6 +34,7 @@ type YobtaChannelProps<
   Route extends string,
 > = {
   collection: YobtaCollection<Snapshot>
+  chunkSize: number
   route: Route
   access: {
     read(message: {
@@ -61,6 +65,7 @@ export const createChannel: YobtaChannelFactory = <
 >({
   access,
   collection,
+  chunkSize,
   route,
 }: YobtaChannelProps<Snapshot, Route>) =>
   onClientMessage<Route, [Message<Snapshot>, ServerCallbacks]>(
@@ -68,14 +73,38 @@ export const createChannel: YobtaChannelFactory = <
     async (
       params,
       { clientId, headers, operation },
-      { sendBack, subscribe, unsubscribe },
+      { reject, sendBack, subscribe, unsubscribe },
     ) => {
       switch (operation.type) {
         case YOBTA_SUBSCRIBE: {
           await access.read({ params, headers, operation })
           subscribe(clientId, operation)
-          const batch = await collection.revalidate(operation)
-          sendBack([batch])
+          const stream = collection.revalidate(
+            operation.channel,
+            operation.merged,
+            chunkSize,
+          )
+          let sentCount = 0
+          let chunkCount = 0
+          try {
+            for await (const data of stream) {
+              sentCount += data.length
+              chunkCount += 1
+              serverLogger.debug(`Sending chunk ${chunkCount}`)
+              const batch: YobtaBatchOperation<Snapshot> = {
+                id: nanoid(),
+                channel: route,
+                type: YOBTA_BATCH,
+                data,
+              }
+              sendBack([batch])
+            }
+          } catch (err) {
+            const error = coerceError(err)
+            reject(operation, error.message)
+            serverLogger.error(err)
+          }
+          serverLogger.debug(`Operations sent: ${sentCount}`, operation)
           break
         }
         case YOBTA_UNSUBSCRIBE: {
