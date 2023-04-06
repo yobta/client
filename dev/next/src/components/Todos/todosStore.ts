@@ -4,7 +4,10 @@ import {
   createIndexedDbStore,
   // createMemoryStore,
 } from '@yobta/client'
-import { YobtaCollectionId } from '@yobta/protocol'
+import {
+  YobtaCollectionId,
+  YobtaCollectionInsertOperation,
+} from '@yobta/protocol'
 import { createDerivedStore } from '@yobta/stores'
 import { createHookFromStore } from '@yobta/stores/react'
 
@@ -61,11 +64,14 @@ export const deleteTodo = (id: YobtaCollectionId): void => {
 export const updateTodo = allTodos.update
 export const moveTodo = allTodos.move
 
-export const addTodo = async ({ text }: { text: string }): Promise<void> => {
-  await allTodos.insert({
+export const addTodo = ({
+  text,
+}: {
+  text: string
+}): YobtaCollectionInsertOperation<Todo> =>
+  allTodos.insert({
     id: Date.now().toString(),
     text,
     completed: false,
     time: Date.now(),
   })
-}

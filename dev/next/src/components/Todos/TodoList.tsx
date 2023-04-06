@@ -39,7 +39,7 @@ export const TodoList: TodoListFC = () => {
                       completed && 'yobta-ink-info'
                     )}
                     onChange={() => {
-                      updateTodo(id, { completed: !completed })
+                      updateTodo({ id, completed: !completed })
                     }}
                     key={String(completed)}
                     type="checkbox"
@@ -57,7 +57,7 @@ export const TodoList: TodoListFC = () => {
                   const { value } = event.target
                   const trimmed = value.trim()
                   if (trimmed === text) return
-                  updateTodo(id, { text: trimmed })
+                  updateTodo({ id, text: trimmed })
                 }}
               />
               <Toggle>

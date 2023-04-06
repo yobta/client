@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import {
-  YobtaCollectionPatchWithoutId,
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
   YobtaCollectionInsertOperation,
@@ -14,6 +13,8 @@ import {
   YobtaCollectionRestoreOperation,
   YobtaCollectionMoveOperation,
   YOBTA_BATCH,
+  YobtaCollectionPatchWithId,
+  YobtaCollectionPatchWithoutId,
 } from '@yobta/protocol'
 import { createStore, storeEffect, YobtaReadable } from '@yobta/stores'
 
@@ -22,8 +23,8 @@ import { createClientLog } from '../createClientLog/createClientLog.js'
 import { createLogVersionGetter } from '../createClientLog/createLogVersionGetter.js'
 import { createOperation } from '../createOperation/createOperation.js'
 import { createLogMerger } from '../createClientLog/createLogMerger.js'
-import { operationResult } from '../operationResult/operationResult.js'
 import { subscribeToServerMessages } from '../subscriptions/subscriptions.js'
+import { clientLogger } from '../clientLogger/clientLogger.js'
 
 // #region types
 interface YobtaChannelFactory {
@@ -33,20 +34,27 @@ interface YobtaChannelFactory {
 }
 export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
   Readonly<{
-    insert: (snapshot: Snapshot) => Promise<Snapshot | undefined>
-    update: (
-      id: YobtaCollectionId,
-      snapshot: YobtaCollectionPatchWithoutId<Snapshot>,
-    ) => Promise<Snapshot | undefined>
-    delete: (id: YobtaCollectionId) => Promise<Snapshot | undefined>
-    restore: (id: YobtaCollectionId) => Promise<Snapshot | undefined>
-    move: (
+    insert(
+      snapshot: Snapshot,
+      nextSnapshotId?: YobtaCollectionId,
+    ): Readonly<YobtaCollectionInsertOperation<Snapshot>>
+    update<S extends Snapshot>(
+      snapshot: YobtaCollectionPatchWithId<S>,
+    ): Readonly<YobtaCollectionUpdateOperation<S>>
+    delete<Id extends YobtaCollectionId>(
+      id: Id,
+    ): Readonly<YobtaCollectionDeleteOperation & { snapshotId: Id }>
+    restore<Id extends YobtaCollectionId>(
+      id: Id,
+    ): Readonly<YobtaCollectionRestoreOperation & { snapshotId: Id }>
+    move(
       snapshots: Snapshot[],
       from?: number | null,
       to?: number | null,
-    ) => Promise<void>
+    ): Readonly<YobtaCollectionMoveOperation> | null
   }> &
     YobtaReadable<Snapshot[], never>
+
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
   path: string
@@ -99,94 +107,72 @@ export const createChannel: YobtaChannelFactory = <
     }
   })
   const { last, observe, on } = snapshotsStore
-  const insert = async (
-    data: Snapshot,
-    nextSnapshotId?: YobtaCollectionId,
-  ): Promise<Snapshot | undefined> => {
-    const operation: YobtaCollectionInsertOperation<Snapshot> = createOperation(
-      {
-        type: YOBTA_COLLECTION_INSERT,
-        data,
-        channel,
-        snapshotId: data.id,
-        nextSnapshotId,
-      },
-    )
-    await collection.put([operation])
-    await operationResult(operation)
-    return collection.get(data.id)
-  }
-  const update = async (
-    snapshotId: YobtaCollectionId,
-    data: YobtaCollectionPatchWithoutId<Snapshot>,
-  ): Promise<Snapshot | undefined> => {
-    const operation: YobtaCollectionUpdateOperation<Snapshot> = createOperation(
-      {
-        type: YOBTA_COLLECTION_UPDATE,
-        data,
-        channel,
-        snapshotId,
-      },
-    )
-    await collection.put([operation])
-    await operationResult(operation)
-    return collection.get(snapshotId)
-  }
-  const del = async (
-    snapshotId: YobtaCollectionId,
-  ): Promise<Snapshot | undefined> => {
-    const operation: YobtaCollectionDeleteOperation = createOperation({
-      type: YOBTA_COLLECTION_DELETE,
-      channel,
-      snapshotId,
-    })
-    await collection.put([operation])
-    await operationResult(operation)
-    return collection.get(snapshotId)
-  }
-  const restore = async (
-    snapshotId: YobtaCollectionId,
-  ): Promise<Snapshot | undefined> => {
-    const operation: YobtaCollectionRestoreOperation = createOperation({
-      type: YOBTA_COLLECTION_RESTORE,
-      channel,
-      snapshotId,
-    })
-    await collection.put([operation])
-    await operationResult(operation)
-    return collection.get(snapshotId)
-  }
-  const move = async (
-    snapshots: Snapshot[],
-    from?: number | null,
-    to?: number | null,
-  ): Promise<void> => {
-    let fixedTo = to === snapshots.length - 1 ? null : to
-    if (typeof fixedTo === 'number' && fixedTo > (from ?? 0)) {
-      fixedTo = fixedTo + 1
-    }
-    const item = snapshots[from ?? -1]
-    const nextItem = snapshots[fixedTo ?? -1]
-    if (!item) {
-      return
-    }
-    const operation: YobtaCollectionMoveOperation = createOperation({
-      type: YOBTA_COLLECTION_MOVE,
-      channel,
-      snapshotId: item.id,
-      nextSnapshotId: nextItem?.id,
-    })
-    await collection.put([operation])
-    await operationResult(operation)
-  }
+  const putOrCatch: typeof collection.put = (...operations) =>
+    collection.put(...operations).catch(clientLogger.error)
   return {
-    delete: del,
-    insert,
+    delete<Id extends YobtaCollectionId>(snapshotId: Id) {
+      const operation: YobtaCollectionDeleteOperation & { snapshotId: Id } =
+        createOperation({
+          type: YOBTA_COLLECTION_DELETE,
+          channel,
+          snapshotId,
+        })
+      putOrCatch([operation])
+      return operation
+    },
+    insert(data: Snapshot, nextSnapshotId) {
+      const operation: YobtaCollectionInsertOperation<Snapshot> =
+        createOperation({
+          type: YOBTA_COLLECTION_INSERT,
+          data,
+          channel,
+          snapshotId: data.id,
+          nextSnapshotId,
+        })
+      putOrCatch([operation])
+      return operation
+    },
     last,
-    move,
+    move(snapshots, from, to) {
+      let fixedTo = to === snapshots.length - 1 ? null : to
+      if (typeof fixedTo === 'number' && fixedTo > (from ?? 0)) {
+        fixedTo = fixedTo + 1
+      }
+      const item = snapshots[from ?? -1]
+      const nextItem = snapshots[fixedTo ?? -1]
+      if (!item) {
+        return null
+      }
+      const operation: YobtaCollectionMoveOperation = createOperation({
+        type: YOBTA_COLLECTION_MOVE,
+        channel,
+        snapshotId: item.id,
+        nextSnapshotId: nextItem?.id,
+      })
+      putOrCatch([operation])
+      return operation
+    },
     observe,
     on,
-    restore,
-    update,
+    restore<Id extends YobtaCollectionId>(snapshotId: Id) {
+      const operation: YobtaCollectionRestoreOperation & { snapshotId: Id } =
+        createOperation({
+          type: YOBTA_COLLECTION_RESTORE,
+          channel,
+          snapshotId,
+        })
+      putOrCatch([operation])
+      return operation
+    },
+    update<S extends Snapshot>({ id, ...data }: YobtaCollectionPatchWithId<S>) {
+      const operation: YobtaCollectionUpdateOperation<S> = createOperation({
+        type: YOBTA_COLLECTION_UPDATE,
+        data: data as YobtaCollectionPatchWithoutId<S>,
+        channel,
+        snapshotId: id,
+      })
+      putOrCatch([operation])
+      return operation
+    },
   }
 }
