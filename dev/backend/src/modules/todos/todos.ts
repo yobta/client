@@ -17,6 +17,7 @@ const collection = createCollection<Todo>({
 createChannel({
   route: 'all-todos',
   collection,
+  chunkSize: 20,
   access: {
     async read() {},
     async write() {},

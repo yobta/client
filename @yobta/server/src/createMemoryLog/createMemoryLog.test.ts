@@ -27,10 +27,16 @@ describe('log factory', () => {
   })
 })
 
+const chunkSize = 20
+
 describe('log read', () => {
   it('reads an empty log', async () => {
     const log = createMemoryLog()
-    const result = await log.find('channel', 0)
+    const stream = log.find('channel', 0, chunkSize)
+    const result = []
+    for await (const item of stream) {
+      result.push(item)
+    }
     expect(result).toEqual([])
   })
   it('returns matching items', async () => {
@@ -52,29 +58,36 @@ describe('log read', () => {
       committed: 1,
       merged: 0,
     })
-    const result = await log.find('channel', 0)
+    const stream = log.find('channel', 0, 10)
+    const result = []
+    for await (const item of stream) {
+      result.push(item)
+    }
+    expect
     expect(result).toEqual([
-      {
-        id: 'op-1',
-        type: YOBTA_COLLECTION_REVALIDATE,
-        channel: 'channel',
-        snapshotId: 'snapshot-id',
-        nextSnapshotId: undefined,
-        committed: 1,
-        merged: expect.any(Number),
-        data: [
-          ['id', 'snapshot-id', 1, expect.any(Number)],
-          ['one', 'value', 1, expect.any(Number)],
-        ],
-      },
-      {
-        id: 'op-2',
-        channel: 'channel',
-        type: YOBTA_COLLECTION_DELETE,
-        snapshotId: 'snapshot-id',
-        committed: 1,
-        merged: expect.any(Number),
-      },
+      [
+        {
+          id: 'op-1',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id', 1, expect.any(Number)],
+            ['one', 'value', 1, expect.any(Number)],
+          ],
+        },
+        {
+          id: 'op-2',
+          channel: 'channel',
+          type: YOBTA_COLLECTION_DELETE,
+          snapshotId: 'snapshot-id',
+          committed: 1,
+          merged: expect.any(Number),
+        },
+      ],
     ])
   })
   it('respects minMerged argument', async () => {
@@ -89,11 +102,26 @@ describe('log read', () => {
       snapshotId: 'snapshot-id',
     }
     const { merged } = await log.merge('my-collection', insertOperation)
-    const result1 = await log.find('channel', merged)
+
+    const stream1 = log.find('channel', merged, 10)
+    const result1 = []
+    for await (const item of stream1) {
+      result1.push(item)
+    }
     expect(result1).toEqual([])
-    const result2 = await log.find('channel', merged + 1)
+
+    const stream2 = log.find('channel', merged + 1, 10)
+    const result2 = []
+    for await (const item of stream2) {
+      result2.push(item)
+    }
     expect(result2).toEqual([])
-    const result3 = await log.find('channel', merged - 1)
+
+    const stream3 = log.find('channel', merged - 1, 10)
+    const result3 = []
+    for await (const item of stream3) {
+      result3.push(item)
+    }
     expect(result3).toEqual([expect.any(Object)])
   })
   it('supports: update then insert', async () => {
@@ -117,22 +145,28 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const result = await log.find('channel', 0)
+    const stream = log.find('channel', 0, 10)
+    const result = []
+    for await (const item of stream) {
+      result.push(item)
+    }
     expect(result).toEqual([
-      {
-        id: 'op-1',
-        type: YOBTA_COLLECTION_REVALIDATE,
-        channel: 'channel',
-        snapshotId: 'snapshot-id',
-        nextSnapshotId: undefined,
-        committed: 1,
-        merged: expect.any(Number),
-        data: [
-          ['id', 'snapshot-id', 1, expect.any(Number)],
-          ['one', 'three', 2, expect.any(Number)],
-          ['two', 'two', 2, expect.any(Number)],
-        ],
-      },
+      [
+        {
+          id: 'op-1',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id', 1, expect.any(Number)],
+            ['one', 'three', 2, expect.any(Number)],
+            ['two', 'two', 2, expect.any(Number)],
+          ],
+        },
+      ],
     ])
   })
   it('supports: delete then insert', async () => {
@@ -155,29 +189,35 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const result = await log.find('channel', 0)
+    const stream = log.find('channel', 0, 10)
+    const result = []
+    for await (const item of stream) {
+      result.push(item)
+    }
     expect(result).toEqual([
-      {
-        id: 'op-1',
-        type: YOBTA_COLLECTION_REVALIDATE,
-        channel: 'channel',
-        snapshotId: 'snapshot-id',
-        nextSnapshotId: undefined,
-        committed: 1,
-        merged: expect.any(Number),
-        data: [
-          ['id', 'snapshot-id', 1, expect.any(Number)],
-          ['one', 'one', 1, expect.any(Number)],
-        ],
-      },
-      {
-        id: 'op-2',
-        type: YOBTA_COLLECTION_DELETE,
-        channel: 'channel',
-        committed: 2,
-        merged: expect.any(Number),
-        snapshotId: 'snapshot-id',
-      },
+      [
+        {
+          id: 'op-1',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id', 1, expect.any(Number)],
+            ['one', 'one', 1, expect.any(Number)],
+          ],
+        },
+        {
+          id: 'op-2',
+          type: YOBTA_COLLECTION_DELETE,
+          channel: 'channel',
+          committed: 2,
+          merged: expect.any(Number),
+          snapshotId: 'snapshot-id',
+        },
+      ],
     ])
   })
   it('supports: insert, restore, delete', async () => {
@@ -208,37 +248,43 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const result = await log.find('channel', 0)
+    const stream = log.find('channel', 0, 10)
+    const result = []
+    for await (const item of stream) {
+      result.push(item)
+    }
     expect(result).toEqual([
-      {
-        id: 'op-1',
-        type: YOBTA_COLLECTION_REVALIDATE,
-        channel: 'channel',
-        snapshotId: 'snapshot-id',
-        nextSnapshotId: undefined,
-        committed: 1,
-        merged: expect.any(Number),
-        data: [
-          ['id', 'snapshot-id', 1, expect.any(Number)],
-          ['one', 'one', 1, expect.any(Number)],
-        ],
-      },
-      {
-        id: 'op-2',
-        type: YOBTA_COLLECTION_DELETE,
-        channel: 'channel',
-        committed: 2,
-        merged: expect.any(Number),
-        snapshotId: 'snapshot-id',
-      },
-      {
-        id: 'op-3',
-        type: YOBTA_COLLECTION_RESTORE,
-        channel: 'channel',
-        committed: 3,
-        merged: expect.any(Number),
-        snapshotId: 'snapshot-id',
-      },
+      [
+        {
+          id: 'op-1',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id', 1, expect.any(Number)],
+            ['one', 'one', 1, expect.any(Number)],
+          ],
+        },
+        {
+          id: 'op-2',
+          type: YOBTA_COLLECTION_DELETE,
+          channel: 'channel',
+          committed: 2,
+          merged: expect.any(Number),
+          snapshotId: 'snapshot-id',
+        },
+        {
+          id: 'op-3',
+          type: YOBTA_COLLECTION_RESTORE,
+          channel: 'channel',
+          committed: 3,
+          merged: expect.any(Number),
+          snapshotId: 'snapshot-id',
+        },
+      ],
     ])
   })
   it('supports: move, delete, insert', async () => {
@@ -270,38 +316,125 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const result = await log.find('channel', 0)
+    const stream = log.find('channel', 0, 10)
+    const result = []
+    for await (const item of stream) {
+      result.push(item)
+    }
     expect(result).toEqual([
-      {
-        id: 'op-1',
-        type: YOBTA_COLLECTION_REVALIDATE,
-        channel: 'channel',
-        snapshotId: 'snapshot-id',
-        nextSnapshotId: undefined,
-        committed: 1,
-        merged: expect.any(Number),
-        data: [
-          ['id', 'snapshot-id', 1, expect.any(Number)],
-          ['one', 'one', 1, expect.any(Number)],
-        ],
-      },
-      {
-        id: 'op-2',
-        type: YOBTA_COLLECTION_MOVE,
-        channel: 'channel',
-        committed: 2,
-        merged: expect.any(Number),
-        snapshotId: 'snapshot-id',
-        nextSnapshotId: 'next-snapshot-id',
-      },
-      {
-        id: 'op-3',
-        type: YOBTA_COLLECTION_DELETE,
-        channel: 'channel',
-        committed: 3,
-        merged: expect.any(Number),
-        snapshotId: 'next-snapshot-id',
-      },
+      [
+        {
+          id: 'op-1',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id', 1, expect.any(Number)],
+            ['one', 'one', 1, expect.any(Number)],
+          ],
+        },
+        {
+          id: 'op-2',
+          type: YOBTA_COLLECTION_MOVE,
+          channel: 'channel',
+          committed: 2,
+          merged: expect.any(Number),
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: 'next-snapshot-id',
+        },
+        {
+          id: 'op-3',
+          type: YOBTA_COLLECTION_DELETE,
+          channel: 'channel',
+          committed: 3,
+          merged: expect.any(Number),
+          snapshotId: 'next-snapshot-id',
+        },
+      ],
+    ])
+  })
+  it('handles chunkSize correctly', async () => {
+    const log = createMemoryLog()
+    const collection = 'my-collection'
+    await log.merge(collection, {
+      id: 'op-1',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'channel',
+      data: { id: 'snapshot-id-1', one: 'one' },
+      committed: 1,
+      merged: 0,
+      snapshotId: 'snapshot-id-1',
+    })
+    await log.merge(collection, {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'channel',
+      data: { id: 'snapshot-id-2', one: 'two' },
+      committed: 2,
+      merged: 0,
+      snapshotId: 'snapshot-id-2',
+    })
+    await log.merge(collection, {
+      id: 'op-3',
+      type: YOBTA_COLLECTION_INSERT,
+      channel: 'channel',
+      data: { id: 'snapshot-id-3', one: 'three' },
+      committed: 3,
+      merged: 0,
+      snapshotId: 'snapshot-id-3',
+    })
+    const stream = log.find('channel', 0, 2)
+    const result = []
+    for await (const item of stream) {
+      result.push(item)
+    }
+    expect(result).toEqual([
+      [
+        {
+          id: 'op-1',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id-1',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id-1', 1, expect.any(Number)],
+            ['one', 'one', 1, expect.any(Number)],
+          ],
+        },
+        {
+          id: 'op-2',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id-2',
+          nextSnapshotId: undefined,
+          committed: 2,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id-2', 2, expect.any(Number)],
+            ['one', 'two', 2, expect.any(Number)],
+          ],
+        },
+      ],
+      [
+        {
+          id: 'op-3',
+          type: YOBTA_COLLECTION_REVALIDATE,
+          channel: 'channel',
+          snapshotId: 'snapshot-id-3',
+          nextSnapshotId: undefined,
+          committed: 3,
+          merged: expect.any(Number),
+          data: [
+            ['id', 'snapshot-id-3', 3, expect.any(Number)],
+            ['one', 'three', 3, expect.any(Number)],
+          ],
+        },
+      ],
     ])
   })
 })

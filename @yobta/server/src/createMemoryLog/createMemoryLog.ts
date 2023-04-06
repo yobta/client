@@ -15,6 +15,7 @@ import {
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
 import { coerceError } from '@yobta/utils'
+import { Readable, ReadableOptions } from 'stream'
 
 import { serverLogger } from '../serverLogger/serverLogger.js'
 import { filterKeys } from './filterKeys.js'
@@ -31,7 +32,8 @@ export type YobtaServerLog<
   find<Snapshot extends SupportedSnapshotsUnion>(
     channel: string,
     merged: number,
-  ): Promise<YobtaBatchedOperation<Snapshot>[]>
+    chunkSize: number,
+  ): YobtaServerLogStream<Snapshot>
   merge<Snapshot extends SupportedSnapshotsUnion>(
     collection: string,
     operation: YobtaCollectionOperation<Snapshot>,
@@ -40,6 +42,9 @@ export type YobtaServerLog<
     observer: (operation: YobtaCollectionOperation<Snapshot>) => void,
   ): VoidFunction
 }
+
+export type YobtaServerLogStream<Snapshot extends YobtaCollectionAnySnapshot> =
+  Readable & AsyncIterable<YobtaBatchedOperation<Snapshot>[]>
 
 export type YobtaServerLogSnapshotEntry = {
   type: typeof YOBTA_COLLECTION_REVALIDATE
@@ -125,83 +130,113 @@ const typesFilter = new Set([
 const byCommitted = (a: YobtaServerLogItem, b: YobtaServerLogItem): number =>
   a.committed - b.committed
 
+async function* operationGenerator<
+  Snapshot extends YobtaCollectionAnySnapshot,
+>({
+  channel,
+  minMerged,
+  log,
+  chunkSize,
+}: {
+  channel: string
+  minMerged: number
+  log: YobtaServerLogItem[]
+  chunkSize: number
+}): AsyncGenerator<YobtaBatchedOperation<Snapshot>[]> {
+  const matchedEntries = log
+    .filter(
+      entry =>
+        entry.channel === channel &&
+        entry.merged > minMerged &&
+        typesFilter.has(entry.type),
+    )
+    .sort(byCommitted) as YobtaChannelEntry[]
+
+  let index = 0
+  while (index < matchedEntries.length) {
+    const batch: YobtaBatchedOperation<Snapshot>[] = []
+    for (
+      let count = 0;
+      count < chunkSize && index < matchedEntries.length;
+      count++, index++
+    ) {
+      const entry = matchedEntries[index]
+      switch (entry.type) {
+        case YOBTA_COLLECTION_INSERT: {
+          const snapshots = log
+            .filter(
+              ({ snapshotId, type }) =>
+                snapshotId === entry.snapshotId &&
+                type === YOBTA_COLLECTION_REVALIDATE,
+            )
+            .sort(byCommitted) as YobtaServerLogSnapshotEntry[]
+          const data = snapshots.map(
+            ({ key, value, committed, merged }) =>
+              [key, value, committed, merged] as YobtaCollectionTuple<Snapshot>,
+          )
+          const operation: YobtaCollectionRevalidateOperation<Snapshot> = {
+            id: entry.operationId,
+            type: YOBTA_COLLECTION_REVALIDATE,
+            channel,
+            snapshotId: entry.snapshotId,
+            nextSnapshotId: entry.nextSnapshotId,
+            committed: entry.committed,
+            merged: entry.merged,
+            data,
+          }
+          batch.push(operation)
+          break
+        }
+        case YOBTA_COLLECTION_MOVE: {
+          const operation: YobtaCollectionMoveOperation = {
+            id: entry.operationId,
+            type: YOBTA_COLLECTION_MOVE,
+            channel,
+            snapshotId: entry.snapshotId,
+            nextSnapshotId: entry.nextSnapshotId,
+            committed: entry.committed,
+            merged: entry.merged,
+          }
+          batch.push(operation)
+          break
+        }
+        default: {
+          const operation = {
+            id: entry.operationId,
+            type: entry.type,
+            channel,
+            snapshotId: entry.snapshotId,
+            nextSnapshotId: entry.nextSnapshotId,
+            committed: entry.committed,
+            merged: entry.merged,
+          }
+          batch.push(operation)
+          break
+        }
+      }
+    }
+    yield batch
+  }
+}
+
 export const createMemoryLog: YobtaMemoryLogFactory = <
   SupportedSnapshotsUnion extends YobtaCollectionAnySnapshot,
 >() => {
   let log: YobtaServerLogItem[] = []
   const { observe, next } = createObservable()
-  const find = async <Snapshot extends SupportedSnapshotsUnion>(
+  const find = <Snapshot extends SupportedSnapshotsUnion>(
     channel: string,
     minMerged: number,
-  ): Promise<YobtaBatchedOperation<Snapshot>[]> => {
-    const mathedEntries = log
-      .filter(
-        entry =>
-          entry.channel === channel &&
-          entry.merged > minMerged &&
-          typesFilter.has(entry.type),
-      )
-      .sort(byCommitted) as YobtaChannelEntry[]
-    const batched: YobtaBatchedOperation<Snapshot>[] = mathedEntries.map(
-      entry => {
-        switch (entry.type) {
-          case YOBTA_COLLECTION_INSERT: {
-            const snapshots = log
-              .filter(
-                ({ snapshotId, type }) =>
-                  snapshotId === entry.snapshotId &&
-                  type === YOBTA_COLLECTION_REVALIDATE,
-              )
-              .sort(byCommitted) as YobtaServerLogSnapshotEntry[]
-            const data = snapshots.map(
-              ({ key, value, committed, merged }) =>
-                [
-                  key,
-                  value,
-                  committed,
-                  merged,
-                ] as YobtaCollectionTuple<Snapshot>,
-            )
-            const operation: YobtaCollectionRevalidateOperation<Snapshot> = {
-              id: entry.operationId,
-              type: YOBTA_COLLECTION_REVALIDATE,
-              channel,
-              snapshotId: entry.snapshotId,
-              nextSnapshotId: entry.nextSnapshotId,
-              committed: entry.committed,
-              merged: entry.merged,
-              data,
-            }
-            return operation
-          }
-          case YOBTA_COLLECTION_MOVE: {
-            const operation: YobtaCollectionMoveOperation = {
-              id: entry.operationId,
-              type: YOBTA_COLLECTION_MOVE,
-              channel,
-              snapshotId: entry.snapshotId,
-              nextSnapshotId: entry.nextSnapshotId,
-              committed: entry.committed,
-              merged: entry.merged,
-            }
-            return operation
-          }
-          default: {
-            const operation = {
-              id: entry.operationId,
-              type: entry.type,
-              channel,
-              snapshotId: entry.snapshotId,
-              nextSnapshotId: entry.nextSnapshotId,
-              committed: entry.committed,
-              merged: entry.merged,
-            }
-            return operation
-          }
-        }
-      },
-    )
-    return batched
+    chunkSize: number,
+  ): YobtaServerLogStream<Snapshot> => {
+    const generator = operationGenerator<Snapshot>({
+      channel,
+      minMerged,
+      log,
+      chunkSize,
+    })
+    const options: ReadableOptions = { objectMode: true }
+    return Readable.from(generator, options)
   }
   const merge = async <Snapshot extends SupportedSnapshotsUnion>(
     collection: string,
