@@ -6,6 +6,7 @@ import {
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
+  YobtaCollectionDeleteOperation,
 } from '@yobta/protocol'
 
 import { createMemoryLog } from './createMemoryLog.js'
@@ -27,7 +28,7 @@ describe('log factory', () => {
   })
 })
 
-const chunkSize = 20
+const chunkSize = 1024
 
 describe('log read', () => {
   it('reads an empty log', async () => {
@@ -41,7 +42,7 @@ describe('log read', () => {
   })
   it('returns matching items', async () => {
     const log = createMemoryLog()
-    await log.merge('my-collection', {
+    const op1: YobtaCollectionInsertOperation<MockItem> = {
       id: 'op-1',
       channel: 'channel',
       data: { id: 'snapshot-id', one: 'value' },
@@ -49,21 +50,22 @@ describe('log read', () => {
       type: YOBTA_COLLECTION_INSERT,
       merged: 0,
       snapshotId: 'snapshot-id',
-    })
-    await log.merge('my-collection', {
+    }
+    const op2: YobtaCollectionDeleteOperation = {
       id: 'op-2',
       type: YOBTA_COLLECTION_DELETE,
       channel: 'channel',
       snapshotId: 'snapshot-id',
       committed: 1,
       merged: 0,
-    })
-    const stream = log.find('channel', 0, 10)
+    }
+    await log.merge('my-collection', op1)
+    await log.merge('my-collection', op2)
+    const stream = log.find('channel', 0, 1024)
     const result = []
     for await (const item of stream) {
       result.push(item)
     }
-    expect
     expect(result).toEqual([
       [
         {
@@ -102,22 +104,20 @@ describe('log read', () => {
       snapshotId: 'snapshot-id',
     }
     const { merged } = await log.merge('my-collection', insertOperation)
-
-    const stream1 = log.find('channel', merged, 10)
+    const stream1 = log.find('channel', merged, 1024)
     const result1 = []
     for await (const item of stream1) {
       result1.push(item)
     }
     expect(result1).toEqual([])
-
-    const stream2 = log.find('channel', merged + 1, 10)
+    const stream2 = log.find('channel', merged + 1, 1024)
     const result2 = []
     for await (const item of stream2) {
       result2.push(item)
     }
     expect(result2).toEqual([])
 
-    const stream3 = log.find('channel', merged - 1, 10)
+    const stream3 = log.find('channel', merged - 1, 1024)
     const result3 = []
     for await (const item of stream3) {
       result3.push(item)
@@ -189,7 +189,7 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const stream = log.find('channel', 0, 10)
+    const stream = log.find('channel', 0, 1024)
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -248,7 +248,7 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const stream = log.find('channel', 0, 10)
+    const stream = log.find('channel', 0, 1024)
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -316,7 +316,7 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const stream = log.find('channel', 0, 10)
+    const stream = log.find('channel', 0, 1024)
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -386,7 +386,7 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id-3',
     })
-    const stream = log.find('channel', 0, 2)
+    const stream = log.find('channel', 0, 480)
     const result = []
     for await (const item of stream) {
       result.push(item)

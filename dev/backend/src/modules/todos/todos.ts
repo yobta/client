@@ -1,5 +1,6 @@
 import { createChannel, createCollection } from '@yobta/server'
 
+import { chunkSize } from '../../constants.js'
 import { log } from '../../log.js'
 
 type Todo = {
@@ -17,7 +18,7 @@ const collection = createCollection<Todo>({
 createChannel({
   route: 'all-todos',
   collection,
-  chunkSize: 20,
+  chunkSize,
   access: {
     async read() {},
     async write() {},
