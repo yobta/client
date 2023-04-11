@@ -1,14 +1,12 @@
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
-  YobtaCollectionRevalidateOperation,
   YobtaCollectionTuple,
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_MOVE,
   YOBTA_COLLECTION_REVALIDATE,
-  YobtaCollectionMoveOperation,
   YOBTA_COLLECTION_UPDATE,
   YobtaBatchedOperation,
   YobtaCollectionOperation,
@@ -21,6 +19,7 @@ import { serverLogger } from '../serverLogger/serverLogger.js'
 import { filterKeys } from './filterKeys.js'
 import { mergeCursor } from './mergeCursor.js'
 import { mergeData } from './mergeData.js'
+import { chunkBySize } from './chunkBySize.js'
 
 // #region types
 interface YobtaMemoryLogFactory {
@@ -112,12 +111,6 @@ export type YobtaServerLogItem =
   | YobtaServerLogChannelDeleteEntry
   | YobtaServerLogChannelRestoreEntry
   | YobtaServerLogChannelMoveEntry
-
-type YobtaChannelEntry =
-  | YobtaServerLogChannelInsertEntry
-  | YobtaServerLogChannelDeleteEntry
-  | YobtaServerLogChannelRestoreEntry
-  | YobtaServerLogChannelMoveEntry
 // #endregion
 
 const typesFilter = new Set([
@@ -150,17 +143,8 @@ async function* operationGenerator<
         entry.merged > minMerged &&
         typesFilter.has(entry.type),
     )
-    .sort(byCommitted) as YobtaChannelEntry[]
-
-  let index = 0
-  while (index < matchedEntries.length) {
-    const batch: YobtaBatchedOperation<Snapshot>[] = []
-    for (
-      let count = 0;
-      count < chunkSize && index < matchedEntries.length;
-      count++, index++
-    ) {
-      const entry = matchedEntries[index]
+    .sort(byCommitted)
+    .map(entry => {
       switch (entry.type) {
         case YOBTA_COLLECTION_INSERT: {
           const snapshots = log
@@ -174,7 +158,7 @@ async function* operationGenerator<
             ({ key, value, committed, merged }) =>
               [key, value, committed, merged] as YobtaCollectionTuple<Snapshot>,
           )
-          const operation: YobtaCollectionRevalidateOperation<Snapshot> = {
+          return {
             id: entry.operationId,
             type: YOBTA_COLLECTION_REVALIDATE,
             channel,
@@ -184,11 +168,9 @@ async function* operationGenerator<
             merged: entry.merged,
             data,
           }
-          batch.push(operation)
-          break
         }
         case YOBTA_COLLECTION_MOVE: {
-          const operation: YobtaCollectionMoveOperation = {
+          return {
             id: entry.operationId,
             type: YOBTA_COLLECTION_MOVE,
             channel,
@@ -197,11 +179,9 @@ async function* operationGenerator<
             committed: entry.committed,
             merged: entry.merged,
           }
-          batch.push(operation)
-          break
         }
         default: {
-          const operation = {
+          return {
             id: entry.operationId,
             type: entry.type,
             channel,
@@ -210,12 +190,12 @@ async function* operationGenerator<
             committed: entry.committed,
             merged: entry.merged,
           }
-          batch.push(operation)
-          break
         }
       }
-    }
-    yield batch
+    }) as YobtaBatchedOperation<Snapshot>[]
+  const chunks = chunkBySize(matchedEntries, chunkSize)
+  for (const chunk of chunks) {
+    yield chunk
   }
 }
 

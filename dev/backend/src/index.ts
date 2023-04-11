@@ -1,6 +1,7 @@
 import { WebSocketServer } from 'ws'
 import { createServer, serverLogger } from '@yobta/server'
 
+import { chunkSize } from './constants.js'
 import './pinoLogger.js'
 import './modules/todos/todos.js'
 
@@ -13,12 +14,12 @@ const wss = new WebSocketServer({
   perMessageDeflate: {
     zlibDeflateOptions: {
       // See zlib defaults.
-      chunkSize: 1024,
+      chunkSize,
       memLevel: 7,
       level: 3,
     },
     zlibInflateOptions: {
-      chunkSize: 10 * 1024,
+      chunkSize,
     },
     // Other options settable:
     clientNoContextTakeover: true, // Defaults to negotiated value.
