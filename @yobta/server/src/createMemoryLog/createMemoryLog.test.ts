@@ -2,7 +2,7 @@ import {
   YobtaCollectionInsertOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
@@ -292,7 +292,7 @@ describe('log read', () => {
     const collection = 'my-collection'
     await log.merge(collection, {
       id: 'op-2',
-      type: YOBTA_COLLECTION_MOVE,
+      type: YOBTA_COLLECTION_SHIFT,
       channel: 'channel',
       committed: 2,
       merged: 0,
@@ -338,7 +338,7 @@ describe('log read', () => {
         },
         {
           id: 'op-2',
-          type: YOBTA_COLLECTION_MOVE,
+          type: YOBTA_COLLECTION_SHIFT,
           channel: 'channel',
           committed: 2,
           merged: expect.any(Number),

@@ -5,7 +5,7 @@ import {
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -41,7 +41,7 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
     case YOBTA_COLLECTION_INSERT:
     case YOBTA_COLLECTION_DELETE:
     case YOBTA_COLLECTION_RESTORE:
-    case YOBTA_COLLECTION_MOVE:
+    case YOBTA_COLLECTION_SHIFT:
       break
     default:
       return log
@@ -91,9 +91,9 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
           merged,
         })
         break
-      case YOBTA_COLLECTION_MOVE:
+      case YOBTA_COLLECTION_SHIFT:
         log.push({
-          type: YOBTA_COLLECTION_MOVE,
+          type: YOBTA_COLLECTION_SHIFT,
           operationId: operation.id,
           collection,
           channel: operation.channel,

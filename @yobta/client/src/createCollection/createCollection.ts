@@ -10,7 +10,7 @@ import {
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
 } from '@yobta/protocol'
 import { YobtaObserver, createObservable } from '@yobta/stores'
 
@@ -115,7 +115,7 @@ export const createCollection: YobtaCollectionFactory = <
           case YOBTA_COLLECTION_UPDATE:
           case YOBTA_COLLECTION_DELETE:
           case YOBTA_COLLECTION_RESTORE:
-          case YOBTA_COLLECTION_MOVE: {
+          case YOBTA_COLLECTION_SHIFT: {
             if (
               operation.type === YOBTA_COLLECTION_INSERT ||
               operation.type === YOBTA_COLLECTION_UPDATE

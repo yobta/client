@@ -1,10 +1,10 @@
 import {
   YobtaCollectionInsertOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YobtaCollectionRevalidateOperation,
   YobtaRejectOperation,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
   YobtaCollectionUpdateOperation,
@@ -92,11 +92,11 @@ describe('add', () => {
   })
   it('supports move operations', () => {
     const log = createClientLog(channel)
-    const insertOperaion: YobtaCollectionMoveOperation = {
+    const insertOperaion: YobtaCollectionShiftOperation = {
       id: '1',
       committed: 1,
       merged: 1,
-      type: YOBTA_COLLECTION_MOVE,
+      type: YOBTA_COLLECTION_SHIFT,
       channel,
       snapshotId: '1',
       nextSnapshotId: '2',

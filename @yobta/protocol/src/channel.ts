@@ -27,10 +27,10 @@ export type YobtaCollectionRestoreOperation = {
   merged: number
 }
 
-export const YOBTA_COLLECTION_MOVE = 'yobta-collection-move'
-export type YobtaCollectionMoveOperation = {
+export const YOBTA_COLLECTION_SHIFT = 'yobta-collection-shift'
+export type YobtaCollectionShiftOperation = {
   id: YobtaOperationId
-  type: typeof YOBTA_COLLECTION_MOVE
+  type: typeof YOBTA_COLLECTION_SHIFT
   channel: string
   data?: never
   snapshotId: YobtaCollectionId

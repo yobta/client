@@ -8,7 +8,7 @@ import {
 import { YobtaOperationId } from './unsorted.js'
 import {
   YobtaCollectionDeleteOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YobtaCollectionRestoreOperation,
 } from './channel.js'
 
@@ -17,7 +17,7 @@ export type YobtaClientOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
-  | YobtaCollectionMoveOperation
+  | YobtaCollectionShiftOperation
   | YobtaSubscribeOperation
   | YobtaUnsubscribeOperation
 
@@ -28,7 +28,7 @@ export type YobtaClientDataOperation<
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
-  | YobtaCollectionMoveOperation
+  | YobtaCollectionShiftOperation
 
 export const YOBTA_ERROR = 'yobta-error'
 export type YobtaError = {

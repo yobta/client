@@ -1,6 +1,6 @@
 import {
   YobtaCollectionDeleteOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YobtaCollectionRestoreOperation,
 } from './channel.js'
 import {
@@ -39,7 +39,7 @@ export type YobtaBatchedOperation<Snapshot extends YobtaCollectionAnySnapshot> =
     | YobtaCollectionRevalidateOperation<Snapshot>
     | YobtaCollectionDeleteOperation
     | YobtaCollectionRestoreOperation
-    | YobtaCollectionMoveOperation
+    | YobtaCollectionShiftOperation
 
 export type YobtaBatchOperation<Snapshot extends YobtaCollectionAnySnapshot> = {
   id: YobtaOperationId
@@ -59,7 +59,7 @@ export type YobtaServerOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionRevalidateOperation<Snapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
-  | YobtaCollectionMoveOperation
+  | YobtaCollectionShiftOperation
   | YobtaBatchOperation<Snapshot>
 
 export type YobtaServerDataOperation<
@@ -70,4 +70,4 @@ export type YobtaServerDataOperation<
   | YobtaCollectionRevalidateOperation<Snapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
-  | YobtaCollectionMoveOperation
+  | YobtaCollectionShiftOperation

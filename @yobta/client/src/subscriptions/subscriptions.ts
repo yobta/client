@@ -10,7 +10,7 @@ import {
   YobtaCollectionRevalidateOperation,
   YobtaCollectionDeleteOperation,
   YobtaCollectionRestoreOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YobtaUnsubscribeOperation,
   YOBTA_UNSUBSCRIBE,
   YobtaBatchOperation,
@@ -41,7 +41,7 @@ type Operation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionRevalidateOperation<Snapshot>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
-  | YobtaCollectionMoveOperation
+  | YobtaCollectionShiftOperation
   | YobtaBatchOperation<Snapshot>
 // #endregion
 

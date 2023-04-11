@@ -3,7 +3,7 @@ import { YobtaJsonValue } from '@yobta/stores'
 import { YobtaOperationId } from './unsorted.js'
 import {
   YobtaCollectionDeleteOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YobtaCollectionRestoreOperation,
 } from './channel.js'
 
@@ -33,7 +33,7 @@ export type YobtaCollectionInsertOperation<
   channel: string
   data: Snapshot
   snapshotId: YobtaCollectionId
-  nextSnapshotId?: YobtaCollectionId
+  nextSnapshotId?: never
   operationId?: never
   committed: number
   merged: number
@@ -82,4 +82,4 @@ export type YobtaCollectionOperation<
   | YobtaCollectionUpdateOperation<Patched>
   | YobtaCollectionDeleteOperation
   | YobtaCollectionRestoreOperation
-  | YobtaCollectionMoveOperation
+  | YobtaCollectionShiftOperation

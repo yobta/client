@@ -8,10 +8,10 @@ import {
   YOBTA_COLLECTION_UPDATE,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YobtaCollectionDeleteOperation,
   YobtaCollectionRestoreOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YOBTA_BATCH,
   YobtaCollectionPatchWithId,
   YobtaCollectionPatchWithoutId,
@@ -37,7 +37,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
     insert(
       snapshot: Snapshot,
       nextSnapshotId?: YobtaCollectionId,
-    ): Readonly<YobtaCollectionInsertOperation<Snapshot>>
+    ): Readonly<YobtaCollectionShiftOperation>
     update<S extends Snapshot>(
       snapshot: YobtaCollectionPatchWithId<S>,
     ): Readonly<YobtaCollectionUpdateOperation<S>>
@@ -51,7 +51,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
       snapshots: Snapshot[],
       from?: number | null,
       to?: number | null,
-    ): Readonly<YobtaCollectionMoveOperation> | null
+    ): Readonly<YobtaCollectionShiftOperation> | null
   }> &
     YobtaReadable<Snapshot[], never>
 
@@ -121,16 +121,21 @@ export const createChannel: YobtaChannelFactory = <
       return operation
     },
     insert(data: Snapshot, nextSnapshotId) {
-      const operation: YobtaCollectionInsertOperation<Snapshot> =
+      const insertOperation: YobtaCollectionInsertOperation<Snapshot> =
         createOperation({
           type: YOBTA_COLLECTION_INSERT,
           data,
           channel,
           snapshotId: data.id,
-          nextSnapshotId,
         })
-      putOrCatch([operation])
-      return operation
+      const shiftOpertion: YobtaCollectionShiftOperation = createOperation({
+        type: YOBTA_COLLECTION_SHIFT,
+        channel,
+        snapshotId: insertOperation.data.id,
+        nextSnapshotId,
+      })
+      putOrCatch([insertOperation, shiftOpertion])
+      return shiftOpertion
     },
     last,
     move(snapshots, from, to) {
@@ -143,8 +148,8 @@ export const createChannel: YobtaChannelFactory = <
       if (!item) {
         return null
       }
-      const operation: YobtaCollectionMoveOperation = createOperation({
-        type: YOBTA_COLLECTION_MOVE,
+      const operation: YobtaCollectionShiftOperation = createOperation({
+        type: YOBTA_COLLECTION_SHIFT,
         channel,
         snapshotId: item.id,
         nextSnapshotId: nextItem?.id,

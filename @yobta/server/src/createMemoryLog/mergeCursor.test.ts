@@ -1,12 +1,12 @@
 import {
   YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YobtaCollectionRestoreOperation,
   YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
@@ -695,9 +695,9 @@ describe('restore', () => {
 describe('move', () => {
   it('inserts move entry', () => {
     const log: YobtaServerLogItem[] = []
-    const operation: YobtaCollectionMoveOperation = {
+    const operation: YobtaCollectionShiftOperation = {
       id: 'op-id',
-      type: YOBTA_COLLECTION_MOVE,
+      type: YOBTA_COLLECTION_SHIFT,
       channel: 'channel',
       snapshotId: 'id',
       nextSnapshotId: 'id-2',
@@ -712,7 +712,7 @@ describe('move', () => {
     })
     expect(result).toEqual([
       {
-        type: YOBTA_COLLECTION_MOVE,
+        type: YOBTA_COLLECTION_SHIFT,
         operationId: 'op-id',
         snapshotId: 'id',
         nextSnapshotId: 'id-2',
