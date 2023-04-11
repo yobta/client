@@ -2,7 +2,7 @@ import {
   YobtaCollectionInsertOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
@@ -41,7 +41,7 @@ describe('supports all operation types', () => {
       channel: 'channel',
       committed: 1,
       merged: 1,
-      type: YOBTA_COLLECTION_MOVE,
+      type: YOBTA_COLLECTION_SHIFT,
       snapshotId: 'snapshot-1',
       nextSnapshotId: 'snapshot-2',
     },

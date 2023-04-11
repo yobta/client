@@ -5,7 +5,7 @@ import {
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
   YobtaBatchedOperation,
@@ -94,7 +94,7 @@ export type YobtaServerLogChannelRestoreEntry = {
   value?: never
 }
 export type YobtaServerLogChannelMoveEntry = {
-  type: typeof YOBTA_COLLECTION_MOVE
+  type: typeof YOBTA_COLLECTION_SHIFT
   operationId: string
   collection: string
   channel: string
@@ -117,7 +117,7 @@ const typesFilter = new Set([
   YOBTA_COLLECTION_INSERT,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
 ])
 
 const byCommitted = (a: YobtaServerLogItem, b: YobtaServerLogItem): number =>
@@ -169,10 +169,10 @@ async function* operationGenerator<
             data,
           }
         }
-        case YOBTA_COLLECTION_MOVE: {
+        case YOBTA_COLLECTION_SHIFT: {
           return {
             id: entry.operationId,
-            type: YOBTA_COLLECTION_MOVE,
+            type: YOBTA_COLLECTION_SHIFT,
             channel,
             snapshotId: entry.snapshotId,
             nextSnapshotId: entry.nextSnapshotId,
@@ -227,7 +227,7 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
       case YOBTA_COLLECTION_UPDATE:
       case YOBTA_COLLECTION_DELETE:
       case YOBTA_COLLECTION_RESTORE:
-      case YOBTA_COLLECTION_MOVE:
+      case YOBTA_COLLECTION_SHIFT:
         break
       default: {
         const errorData = Object.assign({}, rawOperation, {

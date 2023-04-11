@@ -6,7 +6,7 @@ import {
 } from '@yobta/client'
 import {
   YobtaCollectionId,
-  YobtaCollectionInsertOperation,
+  YobtaCollectionShiftOperation,
 } from '@yobta/protocol'
 import { createDerivedStore } from '@yobta/stores'
 import { createHookFromStore } from '@yobta/stores/react'
@@ -68,7 +68,7 @@ export const addTodo = ({
   text,
 }: {
   text: string
-}): YobtaCollectionInsertOperation<Todo> =>
+}): YobtaCollectionShiftOperation =>
   allTodos.insert({
     id: Date.now().toString(),
     text,

@@ -3,7 +3,7 @@ import {
   YobtaCollectionId,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
@@ -77,7 +77,7 @@ export const createLogMerger: YobtaLogMergerFactory =
             const snapshot = getSnapshot(snapshotId)
             return insert(acc, snapshot, nextSnapshotId)
           }
-          case YOBTA_COLLECTION_MOVE: {
+          case YOBTA_COLLECTION_SHIFT: {
             const nextAcc = acc.filter(({ id }) => id !== snapshotId)
             if (
               nextAcc.length === acc.length ||

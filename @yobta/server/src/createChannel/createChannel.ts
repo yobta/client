@@ -9,7 +9,7 @@ import {
   YOBTA_COLLECTION_UPDATE,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YobtaHeaders,
   YobtaBatchOperation,
   YOBTA_BATCH,
@@ -115,7 +115,7 @@ export const createChannel: YobtaChannelFactory = <
         case YOBTA_COLLECTION_UPDATE:
         case YOBTA_COLLECTION_DELETE:
         case YOBTA_COLLECTION_RESTORE:
-        case YOBTA_COLLECTION_MOVE: {
+        case YOBTA_COLLECTION_SHIFT: {
           await access.write({ params, headers, operation })
           const merged = await collection.merge({ headers, operation })
           sendBack([merged])

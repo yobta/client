@@ -1,12 +1,12 @@
 import {
   YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
-  YobtaCollectionMoveOperation,
+  YobtaCollectionShiftOperation,
   YobtaCollectionRestoreOperation,
   YobtaCollectionUpdateOperation,
   YOBTA_COLLECTION_DELETE,
   YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_MOVE,
+  YOBTA_COLLECTION_SHIFT,
   YOBTA_COLLECTION_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
@@ -223,7 +223,7 @@ it('has no issues with rest log entry types', () => {
     merged: 6,
   }
   const moveEntry: YobtaServerLogChannelMoveEntry = {
-    type: YOBTA_COLLECTION_MOVE,
+    type: YOBTA_COLLECTION_SHIFT,
     operationId: 'op-id-4',
     snapshotId: 'id',
     nextSnapshotId: 'id-2',
@@ -278,9 +278,9 @@ it('ignores restore operation', () => {
   expect(result).toBe(operation)
 })
 it('ignores move operation', () => {
-  const operation: YobtaCollectionMoveOperation = {
+  const operation: YobtaCollectionShiftOperation = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_MOVE,
+    type: YOBTA_COLLECTION_SHIFT,
     committed: 1,
     merged: 2,
     snapshotId: 'id',

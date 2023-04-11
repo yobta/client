@@ -11,8 +11,8 @@ import {
   YobtaCollectionDeleteOperation,
   YobtaCollectionRestoreOperation,
   YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_MOVE,
-  YobtaCollectionMoveOperation,
+  YOBTA_COLLECTION_SHIFT,
+  YobtaCollectionShiftOperation,
 } from '@yobta/protocol'
 
 import {
@@ -80,12 +80,12 @@ describe('data operations', () => {
     type: YOBTA_COLLECTION_RESTORE,
     snapshotId: 'snapshot-1',
   }
-  const moveOpration: YobtaCollectionMoveOperation = {
+  const moveOpration: YobtaCollectionShiftOperation = {
     id: 'operation-1',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
-    type: YOBTA_COLLECTION_MOVE,
+    type: YOBTA_COLLECTION_SHIFT,
     snapshotId: 'snapshot-1',
     nextSnapshotId: 'snapshot-2',
   }
