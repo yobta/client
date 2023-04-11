@@ -2,13 +2,15 @@ import { YobtaJsonValue } from '@yobta/stores'
 
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionDeleteOperation,
   YobtaCollectionInsertOperation,
-  YobtaCollectionMoveOperation,
-  YobtaCollectionRestoreOperation,
   YobtaCollectionUpdateOperation,
 } from './collection.js'
 import { YobtaOperationId } from './unsorted.js'
+import {
+  YobtaCollectionDeleteOperation,
+  YobtaCollectionMoveOperation,
+  YobtaCollectionRestoreOperation,
+} from './channel.js'
 
 export type YobtaClientOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaCollectionInsertOperation<Snapshot>
