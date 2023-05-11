@@ -81,10 +81,12 @@ it('should return same pending operations', () => {
       id: 'op-1',
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'channel',
-      data: { name: 'jane' },
+      data: {
+        id: 'item-1',
+        name: 'jane',
+      },
       committed: 1,
       merged: 0,
-      snapshotId: 'item-1',
     },
   ]
   const nextEntry = revalidate(entry, {

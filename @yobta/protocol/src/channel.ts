@@ -1,10 +1,23 @@
 import { YobtaCollectionId } from './collection.js'
 import { YobtaOperationId } from './unsorted.js'
 
-export const YOBTA_COLLECTION_DELETE = 'yobta-collection-delete'
-export type YobtaCollectionDeleteOperation = {
+export const YOBTA_CHANNEL_INSERT = 'yobta-channel-insert'
+export type YobtaChannelInsertOperation = {
   id: YobtaOperationId
-  type: typeof YOBTA_COLLECTION_DELETE
+  type: typeof YOBTA_CHANNEL_INSERT
+  channel: string
+  data?: never
+  snapshotId: YobtaCollectionId
+  nextSnapshotId?: YobtaCollectionId
+  operationId?: never
+  committed: number
+  merged: number
+}
+
+export const YOBTA_CHANNEL_DELETE = 'yobta-channel-delete'
+export type YobtaChannelDeleteOperation = {
+  id: YobtaOperationId
+  type: typeof YOBTA_CHANNEL_DELETE
   channel: string
   data?: never
   snapshotId: YobtaCollectionId
@@ -14,10 +27,10 @@ export type YobtaCollectionDeleteOperation = {
   merged: number
 }
 
-export const YOBTA_COLLECTION_RESTORE = 'yobta-collection-restore'
-export type YobtaCollectionRestoreOperation = {
+export const YOBTA_CHANNEL_RESTORE = 'yobta-channel-restore'
+export type YobtaChannelRestoreOperation = {
   id: YobtaOperationId
-  type: typeof YOBTA_COLLECTION_RESTORE
+  type: typeof YOBTA_CHANNEL_RESTORE
   channel: string
   data?: never
   snapshotId: YobtaCollectionId
@@ -27,10 +40,10 @@ export type YobtaCollectionRestoreOperation = {
   merged: number
 }
 
-export const YOBTA_COLLECTION_SHIFT = 'yobta-collection-shift'
-export type YobtaCollectionShiftOperation = {
+export const YOBTA_CHANNEL_SHIFT = 'yobta-channel-shift'
+export type YobtaChannelShiftOperation = {
   id: YobtaOperationId
-  type: typeof YOBTA_COLLECTION_SHIFT
+  type: typeof YOBTA_CHANNEL_SHIFT
   channel: string
   data?: never
   snapshotId: YobtaCollectionId

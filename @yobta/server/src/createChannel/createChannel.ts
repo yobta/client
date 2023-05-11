@@ -5,14 +5,15 @@ import {
   YobtaCollectionOperation,
   YOBTA_SUBSCRIBE,
   YOBTA_UNSUBSCRIBE,
-  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_UPDATE,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_SHIFT,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_CHANNEL_RESTORE,
+  YOBTA_CHANNEL_SHIFT,
   YobtaHeaders,
   YobtaBatchOperation,
   YOBTA_BATCH,
+  Prettify,
 } from '@yobta/protocol'
 import { YobtaRouteParams, coerceError } from '@yobta/utils'
 import { nanoid } from 'nanoid'
@@ -53,10 +54,11 @@ type YobtaChannelProps<
 type Message<Snapshot extends YobtaCollectionAnySnapshot> = {
   clientId: string
   headers: YobtaHeaders
-  operation:
+  operation: Prettify<
     | YobtaCollectionOperation<Snapshot>
     | YobtaSubscribeOperation
     | YobtaUnsubscribeOperation
+  >
 }
 
 export const createChannel: YobtaChannelFactory = <
@@ -111,11 +113,11 @@ export const createChannel: YobtaChannelFactory = <
           unsubscribe(clientId, operation)
           break
         }
-        case YOBTA_COLLECTION_INSERT:
+        case YOBTA_COLLECTION_CREATE:
         case YOBTA_COLLECTION_UPDATE:
-        case YOBTA_COLLECTION_DELETE:
-        case YOBTA_COLLECTION_RESTORE:
-        case YOBTA_COLLECTION_SHIFT: {
+        case YOBTA_CHANNEL_DELETE:
+        case YOBTA_CHANNEL_RESTORE:
+        case YOBTA_CHANNEL_SHIFT: {
           await access.write({ params, headers, operation })
           const merged = await collection.merge({ headers, operation })
           sendBack([merged])

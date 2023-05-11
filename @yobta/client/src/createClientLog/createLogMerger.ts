@@ -1,10 +1,10 @@
 import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_SHIFT,
-  YOBTA_COLLECTION_RESTORE,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_COLLECTION_CREATE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
   YOBTA_COLLECTION_UPDATE,
@@ -57,10 +57,10 @@ export const createLogMerger: YobtaLogMergerFactory =
         switch (operation.type) {
           case YOBTA_REJECT:
             return acc.filter(({ id }) => id !== operation.operationId)
-          case YOBTA_COLLECTION_DELETE:
+          case YOBTA_CHANNEL_DELETE:
             setCount(operation.snapshotId, 1)
             return acc
-          case YOBTA_COLLECTION_RESTORE:
+          case YOBTA_CHANNEL_RESTORE:
             deleted.delete(operation.snapshotId)
             return acc
           case YOBTA_COLLECTION_UPDATE:
@@ -70,14 +70,17 @@ export const createLogMerger: YobtaLogMergerFactory =
             return acc
         }
       }, [])
-      .reduce<Snapshot[]>((acc, { type, snapshotId, nextSnapshotId }) => {
+      .reduce<Snapshot[]>((acc, { type, data, snapshotId, nextSnapshotId }) => {
         switch (type) {
-          case YOBTA_COLLECTION_INSERT:
+          case YOBTA_COLLECTION_CREATE: {
+            const snapshot = getSnapshot(data.id)
+            return insert(acc, snapshot, nextSnapshotId)
+          }
           case YOBTA_COLLECTION_REVALIDATE: {
             const snapshot = getSnapshot(snapshotId)
             return insert(acc, snapshot, nextSnapshotId)
           }
-          case YOBTA_COLLECTION_SHIFT: {
+          case YOBTA_CHANNEL_SHIFT: {
             const nextAcc = acc.filter(({ id }) => id !== snapshotId)
             if (
               nextAcc.length === acc.length ||

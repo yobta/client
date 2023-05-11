@@ -1,6 +1,6 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionInsertOperation,
+  YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
 } from '@yobta/protocol'
 
@@ -10,7 +10,7 @@ interface YobtaMerge {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     entry: YobtaCollectionEntry<Snapshot>,
     operation:
-      | YobtaCollectionInsertOperation<Snapshot>
+      | YobtaCollectionCreateOperation<Snapshot>
       | YobtaCollectionUpdateOperation<Snapshot>,
   ): YobtaCollectionEntry<Snapshot>
 }

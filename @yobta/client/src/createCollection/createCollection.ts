@@ -4,13 +4,14 @@ import {
   YobtaCollectionId,
   YobtaCollectionPatchWithId,
   YobtaCollectionUpdateOperation,
-  YobtaCollectionInsertOperation,
-  YOBTA_COLLECTION_INSERT,
+  YobtaCollectionCreateOperation,
+  YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_UPDATE,
   YOBTA_COLLECTION_REVALIDATE,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_SHIFT,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_CHANNEL_RESTORE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
 import { YobtaObserver, createObservable } from '@yobta/stores'
 
@@ -52,7 +53,7 @@ export type YobtaCollectionEntry<
     [K in keyof Snapshot]: number
   }>,
   ...(
-    | YobtaCollectionInsertOperation<Snapshot>
+    | YobtaCollectionCreateOperation<Snapshot>
     | YobtaCollectionUpdateOperation<Snapshot>
   )[],
 ]
@@ -91,10 +92,10 @@ export const createCollection: YobtaCollectionFactory = <
       }
       if (operation.merged > 0) {
         switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
+          case YOBTA_COLLECTION_CREATE:
           case YOBTA_COLLECTION_UPDATE: {
-            const entry = getEntry(entries, operation.snapshotId)
-            entries[operation.snapshotId] = merge(entry, operation)
+            const entry = getEntry(entries, operation.data.id)
+            entries[operation.data.id] = merge(entry, operation)
             clientLogger.debug('Merged: ', operation)
             break
           }
@@ -111,13 +112,14 @@ export const createCollection: YobtaCollectionFactory = <
         }
       } else {
         switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
+          case YOBTA_COLLECTION_CREATE:
           case YOBTA_COLLECTION_UPDATE:
-          case YOBTA_COLLECTION_DELETE:
-          case YOBTA_COLLECTION_RESTORE:
-          case YOBTA_COLLECTION_SHIFT: {
+          case YOBTA_CHANNEL_INSERT:
+          case YOBTA_CHANNEL_DELETE:
+          case YOBTA_CHANNEL_RESTORE:
+          case YOBTA_CHANNEL_SHIFT: {
             if (
-              operation.type === YOBTA_COLLECTION_INSERT ||
+              operation.type === YOBTA_COLLECTION_CREATE ||
               operation.type === YOBTA_COLLECTION_UPDATE
             ) {
               commit(entries, operation)

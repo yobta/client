@@ -1,10 +1,10 @@
 import {
-  YobtaCollectionInsertOperation,
-  YobtaCollectionShiftOperation,
+  YobtaCollectionCreateOperation,
+  YobtaChannelShiftOperation,
   YobtaCollectionRevalidateOperation,
   YobtaRejectOperation,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_SHIFT,
+  YOBTA_COLLECTION_CREATE,
+  YOBTA_CHANNEL_SHIFT,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_REJECT,
   YobtaCollectionUpdateOperation,
@@ -33,12 +33,11 @@ describe('factory', () => {
 describe('add', () => {
   it('supports insert operations', () => {
     const log = createClientLog(channel)
-    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
@@ -51,9 +50,8 @@ describe('add', () => {
       id: 'op-1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
       type: YOBTA_COLLECTION_UPDATE,
-      data: { key: 'value 2' },
+      data: { id: '1', key: 'value 2' },
       channel,
     }
     log.add([operaion])
@@ -92,11 +90,11 @@ describe('add', () => {
   })
   it('supports move operations', () => {
     const log = createClientLog(channel)
-    const insertOperaion: YobtaCollectionShiftOperation = {
+    const insertOperaion: YobtaChannelShiftOperation = {
       id: '1',
       committed: 1,
       merged: 1,
-      type: YOBTA_COLLECTION_SHIFT,
+      type: YOBTA_CHANNEL_SHIFT,
       channel,
       snapshotId: '1',
       nextSnapshotId: '2',
@@ -106,21 +104,19 @@ describe('add', () => {
   })
   it('adds multiple entries', () => {
     const log = createClientLog(channel)
-    const insertOperaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion1: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
-    const insertOperaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion2: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '2',
       committed: 2,
       merged: 2,
-      snapshotId: '2',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '2', key: 'value' },
       channel,
     }
@@ -129,12 +125,11 @@ describe('add', () => {
   })
   it('should mutate', () => {
     const log = createClientLog(channel)
-    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
@@ -144,21 +139,19 @@ describe('add', () => {
   })
   it('sorts by committed', () => {
     const log = createClientLog(channel)
-    const insertOperaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion1: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 2,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
-    const insertOperaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion2: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '2',
       committed: 2,
       merged: 1,
-      snapshotId: '2',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '2', key: 'value' },
       channel,
     }
@@ -167,12 +160,11 @@ describe('add', () => {
   })
   it('should be idempotent', () => {
     const log = createClientLog(channel)
-    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
@@ -186,11 +178,10 @@ describe('add', () => {
       error: vi.fn(),
     }
     const unsubscribeLogger = connectLogger(clientLogger, mockLogger)
-    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
       type: 'unknown' as any,
       data: { id: '1', key: 'value' },
       channel,
@@ -201,12 +192,11 @@ describe('add', () => {
   })
   it('ignores operations with unknown channel', () => {
     const log = createClientLog(channel)
-    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel: 'unknown',
     }
@@ -215,12 +205,11 @@ describe('add', () => {
   })
   it('does not ignore operations with unknown channel if the scope is not set', () => {
     const log = createClientLog()
-    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel: 'unknown',
     }
@@ -239,21 +228,19 @@ describe('last', () => {
     expect(log.last()).toEqual([])
   })
   it('returns all entries', () => {
-    const insertOperaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion1: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
-    const insertOperaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion2: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '2',
       committed: 2,
       merged: 2,
-      snapshotId: '2',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '2', key: 'value' },
       channel,
     }
@@ -266,12 +253,11 @@ describe('last', () => {
 describe('observe', () => {
   it('receives updates', () => {
     const log = createClientLog(channel)
-    const insertOperaion: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
@@ -282,21 +268,19 @@ describe('observe', () => {
   })
   it('receives one update for multiple entries', () => {
     const log = createClientLog(channel)
-    const insertOperaion1: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion1: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '1',
       committed: 1,
       merged: 1,
-      snapshotId: '1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '1', key: 'value' },
       channel,
     }
-    const insertOperaion2: YobtaCollectionInsertOperation<MockSnapshot> = {
+    const insertOperaion2: YobtaCollectionCreateOperation<MockSnapshot> = {
       id: '2',
       committed: 2,
       merged: 2,
-      snapshotId: '2',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: { id: '2', key: 'value' },
       channel,
     }

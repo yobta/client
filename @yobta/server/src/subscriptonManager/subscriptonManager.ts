@@ -59,12 +59,15 @@ export const registerConnection: YobtaConnectionManager = (
   }
 }
 
-export const notifySibscribers = (
-  operations: YobtaServerDataOperation<YobtaCollectionAnySnapshot>[],
+export const notifySibscribers = <Snapshot extends YobtaCollectionAnySnapshot>(
+  operations: YobtaServerDataOperation<Snapshot>[],
 ): void => {
   operations.forEach(operation => {
     try {
-      subscriptions.publish(operation.channel, operation)
+      subscriptions.publish(
+        operation.channel,
+        operation as YobtaServerDataOperation<YobtaCollectionAnySnapshot>,
+      )
     } catch (err) {
       const error = coerceError(err)
       serverLogger.error(error)

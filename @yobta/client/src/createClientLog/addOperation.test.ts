@@ -1,9 +1,9 @@
 import {
-  YobtaCollectionInsertOperation,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_SHIFT,
-  YOBTA_COLLECTION_RESTORE,
+  YobtaCollectionCreateOperation,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_COLLECTION_CREATE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_RESTORE,
   YOBTA_REJECT,
 } from '@yobta/protocol'
 
@@ -21,11 +21,10 @@ describe('supports all operation types', () => {
       channel: 'channel',
       committed: 1,
       merged: 1,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     },
     {
       id: 'operation-1',
@@ -41,7 +40,7 @@ describe('supports all operation types', () => {
       channel: 'channel',
       committed: 1,
       merged: 1,
-      type: YOBTA_COLLECTION_SHIFT,
+      type: YOBTA_CHANNEL_SHIFT,
       snapshotId: 'snapshot-1',
       nextSnapshotId: 'snapshot-2',
     },
@@ -50,7 +49,7 @@ describe('supports all operation types', () => {
       channel: 'channel',
       committed: 1,
       merged: 1,
-      type: YOBTA_COLLECTION_DELETE,
+      type: YOBTA_CHANNEL_DELETE,
       snapshotId: 'snapshot-1',
     },
     {
@@ -58,7 +57,7 @@ describe('supports all operation types', () => {
       channel: 'channel',
       committed: 1,
       merged: 1,
-      type: YOBTA_COLLECTION_RESTORE,
+      type: YOBTA_CHANNEL_RESTORE,
       snapshotId: 'snapshot-1',
     },
   ]
@@ -74,27 +73,25 @@ describe('supports all operation types', () => {
 
 describe('additions', () => {
   it('sorts ac:1, bc:2', () => {
-    const insertA: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertB: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertB: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-2',
       channel: 'channel',
       committed: 2,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-2',
       },
-      snapshotId: 'snapshot-2',
     }
     const log: any = [insertA]
     const shouldUpdate = addOperation(log, insertB, false)
@@ -102,27 +99,25 @@ describe('additions', () => {
     expect(shouldUpdate).toBe(true)
   })
   it('sorts ac:1, bc:1', () => {
-    const insertA: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertB: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertB: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-2',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-2',
       },
-      snapshotId: 'snapshot-2',
     }
     const log: any = [insertA]
     const shouldUpdate = addOperation(log, insertB, false)
@@ -133,27 +128,25 @@ describe('additions', () => {
 
 describe('insertions', () => {
   it('sorts ac:2, bc:1', () => {
-    const insertA: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 2,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertB: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertB: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-2',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-2',
       },
-      snapshotId: 'snapshot-2',
     }
     const log: any = [insertA]
     const shouldUpdate = addOperation(log, insertB, false)
@@ -161,27 +154,25 @@ describe('insertions', () => {
     expect(shouldUpdate).toBe(true)
   })
   it('sorts ac:1, bc:1', () => {
-    const insertA: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertB: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertB: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-2',
       channel: 'channel',
       committed: 2,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-2',
       },
-      snapshotId: 'snapshot-2',
     }
     const log: any = [insertA]
     const shouldUpdate = addOperation(log, insertB, false)
@@ -192,27 +183,25 @@ describe('insertions', () => {
 
 describe('conflicts', () => {
   it('resolves ac:1, ac:2', () => {
-    const insertA1: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA1: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertA2: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA2: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 2,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
     const log: any = [insertA1]
     const shouldUpdate = addOperation(log, insertA2, true)
@@ -220,27 +209,25 @@ describe('conflicts', () => {
     expect(shouldUpdate).toBe(false)
   })
   it('resolves ac:1, am:0', () => {
-    const insertA1: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA1: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertA2: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA2: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
     const log: any = [insertA1]
     const shouldUpdate = addOperation(log, insertA2, true)
@@ -248,27 +235,25 @@ describe('conflicts', () => {
     expect(shouldUpdate).toBe(false)
   })
   it('resolves ac:1, am:1', () => {
-    const insertA1: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA1: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertA2: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA2: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 1,
       merged: 2,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
     const log: any = [insertA1]
     const shouldUpdate = addOperation(log, insertA2, true)
@@ -276,27 +261,25 @@ describe('conflicts', () => {
     expect(shouldUpdate).toBe(true)
   })
   it('resolves am:1, am:0', () => {
-    const insertA1: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA1: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 2,
       merged: 3,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertA2: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA2: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 3,
       merged: 0,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
     const log: any = [insertA1]
     const shouldUpdate = addOperation(log, insertA2, true)
@@ -304,27 +287,25 @@ describe('conflicts', () => {
     expect(shouldUpdate).toBe(false)
   })
   it('resolves am:1, am:2', () => {
-    const insertA1: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA1: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 2,
       merged: 3,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
-    const insertA2: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertA2: YobtaCollectionCreateOperation<Snapshot> = {
       id: 'operation-1',
       channel: 'channel',
       committed: 3,
       merged: 4,
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_COLLECTION_CREATE,
       data: {
         id: 'snapshot-1',
       },
-      snapshotId: 'snapshot-1',
     }
     const log: any = [insertA1]
     const shouldUpdate = addOperation(log, insertA2, true)

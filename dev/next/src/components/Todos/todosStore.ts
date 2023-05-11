@@ -1,13 +1,10 @@
 import {
   createChannel,
   createCollection,
-  // createIndexedDbStore,
-  createMemoryStore,
+  createIndexedDbStore,
+  // createMemoryStore,
 } from '@yobta/client'
-import {
-  YobtaCollectionId,
-  YobtaCollectionShiftOperation,
-} from '@yobta/protocol'
+import { YobtaCollectionId, YobtaChannelInsertOperation } from '@yobta/protocol'
 import { createDerivedStore } from '@yobta/stores'
 import { createHookFromStore } from '@yobta/stores/react'
 
@@ -21,8 +18,8 @@ type Todo = {
   time: number
 }
 
-// const store = createIndexedDbStore<Todo>('todos', 1)
-const store = createMemoryStore<Todo>('todos')
+const store = createIndexedDbStore<Todo>('todos', 1)
+// const store = createMemoryStore<Todo>('todos')
 
 const collection = createCollection(store)
 
@@ -68,7 +65,7 @@ export const addTodo = ({
   text,
 }: {
   text: string
-}): YobtaCollectionShiftOperation =>
+}): YobtaChannelInsertOperation =>
   allTodos.insert({
     id: Date.now().toString(),
     text,

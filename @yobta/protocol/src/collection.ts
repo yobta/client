@@ -1,10 +1,11 @@
 import { YobtaJsonValue } from '@yobta/stores'
 
-import { YobtaOperationId } from './unsorted.js'
+import { Prettify, YobtaOperationId } from './unsorted.js'
 import {
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionShiftOperation,
-  YobtaCollectionRestoreOperation,
+  YobtaChannelDeleteOperation,
+  YobtaChannelShiftOperation,
+  YobtaChannelRestoreOperation,
+  YobtaChannelInsertOperation,
 } from './channel.js'
 
 export type YobtaCollectionId = string | number
@@ -24,15 +25,15 @@ export type YobtaCollectionPatchWithId<
   id: YobtaCollectionId
 }
 
-export const YOBTA_COLLECTION_INSERT = 'yobta-collection-insert'
-export type YobtaCollectionInsertOperation<
+export const YOBTA_COLLECTION_CREATE = 'yobta-collection-create'
+export type YobtaCollectionCreateOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
 > = {
   id: YobtaOperationId
-  type: typeof YOBTA_COLLECTION_INSERT
+  type: typeof YOBTA_COLLECTION_CREATE
   channel: string
   data: Snapshot
-  snapshotId: YobtaCollectionId
+  snapshotId?: never
   nextSnapshotId?: never
   operationId?: never
   committed: number
@@ -46,8 +47,8 @@ export type YobtaCollectionUpdateOperation<
   id: YobtaOperationId
   type: typeof YOBTA_COLLECTION_UPDATE
   channel: string
-  data: YobtaCollectionPatchWithoutId<Snapshot>
-  snapshotId: YobtaCollectionId
+  data: YobtaCollectionPatchWithId<Snapshot>
+  snapshotId?: never
   nextSnapshotId?: never
   operationId?: never
   committed: number
@@ -68,18 +69,19 @@ export type YobtaCollectionRevalidateOperation<
   channel: string
   data: YobtaCollectionTuple<Snapshot>[]
   snapshotId: YobtaCollectionId
-  nextSnapshotId?: YobtaCollectionId
-  operationId?: never
   committed: number
   merged: number
+  nextSnapshotId?: never
+  operationId?: never
 }
 
 export type YobtaCollectionOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
-  Patched extends YobtaCollectionAnySnapshot = YobtaCollectionPatchWithId<Snapshot>,
-> =
-  | YobtaCollectionInsertOperation<Snapshot>
-  | YobtaCollectionUpdateOperation<Patched>
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
-  | YobtaCollectionShiftOperation
+> = Prettify<
+  | YobtaCollectionCreateOperation<Snapshot>
+  | YobtaCollectionUpdateOperation<Snapshot>
+  | YobtaChannelInsertOperation
+  | YobtaChannelDeleteOperation
+  | YobtaChannelRestoreOperation
+  | YobtaChannelShiftOperation
+>
