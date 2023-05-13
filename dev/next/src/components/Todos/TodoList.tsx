@@ -60,7 +60,6 @@ export const TodoList: TodoListFC = () => {
                   updateTodo({ id, text: trimmed })
                 }}
               />
-              {String(completed)}
               <Toggle>
                 <Button
                   className="p-0 w-14 h-14 rounded-l-none shrink-0"

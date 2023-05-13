@@ -82,7 +82,6 @@ export const createChannel: YobtaChannelFactory = <
         case YOBTA_SUBSCRIBE: {
           await access.read({ params, headers, operation })
           subscribe(clientId, operation)
-
           const stream = collection.revalidate(
             operation.channel,
             operation.merged,
