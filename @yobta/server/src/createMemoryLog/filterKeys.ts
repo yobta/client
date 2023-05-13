@@ -1,7 +1,6 @@
 import {
   YobtaCollectionAnySnapshot,
   YOBTA_COLLECTION_CREATE,
-  YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
   YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
@@ -27,12 +26,6 @@ export const filterKeys = <Snapshot extends YobtaCollectionAnySnapshot>(
     case YOBTA_COLLECTION_UPDATE: {
       const snapshot: Snapshot = {} as Snapshot
       for (const key in operation.data) {
-        // if (
-        //   key.toLowerCase() === 'id' &&
-        //   operation.type === YOBTA_COLLECTION_UPDATE
-        // ) {
-        //   continue
-        // }
         const entry = log.find(
           currentEntry =>
             currentEntry.snapshotId === operation.data.id &&

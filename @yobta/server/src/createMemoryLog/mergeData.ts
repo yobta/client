@@ -6,10 +6,7 @@ import {
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
-import {
-  YobtaServerLogItem,
-  YobtaServerLogSnapshotEntry,
-} from './createMemoryLog.js'
+import { YobtaServerLogItem } from './createMemoryLog.js'
 
 interface YobtaServerLogMergeData {
   <

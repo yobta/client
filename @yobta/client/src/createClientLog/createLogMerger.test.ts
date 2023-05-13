@@ -747,7 +747,7 @@ describe('rejects', () => {
         },
       },
     ])
-    expect(result).toEqual([store['item-1']])
+    expect(result).toEqual([store['item-2']])
   })
 })
 describe('updates', () => {

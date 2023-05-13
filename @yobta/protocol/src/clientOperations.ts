@@ -44,7 +44,7 @@ export type YobtaError = {
   message: string
 }
 
-export const YOBTA_SUBSCRIBE = 'yobta-subscribe'
+export const YOBTA_SUBSCRIBE = 'yobta-subscribe' as const
 export type YobtaSubscribeOperation = {
   id: YobtaOperationId
   channel: string

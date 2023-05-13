@@ -14,6 +14,7 @@ import {
   YobtaBatchOperation,
   YOBTA_BATCH,
   Prettify,
+  YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
 import { YobtaRouteParams, coerceError } from '@yobta/utils'
 import { nanoid } from 'nanoid'
@@ -81,6 +82,7 @@ export const createChannel: YobtaChannelFactory = <
         case YOBTA_SUBSCRIBE: {
           await access.read({ params, headers, operation })
           subscribe(clientId, operation)
+
           const stream = collection.revalidate(
             operation.channel,
             operation.merged,
@@ -100,6 +102,7 @@ export const createChannel: YobtaChannelFactory = <
                 data,
               }
               sendBack([batch])
+              serverLogger.debug(`Chunk sent: ${data.length}`, batch)
             }
           } catch (err) {
             const error = coerceError(err)
@@ -115,6 +118,7 @@ export const createChannel: YobtaChannelFactory = <
         }
         case YOBTA_COLLECTION_CREATE:
         case YOBTA_COLLECTION_UPDATE:
+        case YOBTA_CHANNEL_INSERT:
         case YOBTA_CHANNEL_DELETE:
         case YOBTA_CHANNEL_RESTORE:
         case YOBTA_CHANNEL_SHIFT: {

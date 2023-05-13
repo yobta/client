@@ -14,10 +14,10 @@ import {
 } from '@yobta/protocol'
 import { createObservable, YobtaJsonValue } from '@yobta/stores'
 import { coerceError } from '@yobta/utils'
-import { Readable, ReadableOptions } from 'stream'
+import { Readable } from 'stream'
 
 import { serverLogger } from '../serverLogger/serverLogger.js'
-import { YobtaFilteredOperation, filterKeys } from './filterKeys.js'
+import { filterKeys } from './filterKeys.js'
 import { mergeCursor } from './mergeCursor.js'
 import { mergeData } from './mergeData.js'
 import { operationGenerator } from './operationGenerator.js'

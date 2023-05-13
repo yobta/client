@@ -1,4 +1,5 @@
 import {
+  YOBTA_COLLECTION_UPDATE,
   YobtaCollectionAnySnapshot,
   YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
@@ -21,8 +22,14 @@ export const merge: YobtaMerge = (
 ) => {
   const nextSnapshot = { ...snapshot }
   const nextVersions = { ...versions }
+
   for (const key in operation.data) {
-    if (operation.committed > (versions[key] || 0)) {
+    if (
+      operation.committed > (versions[key] || 0) &&
+      !(
+        operation.type === YOBTA_COLLECTION_UPDATE && key.toLowerCase() === 'id'
+      )
+    ) {
       // @ts-ignore
       nextSnapshot[key] = operation.data[key]
       // @ts-ignore
