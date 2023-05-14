@@ -1,7 +1,7 @@
 import {
   YobtaClientDataOperation,
   YobtaCollectionAnySnapshot,
-  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
@@ -26,13 +26,13 @@ export const mergeData: YobtaServerLogMergeData = ({
   operation,
 }) => {
   switch (operation.type) {
-    case YOBTA_COLLECTION_INSERT:
+    case YOBTA_COLLECTION_CREATE:
     case YOBTA_COLLECTION_UPDATE: {
       const head: YobtaServerLogItem[] = []
       const updatedKeys = new Set<string>()
       for (const entry of log) {
         if (
-          entry.snapshotId === operation.snapshotId &&
+          entry.snapshotId === operation.data.id &&
           entry.type === YOBTA_COLLECTION_REVALIDATE &&
           entry.collection === collection &&
           entry.key in operation.data
@@ -54,19 +54,24 @@ export const mergeData: YobtaServerLogMergeData = ({
         }
       }
       for (const key in operation.data) {
-        if (updatedKeys.has(key)) {
-          break
+        if (
+          !(
+            updatedKeys.has(key) ||
+            (key.toLowerCase() === 'id' &&
+              operation.type === YOBTA_COLLECTION_UPDATE)
+          )
+        ) {
+          head.push({
+            type: YOBTA_COLLECTION_REVALIDATE,
+            snapshotId: operation.data.id,
+            collection,
+            committed: operation.committed,
+            merged,
+            key,
+            operationId: operation.id,
+            value: operation.data[key],
+          })
         }
-        head.push({
-          type: YOBTA_COLLECTION_REVALIDATE,
-          operationId: operation.id,
-          snapshotId: operation.snapshotId,
-          collection,
-          committed: operation.committed,
-          merged,
-          key,
-          value: operation.data[key],
-        })
       }
       return head
     }

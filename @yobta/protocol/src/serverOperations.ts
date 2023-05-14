@@ -1,11 +1,12 @@
 import {
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionShiftOperation,
-  YobtaCollectionRestoreOperation,
+  YobtaChannelDeleteOperation,
+  YobtaChannelShiftOperation,
+  YobtaChannelRestoreOperation,
+  YobtaChannelInsertOperation,
 } from './channel.js'
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionInsertOperation,
+  YobtaCollectionCreateOperation,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionUpdateOperation,
 } from './collection.js'
@@ -37,9 +38,9 @@ export const YOBTA_BATCH = 'yobta-batch'
 export type YobtaBatchedOperation<Snapshot extends YobtaCollectionAnySnapshot> =
 
     | YobtaCollectionRevalidateOperation<Snapshot>
-    | YobtaCollectionDeleteOperation
-    | YobtaCollectionRestoreOperation
-    | YobtaCollectionShiftOperation
+    | YobtaChannelDeleteOperation
+    | YobtaChannelRestoreOperation
+    | YobtaChannelShiftOperation
 
 export type YobtaBatchOperation<Snapshot extends YobtaCollectionAnySnapshot> = {
   id: YobtaOperationId
@@ -54,20 +55,22 @@ export type YobtaBatchOperation<Snapshot extends YobtaCollectionAnySnapshot> = {
 export type YobtaServerOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaReceived
   | YobtaRejectOperation
-  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionCreateOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
-  | YobtaCollectionShiftOperation
   | YobtaBatchOperation<Snapshot>
+  | YobtaChannelInsertOperation
+  | YobtaChannelDeleteOperation
+  | YobtaChannelRestoreOperation
+  | YobtaChannelShiftOperation
 
 export type YobtaServerDataOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
 > =
-  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionCreateOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
-  | YobtaCollectionShiftOperation
+  | YobtaChannelInsertOperation
+  | YobtaChannelDeleteOperation
+  | YobtaChannelRestoreOperation
+  | YobtaChannelShiftOperation

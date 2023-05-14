@@ -8,9 +8,14 @@ import {
 
 export type YobtaOperationId = string
 
-export type YobtaAnyOperation =
+export type Prettify<Type> = {
+  [Key in keyof Type]: Type[Key]
+} & {}
+
+export type YobtaAnyOperation = Prettify<
   | YobtaReceived
   | YobtaRejectOperation
   | YobtaError
   | YobtaClientOperation<YobtaCollectionAnySnapshot>
   | YobtaServerOperation<YobtaCollectionAnySnapshot>
+>

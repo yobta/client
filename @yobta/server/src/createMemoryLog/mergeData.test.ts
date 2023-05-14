@@ -1,13 +1,13 @@
 import {
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionInsertOperation,
-  YobtaCollectionShiftOperation,
-  YobtaCollectionRestoreOperation,
+  YobtaChannelDeleteOperation,
+  YobtaCollectionCreateOperation,
+  YobtaChannelShiftOperation,
+  YobtaChannelRestoreOperation,
   YobtaCollectionUpdateOperation,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_SHIFT,
-  YOBTA_COLLECTION_RESTORE,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_COLLECTION_CREATE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
@@ -24,16 +24,15 @@ const merged = 456
 
 it('is immutable', () => {
   const log: YobtaServerLogItem[] = []
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionCreateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
       id: 'id-2',
       name: 'john',
     },
     committed: 2,
     merged: 0,
-    snapshotId: 'id-2',
     channel: 'channel',
   }
   const result = mergeData({ log, collection: 'test', merged, operation })
@@ -41,16 +40,15 @@ it('is immutable', () => {
 })
 it('adds inserted key entries to empty log', () => {
   const log: YobtaServerLogItem[] = []
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionCreateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
       id: 'id-2',
       name: 'john',
     },
     committed: 2,
     merged: 0,
-    snapshotId: 'id-2',
     channel: 'channel',
   }
   const result = mergeData({
@@ -95,16 +93,15 @@ it('adds inserted key entries to populated log', () => {
       value: 'some value',
     },
   ]
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionCreateOperation<Snapshot> = {
     id: 'op-id-2',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
       id: 'id-2',
       name: 'john',
     },
     committed: 2,
     merged: 0,
-    snapshotId: 'id-2',
     channel: 'channel',
   }
   const result = mergeData({ log, collection: 'test', merged, operation })
@@ -134,9 +131,9 @@ it('adds inserted key entries to populated log', () => {
 })
 it('ignores delete operation', () => {
   const log: YobtaServerLogItem[] = []
-  const operation: YobtaCollectionDeleteOperation = {
+  const operation: YobtaChannelDeleteOperation = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_DELETE,
+    type: YOBTA_CHANNEL_DELETE,
     channel: 'channel',
     snapshotId: 'id',
     committed: 1,
@@ -147,9 +144,9 @@ it('ignores delete operation', () => {
 })
 it('ignores restore operation', () => {
   const log: YobtaServerLogItem[] = []
-  const operation: YobtaCollectionRestoreOperation = {
+  const operation: YobtaChannelRestoreOperation = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_RESTORE,
+    type: YOBTA_CHANNEL_RESTORE,
     channel: 'channel',
     snapshotId: 'id',
     committed: 1,
@@ -160,9 +157,9 @@ it('ignores restore operation', () => {
 })
 it('ignores move opetation', () => {
   const log: YobtaServerLogItem[] = []
-  const operation: YobtaCollectionShiftOperation = {
+  const operation: YobtaChannelShiftOperation = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_SHIFT,
+    type: YOBTA_CHANNEL_SHIFT,
     channel: 'channel',
     snapshotId: 'id',
     nextSnapshotId: 'id-2',
@@ -178,11 +175,11 @@ it('adds updated key entries to empty log', () => {
     id: 'op-id-1',
     type: YOBTA_COLLECTION_UPDATE,
     data: {
+      id: 'id',
       name: 'john',
     },
     committed: 1,
     merged: 2,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const result = mergeData({ log, collection: 'test', merged, operation })
@@ -190,17 +187,27 @@ it('adds updated key entries to empty log', () => {
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       operationId: 'op-id-1',
-      snapshotId: 'id',
       collection: 'test',
       committed: 1,
       merged,
       key: 'name',
+      snapshotId: 'id',
       value: 'john',
     },
   ])
 })
 it('overwrites updated log entry and respects entries order', () => {
   const log: YobtaServerLogItem[] = [
+    {
+      type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
+      snapshotId: 'id-1',
+      collection: 'test',
+      committed: 1,
+      merged: 2,
+      key: 'id',
+      value: 'id-1',
+    },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       operationId: 'op-id-1',
@@ -226,15 +233,25 @@ it('overwrites updated log entry and respects entries order', () => {
     id: 'op-id',
     type: YOBTA_COLLECTION_UPDATE,
     data: {
+      id: 'id-1',
       name: 'jane',
     },
     committed: 5,
     merged: 0,
-    snapshotId: 'id-1',
     channel: 'channel',
   }
   const result = mergeData({ log, collection: 'test', merged, operation })
   expect(result).toEqual([
+    {
+      type: YOBTA_COLLECTION_REVALIDATE,
+      operationId: 'op-id-1',
+      snapshotId: 'id-1',
+      collection: 'test',
+      committed: 5,
+      merged,
+      key: 'id',
+      value: 'id-1',
+    },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       operationId: 'op-id-1',
@@ -279,11 +296,11 @@ it('throws when keys are not properly filtered', () => {
         id: 'op-id',
         type: YOBTA_COLLECTION_UPDATE,
         data: {
+          id: 'id-1',
           name: 'jane',
         },
         committed: 1,
         merged: 0,
-        snapshotId: 'id-1',
         channel: 'channel',
       },
     }),
@@ -297,11 +314,11 @@ it('throws when keys are not properly filtered', () => {
         id: 'op-id',
         type: YOBTA_COLLECTION_UPDATE,
         data: {
+          id: 'id-1',
           name: 'jane',
         },
         committed: 2,
         merged: 0,
-        snapshotId: 'id-1',
         channel: 'channel',
       },
     }),

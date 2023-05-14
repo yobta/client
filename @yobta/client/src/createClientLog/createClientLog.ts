@@ -1,20 +1,22 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionInsertOperation,
-  YobtaCollectionShiftOperation,
-  YobtaCollectionRestoreOperation,
+  YobtaChannelDeleteOperation,
+  YobtaCollectionCreateOperation,
+  YobtaChannelShiftOperation,
+  YobtaChannelRestoreOperation,
   YobtaCollectionRevalidateOperation,
   YobtaOperationId,
   YobtaRejectOperation,
-  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_UPDATE,
   YOBTA_COLLECTION_REVALIDATE,
-  YOBTA_COLLECTION_SHIFT,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_RESTORE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_CHANNEL_RESTORE,
   YOBTA_REJECT,
   YobtaCollectionUpdateOperation,
+  YobtaChannelInsertOperation,
+  YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
 import { createObservable } from '@yobta/stores'
 
@@ -38,12 +40,13 @@ export type YobtaClientLog<Snapshot extends YobtaCollectionAnySnapshot> =
 export type YobtaClientLogOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
 > =
-  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionCreateOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
-  | YobtaCollectionShiftOperation
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
+  | YobtaChannelInsertOperation
+  | YobtaChannelShiftOperation
+  | YobtaChannelDeleteOperation
+  | YobtaChannelRestoreOperation
   | YobtaRejectOperation
 // #endregion
 
@@ -64,11 +67,12 @@ export const createClientLog: YobtaClientLogFactory = <
       : newOperations
     ops.forEach(operation => {
       switch (operation.type) {
-        case YOBTA_COLLECTION_INSERT:
+        case YOBTA_COLLECTION_CREATE:
         case YOBTA_COLLECTION_UPDATE:
-        case YOBTA_COLLECTION_SHIFT:
-        case YOBTA_COLLECTION_DELETE:
-        case YOBTA_COLLECTION_RESTORE:
+        case YOBTA_CHANNEL_INSERT:
+        case YOBTA_CHANNEL_SHIFT:
+        case YOBTA_CHANNEL_DELETE:
+        case YOBTA_CHANNEL_RESTORE:
         case YOBTA_COLLECTION_REVALIDATE:
         case YOBTA_REJECT: {
           const hasConflict = ids.has(operation.id)

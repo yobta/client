@@ -1,6 +1,7 @@
 import {
+  YOBTA_COLLECTION_UPDATE,
   YobtaCollectionAnySnapshot,
-  YobtaCollectionInsertOperation,
+  YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
 } from '@yobta/protocol'
 
@@ -10,7 +11,7 @@ interface YobtaMerge {
   <Snapshot extends YobtaCollectionAnySnapshot>(
     entry: YobtaCollectionEntry<Snapshot>,
     operation:
-      | YobtaCollectionInsertOperation<Snapshot>
+      | YobtaCollectionCreateOperation<Snapshot>
       | YobtaCollectionUpdateOperation<Snapshot>,
   ): YobtaCollectionEntry<Snapshot>
 }
@@ -21,8 +22,14 @@ export const merge: YobtaMerge = (
 ) => {
   const nextSnapshot = { ...snapshot }
   const nextVersions = { ...versions }
+
   for (const key in operation.data) {
-    if (operation.committed > (versions[key] || 0)) {
+    if (
+      operation.committed > (versions[key] || 0) &&
+      !(
+        operation.type === YOBTA_COLLECTION_UPDATE && key.toLowerCase() === 'id'
+      )
+    ) {
       // @ts-ignore
       nextSnapshot[key] = operation.data[key]
       // @ts-ignore

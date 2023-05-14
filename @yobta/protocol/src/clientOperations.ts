@@ -2,33 +2,39 @@ import { YobtaJsonValue } from '@yobta/stores'
 
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionInsertOperation,
+  YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
 } from './collection.js'
-import { YobtaOperationId } from './unsorted.js'
+import { Prettify, YobtaOperationId } from './unsorted.js'
 import {
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionShiftOperation,
-  YobtaCollectionRestoreOperation,
+  YobtaChannelDeleteOperation,
+  YobtaChannelShiftOperation,
+  YobtaChannelRestoreOperation,
+  YobtaChannelInsertOperation,
 } from './channel.js'
 
 export type YobtaClientOperation<Snapshot extends YobtaCollectionAnySnapshot> =
-  | YobtaCollectionInsertOperation<Snapshot>
-  | YobtaCollectionUpdateOperation<Snapshot>
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
-  | YobtaCollectionShiftOperation
-  | YobtaSubscribeOperation
-  | YobtaUnsubscribeOperation
+  Prettify<
+    | YobtaCollectionCreateOperation<Snapshot>
+    | YobtaCollectionUpdateOperation<Snapshot>
+    | YobtaChannelInsertOperation
+    | YobtaChannelDeleteOperation
+    | YobtaChannelRestoreOperation
+    | YobtaChannelShiftOperation
+    | YobtaSubscribeOperation
+    | YobtaUnsubscribeOperation
+  >
 
 export type YobtaClientDataOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
-> =
-  | YobtaCollectionInsertOperation<Snapshot>
+> = Prettify<
+  | YobtaCollectionCreateOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
-  | YobtaCollectionShiftOperation
+  | YobtaChannelInsertOperation
+  | YobtaChannelDeleteOperation
+  | YobtaChannelRestoreOperation
+  | YobtaChannelShiftOperation
+>
 
 export const YOBTA_ERROR = 'yobta-error'
 export type YobtaError = {
@@ -38,7 +44,7 @@ export type YobtaError = {
   message: string
 }
 
-export const YOBTA_SUBSCRIBE = 'yobta-subscribe'
+export const YOBTA_SUBSCRIBE = 'yobta-subscribe' as const
 export type YobtaSubscribeOperation = {
   id: YobtaOperationId
   channel: string

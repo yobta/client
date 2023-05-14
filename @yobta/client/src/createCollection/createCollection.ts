@@ -4,13 +4,14 @@ import {
   YobtaCollectionId,
   YobtaCollectionPatchWithId,
   YobtaCollectionUpdateOperation,
-  YobtaCollectionInsertOperation,
-  YOBTA_COLLECTION_INSERT,
+  YobtaCollectionCreateOperation,
+  YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_UPDATE,
   YOBTA_COLLECTION_REVALIDATE,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_SHIFT,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_CHANNEL_RESTORE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
 import { YobtaObserver, createObservable } from '@yobta/stores'
 
@@ -52,7 +53,7 @@ export type YobtaCollectionEntry<
     [K in keyof Snapshot]: number
   }>,
   ...(
-    | YobtaCollectionInsertOperation<Snapshot>
+    | YobtaCollectionCreateOperation<Snapshot>
     | YobtaCollectionUpdateOperation<Snapshot>
   )[],
 ]
@@ -84,23 +85,26 @@ export const createCollection: YobtaCollectionFactory = <
   const put = async (
     operations: YobtaClientLogOperation<Snapshot>[],
   ): Promise<void> => {
-    const ids: YobtaCollectionId[] = []
+    const ids = new Set<YobtaCollectionId>()
     for (const operation of operations) {
-      if (operation.snapshotId) {
-        ids.push(operation.snapshotId)
-      }
       if (operation.merged > 0) {
         switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
+          case YOBTA_COLLECTION_CREATE:
           case YOBTA_COLLECTION_UPDATE: {
-            const entry = getEntry(entries, operation.snapshotId)
-            entries[operation.snapshotId] = merge(entry, operation)
-            clientLogger.debug('Merged: ', operation)
+            const entry = getEntry(entries, operation.data.id)
+            entries[operation.data.id] = merge(entry, operation)
+            ids.add(operation.data.id)
+            clientLogger.debug(
+              'Merged: ',
+              operation,
+              entries[operation.data.id],
+            )
             break
           }
           case YOBTA_COLLECTION_REVALIDATE: {
             const entry = getEntry(entries, operation.snapshotId)
             entries[operation.snapshotId] = revalidate(entry, operation)
+            ids.add(operation.snapshotId)
             clientLogger.debug('Merged: ', operation)
             break
           }
@@ -111,18 +115,17 @@ export const createCollection: YobtaCollectionFactory = <
         }
       } else {
         switch (operation.type) {
-          case YOBTA_COLLECTION_INSERT:
-          case YOBTA_COLLECTION_UPDATE:
-          case YOBTA_COLLECTION_DELETE:
-          case YOBTA_COLLECTION_RESTORE:
-          case YOBTA_COLLECTION_SHIFT: {
-            if (
-              operation.type === YOBTA_COLLECTION_INSERT ||
-              operation.type === YOBTA_COLLECTION_UPDATE
-            ) {
-              commit(entries, operation)
-              clientLogger.debug('Already committed: ', operation)
-            }
+          case YOBTA_COLLECTION_CREATE:
+          case YOBTA_COLLECTION_UPDATE: {
+            commit(entries, operation)
+            ids.add(operation.data.id)
+            queueOperation(operation)
+            break
+          }
+          case YOBTA_CHANNEL_INSERT:
+          case YOBTA_CHANNEL_DELETE:
+          case YOBTA_CHANNEL_RESTORE:
+          case YOBTA_CHANNEL_SHIFT: {
             queueOperation(operation)
             break
           }

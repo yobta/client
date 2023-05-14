@@ -1,15 +1,13 @@
 import {
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionInsertOperation,
-  YobtaCollectionShiftOperation,
-  YobtaCollectionRestoreOperation,
+  YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_SHIFT,
-  YOBTA_COLLECTION_RESTORE,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_COLLECTION_CREATE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
+  YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
 
 import {
@@ -27,16 +25,15 @@ type Snapshot = {
 }
 
 it('returns same operation.data if log is empty', () => {
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionCreateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
       id: 'id',
       name: 'john',
     },
     committed: 1,
     merged: 2,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const result = filterKeys([], 'collection', operation)
@@ -44,15 +41,14 @@ it('returns same operation.data if log is empty', () => {
 })
 it('does not mutate log', () => {
   const log: YobtaServerLogItem[] = []
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionCreateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
       id: 'id',
       name: 'john',
     },
     channel: 'channel',
-    snapshotId: 'id',
     committed: 1,
     merged: 2,
   }
@@ -60,45 +56,76 @@ it('does not mutate log', () => {
   filterKeys(log, 'collection', operation)
   expect(log).toEqual(logCopy)
 })
-it('returns same operation if committed is greater then in log', () => {
+it('keeps keys when gets newer input', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       operationId: 'op-id-1',
-      snapshotId: 'id',
+      snapshotId: 'item-id',
       collection: 'collection',
       committed: 1,
       merged: 2,
       key: 'id',
-      value: 'id',
+      value: 'item-id',
     },
     {
       type: YOBTA_COLLECTION_REVALIDATE,
       operationId: 'op-id-2',
-      snapshotId: 'id',
+      snapshotId: 'item-id',
       collection: 'collection',
       committed: 1,
       merged: 2,
       key: 'name',
-      value: 'john',
+      value: 'repace-john',
     },
   ]
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const result = filterKeys(log, 'collection', {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
-      id: 'id',
-      name: 'john',
+      id: 'item-id',
+      name: 'with-jane',
     },
     committed: 2,
     merged: 3,
-    snapshotId: 'id',
+    channel: 'channel',
+  })
+  expect(result).toEqual({
+    id: 'op-id',
+    type: YOBTA_COLLECTION_CREATE,
+    data: {
+      id: 'item-id',
+      name: 'with-jane',
+    },
+    committed: 2,
+    merged: 3,
+    channel: 'channel',
+  })
+})
+it('keeps id key for update operation', () => {
+  const log: YobtaServerLogItem[] = []
+  const operation: YobtaCollectionUpdateOperation<Snapshot> = {
+    id: 'op-id',
+    type: YOBTA_COLLECTION_UPDATE,
+    data: {
+      id: 'id',
+      name: 'jane',
+    },
+    committed: 2,
+    merged: 3,
     channel: 'channel',
   }
   const result = filterKeys(log, 'collection', operation)
-  expect(result).toEqual(operation)
+  expect(result).toEqual({
+    id: 'op-id',
+    type: YOBTA_COLLECTION_UPDATE,
+    data: { id: 'id', name: 'jane' },
+    committed: 2,
+    merged: 3,
+    channel: 'channel',
+  })
 })
-it('omits key if committed is same as in log', () => {
+it('omits keys when committed is same as in log', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
@@ -121,32 +148,28 @@ it('omits key if committed is same as in log', () => {
       value: 'john',
     },
   ]
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_UPDATE,
     data: {
       id: 'id',
-      name: 'john',
+      name: 'jane',
     },
     committed: 2,
     merged: 3,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const result = filterKeys(log, 'collection', operation)
   expect(result).toEqual({
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
-    data: {
-      id: 'id',
-    },
+    type: YOBTA_COLLECTION_UPDATE,
+    data: { id: 'id' },
     committed: 2,
     merged: 3,
-    snapshotId: 'id',
     channel: 'channel',
   })
 })
-it('omits key if committed is less then in log', () => {
+it('omits key and id if committed is less then in log', () => {
   const log: YobtaServerLogItem[] = [
     {
       type: YOBTA_COLLECTION_REVALIDATE,
@@ -169,34 +192,30 @@ it('omits key if committed is less then in log', () => {
       value: 'john',
     },
   ]
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionUpdateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_UPDATE,
     data: {
       id: 'id',
-      name: 'john',
+      name: 'janex',
     },
     committed: 3,
     merged: 4,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const result = filterKeys(log, 'collection', operation)
   expect(result).toEqual({
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
-    data: {
-      id: 'id',
-    },
+    type: YOBTA_COLLECTION_UPDATE,
+    data: { id: 'id' },
     committed: 3,
     merged: 4,
-    snapshotId: 'id',
     channel: 'channel',
   })
 })
 it('has no issues with rest log entry types', () => {
   const insertEntry: YobtaServerLogChannelInsertEntry = {
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_CHANNEL_INSERT,
     operationId: 'op-id-1',
     snapshotId: 'id',
     channel: 'channel',
@@ -205,7 +224,7 @@ it('has no issues with rest log entry types', () => {
     merged: 2,
   }
   const deleteEntry: YobtaServerLogChannelDeleteEntry = {
-    type: YOBTA_COLLECTION_DELETE,
+    type: YOBTA_CHANNEL_DELETE,
     operationId: 'op-id-2',
     snapshotId: 'id',
     channel: 'channel',
@@ -214,7 +233,7 @@ it('has no issues with rest log entry types', () => {
     merged: 4,
   }
   const restoreEntry: YobtaServerLogChannelRestoreEntry = {
-    type: YOBTA_COLLECTION_RESTORE,
+    type: YOBTA_CHANNEL_RESTORE,
     operationId: 'op-id-3',
     snapshotId: 'id',
     channel: 'channel',
@@ -223,7 +242,7 @@ it('has no issues with rest log entry types', () => {
     merged: 6,
   }
   const moveEntry: YobtaServerLogChannelMoveEntry = {
-    type: YOBTA_COLLECTION_SHIFT,
+    type: YOBTA_CHANNEL_SHIFT,
     operationId: 'op-id-4',
     snapshotId: 'id',
     nextSnapshotId: 'id-2',
@@ -238,69 +257,30 @@ it('has no issues with rest log entry types', () => {
     restoreEntry,
     moveEntry,
   ]
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionCreateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
       id: 'id',
       name: 'john',
     },
     committed: 1,
     merged: 2,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const result = filterKeys(log, 'collection', operation)
   expect(result).toEqual(operation)
 })
-it('ignores delete operation', () => {
-  const operation: YobtaCollectionDeleteOperation = {
-    id: 'op-id',
-    type: YOBTA_COLLECTION_DELETE,
-    committed: 1,
-    merged: 2,
-    snapshotId: 'id',
-    channel: 'channel',
-  }
-  const result = filterKeys([], 'collection', operation)
-  expect(result).toBe(operation)
-})
-it('ignores restore operation', () => {
-  const operation: YobtaCollectionRestoreOperation = {
-    id: 'op-id',
-    type: YOBTA_COLLECTION_RESTORE,
-    committed: 1,
-    merged: 2,
-    snapshotId: 'id',
-    channel: 'channel',
-  }
-  const result = filterKeys([], 'collection', operation)
-  expect(result).toBe(operation)
-})
-it('ignores move operation', () => {
-  const operation: YobtaCollectionShiftOperation = {
-    id: 'op-id',
-    type: YOBTA_COLLECTION_SHIFT,
-    committed: 1,
-    merged: 2,
-    snapshotId: 'id',
-    nextSnapshotId: 'id-2',
-    channel: 'channel',
-  }
-  const result = filterKeys([], 'collection', operation)
-  expect(result).toBe(operation)
-})
 it('returns a copy of input operation', () => {
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaCollectionCreateOperation<Snapshot> = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: {
       id: 'id',
       name: 'john',
     },
     committed: 1,
     merged: 2,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const result = filterKeys([], 'collection', operation)
@@ -312,11 +292,11 @@ it('returns a copy of update operation', () => {
     id: 'op-id',
     type: YOBTA_COLLECTION_UPDATE,
     data: {
+      id: 'id',
       name: 'john',
     },
     committed: 1,
     merged: 2,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const result = filterKeys([], 'collection', operation)

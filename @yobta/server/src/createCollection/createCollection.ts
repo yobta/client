@@ -2,6 +2,7 @@ import {
   YobtaCollectionAnySnapshot,
   YobtaCollectionOperation,
   YobtaHeaders,
+  YobtaServerDataOperation,
 } from '@yobta/protocol'
 
 import { YobtaServerLog } from '../createMemoryLog/createMemoryLog.js'
@@ -26,7 +27,7 @@ export type YobtaCollection<Snapshot extends YobtaCollectionAnySnapshot> = {
   revalidate: YobtaServerLog<Snapshot>['find']
   merge(
     message: YobtaCollectionMessage<Snapshot>,
-  ): Promise<YobtaCollectionOperation<Snapshot>>
+  ): Promise<YobtaServerDataOperation<Snapshot>>
 }
 
 export const createCollection: YobtaCollectionFactory = <

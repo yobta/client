@@ -1,6 +1,6 @@
 import {
   YobtaCollectionUpdateOperation,
-  YOBTA_COLLECTION_INSERT,
+  YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_UPDATE,
 } from '@yobta/protocol'
 
@@ -14,10 +14,9 @@ type Snapshot = {
 it('should apply insert operation', () => {
   const item = merge([{ id: 'item-1' }, { id: 0 }], {
     id: 'op-1',
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     channel: 'test',
     data: { id: 'item-1', name: 'test' },
-    snapshotId: 'item-1',
     committed: 1,
     merged: 1,
   })
@@ -27,7 +26,7 @@ it('should apply insert operation', () => {
   ])
 })
 it('should apply update operation', () => {
-  const item = merge(
+  const item = merge<Snapshot>(
     [
       { id: 'item-1', name: 'test' },
       { id: 1, name: 1 },
@@ -36,8 +35,10 @@ it('should apply update operation', () => {
       id: 'op-2',
       channel: 'test',
       type: YOBTA_COLLECTION_UPDATE,
-      data: { name: 'test2' },
-      snapshotId: 'item-1',
+      data: {
+        id: 'item-1',
+        name: 'test2',
+      },
       committed: 2,
       merged: 2,
     },
@@ -56,8 +57,10 @@ it('should not mutate item', () => {
     id: 'op-2',
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
-    data: { name: 'test2' },
-    snapshotId: 'item-1',
+    data: {
+      id: 'item-1',
+      name: 'test2',
+    },
     committed: 2,
     merged: 2,
   })
@@ -72,8 +75,10 @@ it('should not mutate versions', () => {
     id: 'op-2',
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
-    data: { name: 'test2' },
-    snapshotId: 'item-1',
+    data: {
+      id: 'item-1',
+      name: 'test2',
+    },
     committed: 2,
     merged: 2,
   })
@@ -84,8 +89,10 @@ it('should remove pending operation', () => {
     id: 'op-2',
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
-    data: { name: 'test2' },
-    snapshotId: 'item-1',
+    data: {
+      id: 'item-1',
+      name: 'test2',
+    },
     committed: 2,
     merged: 2,
   }
@@ -93,8 +100,10 @@ it('should remove pending operation', () => {
     id: 'op-3',
     type: YOBTA_COLLECTION_UPDATE,
     channel: 'test',
-    data: { name: 'test3' },
-    snapshotId: 'item-1',
+    data: {
+      id: 'item-1',
+      name: 'test3',
+    },
     committed: 3,
     merged: 3,
   }

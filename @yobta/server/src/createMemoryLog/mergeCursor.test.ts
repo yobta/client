@@ -1,15 +1,15 @@
 import {
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionInsertOperation,
-  YobtaCollectionShiftOperation,
-  YobtaCollectionRestoreOperation,
+  YobtaChannelDeleteOperation,
+  YobtaChannelShiftOperation,
+  YobtaChannelRestoreOperation,
   YobtaCollectionUpdateOperation,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_SHIFT,
-  YOBTA_COLLECTION_RESTORE,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
+  YOBTA_CHANNEL_INSERT,
+  YobtaChannelInsertOperation,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -27,11 +27,11 @@ it('returns same log if operation is not insert', () => {
     id: 'op-id',
     type: YOBTA_COLLECTION_UPDATE,
     data: {
+      id: 'id',
       name: 'john',
     },
     committed: 1,
     merged: 2,
-    snapshotId: 'id',
     channel: 'channel',
   }
   const log: YobtaServerLogItem[] = []
@@ -54,11 +54,7 @@ describe('insert', () => {
       merged,
       operation: {
         id: 'op-id-1',
-        type: YOBTA_COLLECTION_INSERT,
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
+        type: YOBTA_CHANNEL_INSERT,
         committed: 4,
         merged: 0,
         snapshotId: 'id-2',
@@ -67,7 +63,7 @@ describe('insert', () => {
     })
     expect(result).toEqual([
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-id-1',
         snapshotId: 'id-2',
         collection: 'collection',
@@ -81,7 +77,7 @@ describe('insert', () => {
   it('appends insert to another insert', () => {
     const log: YobtaServerLogItem[] = [
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-id-1',
         snapshotId: 'id-1',
         collection: 'collection',
@@ -97,11 +93,7 @@ describe('insert', () => {
       merged,
       operation: {
         id: 'op-id-2',
-        type: YOBTA_COLLECTION_INSERT,
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
+        type: YOBTA_CHANNEL_INSERT,
         committed: 4,
         merged: 0,
         snapshotId: 'id-2',
@@ -110,7 +102,7 @@ describe('insert', () => {
     })
     expect(result).toEqual([
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-id-1',
         snapshotId: 'id-1',
         collection: 'collection',
@@ -120,7 +112,7 @@ describe('insert', () => {
         nextSnapshotId: undefined,
       },
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-id-2',
         snapshotId: 'id-2',
         collection: 'collection',
@@ -151,11 +143,7 @@ describe('insert', () => {
       merged,
       operation: {
         id: 'op-id-2',
-        type: YOBTA_COLLECTION_INSERT,
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
+        type: YOBTA_CHANNEL_INSERT,
         committed: 4,
         merged: 0,
         snapshotId: 'id-2',
@@ -175,7 +163,7 @@ describe('insert', () => {
         value: 'value',
       },
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-id-2',
         snapshotId: 'id-2',
         collection: 'collection',
@@ -188,13 +176,9 @@ describe('insert', () => {
   })
   it('updates merged to the current time', () => {
     const log: YobtaServerLogItem[] = []
-    const operation: YobtaCollectionInsertOperation<Snapshot> = {
+    const operation: YobtaChannelInsertOperation = {
       id: 'op-id',
-      type: YOBTA_COLLECTION_INSERT,
-      data: {
-        id: 'id-2',
-        name: 'john',
-      },
+      type: YOBTA_CHANNEL_INSERT,
       committed: 4,
       merged: 0,
       snapshotId: 'id-2',
@@ -217,8 +201,8 @@ describe('update', () => {
       id: 'op-id',
       type: YOBTA_COLLECTION_UPDATE,
       channel: 'channel',
-      snapshotId: 'id',
       data: {
+        id: 'id',
         name: 'john',
       },
       committed: 1,
@@ -237,9 +221,9 @@ describe('update', () => {
 describe('delete', () => {
   it('inserts delete entry', () => {
     const log: YobtaServerLogItem[] = []
-    const operation: YobtaCollectionDeleteOperation = {
+    const operation: YobtaChannelDeleteOperation = {
       id: 'op-id',
-      type: YOBTA_COLLECTION_DELETE,
+      type: YOBTA_CHANNEL_DELETE,
       channel: 'channel',
       snapshotId: 'id',
       committed: 1,
@@ -253,7 +237,7 @@ describe('delete', () => {
     })
     expect(result).toEqual([
       {
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         operationId: 'op-id',
         snapshotId: 'id',
         collection: 'collection',
@@ -266,27 +250,22 @@ describe('delete', () => {
   })
   it('handles: insert, delete', () => {
     const log: YobtaServerLogItem[] = []
-    const insertOperation: YobtaCollectionInsertOperation<Snapshot> = {
+    const insertOperation: YobtaChannelInsertOperation = {
       id: 'op-1',
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_CHANNEL_INSERT,
       channel: 'channel',
-      data: {
-        id: 'id-2',
-        name: 'john',
-      },
       snapshotId: 'id-2',
       committed: 1,
       merged: 0,
     }
-    const deleteOperation: YobtaCollectionDeleteOperation = {
+    const deleteOperation: YobtaChannelDeleteOperation = {
       id: 'op-2',
-      type: YOBTA_COLLECTION_DELETE,
+      type: YOBTA_CHANNEL_DELETE,
       channel: 'channel',
       snapshotId: 'id-2',
       committed: 2,
       merged: 0,
     }
-
     const log1 = mergeCursor({
       log,
       collection: 'collection',
@@ -301,7 +280,7 @@ describe('delete', () => {
     })
     expect(log2).toEqual([
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-1',
         collection: 'collection',
         channel: 'channel',
@@ -311,7 +290,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         operationId: 'op-2',
         collection: 'collection',
         channel: 'channel',
@@ -330,12 +309,8 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-1',
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         channel: 'channel',
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
         snapshotId: 'id-2',
         committed: 1,
         merged: 0,
@@ -347,7 +322,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-2',
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 2,
@@ -360,12 +335,8 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-1',
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         channel: 'channel',
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
         snapshotId: 'id-2',
         committed: 1,
         merged: 0,
@@ -373,7 +344,7 @@ describe('delete', () => {
     })
     expect(log3).toEqual([
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-1',
         collection: 'collection',
         channel: 'channel',
@@ -383,7 +354,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         operationId: 'op-2',
         collection: 'collection',
         channel: 'channel',
@@ -402,12 +373,8 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-1',
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         channel: 'channel',
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
         snapshotId: 'id-2',
         committed: 1,
         merged: 0,
@@ -419,7 +386,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-2',
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 2,
@@ -432,7 +399,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-3',
-        type: YOBTA_COLLECTION_RESTORE,
+        type: YOBTA_CHANNEL_RESTORE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 3,
@@ -441,7 +408,7 @@ describe('delete', () => {
     })
     expect(log3).toEqual([
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-1',
         collection: 'collection',
         channel: 'channel',
@@ -451,7 +418,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         operationId: 'op-2',
         collection: 'collection',
         channel: 'channel',
@@ -460,7 +427,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_RESTORE,
+        type: YOBTA_CHANNEL_RESTORE,
         operationId: 'op-3',
         collection: 'collection',
         channel: 'channel',
@@ -479,12 +446,8 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-1',
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         channel: 'channel',
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
         snapshotId: 'id-2',
         committed: 1,
         merged: 0,
@@ -496,7 +459,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-2',
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 2,
@@ -509,7 +472,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-3',
-        type: YOBTA_COLLECTION_RESTORE,
+        type: YOBTA_CHANNEL_RESTORE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 3,
@@ -522,7 +485,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-2',
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 2,
@@ -531,7 +494,7 @@ describe('delete', () => {
     })
     expect(log4).toEqual([
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-1',
         collection: 'collection',
         channel: 'channel',
@@ -541,7 +504,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         operationId: 'op-2',
         collection: 'collection',
         channel: 'channel',
@@ -550,7 +513,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_RESTORE,
+        type: YOBTA_CHANNEL_RESTORE,
         operationId: 'op-3',
         collection: 'collection',
         channel: 'channel',
@@ -569,12 +532,8 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-1',
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         channel: 'channel',
-        data: {
-          id: 'id-2',
-          name: 'john',
-        },
         snapshotId: 'id-2',
         committed: 1,
         merged: 0,
@@ -586,7 +545,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-2',
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 2,
@@ -599,7 +558,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-3',
-        type: YOBTA_COLLECTION_RESTORE,
+        type: YOBTA_CHANNEL_RESTORE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 3,
@@ -612,7 +571,7 @@ describe('delete', () => {
       merged,
       operation: {
         id: 'op-4',
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         channel: 'channel',
         snapshotId: 'id-2',
         committed: 4,
@@ -621,7 +580,7 @@ describe('delete', () => {
     })
     expect(log4).toEqual([
       {
-        type: YOBTA_COLLECTION_INSERT,
+        type: YOBTA_CHANNEL_INSERT,
         operationId: 'op-1',
         collection: 'collection',
         channel: 'channel',
@@ -631,7 +590,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         operationId: 'op-2',
         collection: 'collection',
         channel: 'channel',
@@ -640,7 +599,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_RESTORE,
+        type: YOBTA_CHANNEL_RESTORE,
         operationId: 'op-3',
         collection: 'collection',
         channel: 'channel',
@@ -649,7 +608,7 @@ describe('delete', () => {
         merged,
       },
       {
-        type: YOBTA_COLLECTION_DELETE,
+        type: YOBTA_CHANNEL_DELETE,
         operationId: 'op-4',
         collection: 'collection',
         channel: 'channel',
@@ -664,9 +623,9 @@ describe('delete', () => {
 describe('restore', () => {
   it('inserts restore entry', () => {
     const log: YobtaServerLogItem[] = []
-    const operation: YobtaCollectionRestoreOperation = {
+    const operation: YobtaChannelRestoreOperation = {
       id: 'op-id',
-      type: YOBTA_COLLECTION_RESTORE,
+      type: YOBTA_CHANNEL_RESTORE,
       channel: 'channel',
       snapshotId: 'id',
       committed: 1,
@@ -680,7 +639,7 @@ describe('restore', () => {
     })
     expect(result).toEqual([
       {
-        type: YOBTA_COLLECTION_RESTORE,
+        type: YOBTA_CHANNEL_RESTORE,
         operationId: 'op-id',
         snapshotId: 'id',
         collection: 'collection',
@@ -695,9 +654,9 @@ describe('restore', () => {
 describe('move', () => {
   it('inserts move entry', () => {
     const log: YobtaServerLogItem[] = []
-    const operation: YobtaCollectionShiftOperation = {
+    const operation: YobtaChannelShiftOperation = {
       id: 'op-id',
-      type: YOBTA_COLLECTION_SHIFT,
+      type: YOBTA_CHANNEL_SHIFT,
       channel: 'channel',
       snapshotId: 'id',
       nextSnapshotId: 'id-2',
@@ -712,7 +671,7 @@ describe('move', () => {
     })
     expect(result).toEqual([
       {
-        type: YOBTA_COLLECTION_SHIFT,
+        type: YOBTA_CHANNEL_SHIFT,
         operationId: 'op-id',
         snapshotId: 'id',
         nextSnapshotId: 'id-2',
@@ -728,13 +687,9 @@ describe('move', () => {
 
 it('does not mutate the log', () => {
   const log: YobtaServerLogItem[] = []
-  const operation: YobtaCollectionInsertOperation<Snapshot> = {
+  const operation: YobtaChannelInsertOperation = {
     id: 'op-id',
-    type: YOBTA_COLLECTION_INSERT,
-    data: {
-      id: 'id-2',
-      name: 'john',
-    },
+    type: YOBTA_CHANNEL_INSERT,
     committed: 4,
     merged: 0,
     snapshotId: 'id-2',
@@ -753,7 +708,7 @@ it('does not mutate the log', () => {
 it('is idempotant', () => {
   const log: YobtaServerLogItem[] = [
     {
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_CHANNEL_INSERT,
       operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'collection',
@@ -769,11 +724,7 @@ it('is idempotant', () => {
     merged,
     operation: {
       id: 'op-id-2',
-      type: YOBTA_COLLECTION_INSERT,
-      data: {
-        id: 'id-1',
-        name: 'john',
-      },
+      type: YOBTA_CHANNEL_INSERT,
       committed: 1,
       merged: 0,
       snapshotId: 'id-1',
@@ -786,11 +737,7 @@ it('is idempotant', () => {
     merged,
     operation: {
       id: 'op-id-3',
-      type: YOBTA_COLLECTION_INSERT,
-      data: {
-        id: 'id-1',
-        name: 'john',
-      },
+      type: YOBTA_CHANNEL_INSERT,
       committed: 2,
       merged: 0,
       snapshotId: 'id-1',
@@ -803,11 +750,7 @@ it('is idempotant', () => {
     merged,
     operation: {
       id: 'op-id-4',
-      type: YOBTA_COLLECTION_INSERT,
-      data: {
-        id: 'id-1',
-        name: 'john',
-      },
+      type: YOBTA_CHANNEL_INSERT,
       committed: 4,
       merged: 0,
       snapshotId: 'id-1',
@@ -816,7 +759,7 @@ it('is idempotant', () => {
   })
   expect(result).toEqual([
     {
-      type: YOBTA_COLLECTION_INSERT,
+      type: YOBTA_CHANNEL_INSERT,
       operationId: 'op-id-1',
       snapshotId: 'id-1',
       collection: 'collection',

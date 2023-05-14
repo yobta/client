@@ -5,15 +5,16 @@ import {
   YOBTA_REJECT,
   YOBTA_RECEIVED,
   YobtaRejectOperation,
-  YobtaCollectionInsertOperation,
+  YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
   YobtaCollectionRevalidateOperation,
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionRestoreOperation,
-  YobtaCollectionShiftOperation,
+  YobtaChannelDeleteOperation,
+  YobtaChannelRestoreOperation,
+  YobtaChannelShiftOperation,
   YobtaUnsubscribeOperation,
   YOBTA_UNSUBSCRIBE,
   YobtaBatchOperation,
+  YobtaChannelInsertOperation,
 } from '@yobta/protocol'
 
 import { YobtaLogVersionGetter } from '../createClientLog/createLogVersionGetter.js'
@@ -36,12 +37,13 @@ export type YobtaServerSubscription<
 }
 type Operation<Snapshot extends YobtaCollectionAnySnapshot> =
   | YobtaRejectOperation
-  | YobtaCollectionInsertOperation<Snapshot>
+  | YobtaCollectionCreateOperation<Snapshot>
   | YobtaCollectionUpdateOperation<Snapshot>
   | YobtaCollectionRevalidateOperation<Snapshot>
-  | YobtaCollectionDeleteOperation
-  | YobtaCollectionRestoreOperation
-  | YobtaCollectionShiftOperation
+  | YobtaChannelInsertOperation
+  | YobtaChannelDeleteOperation
+  | YobtaChannelRestoreOperation
+  | YobtaChannelShiftOperation
   | YobtaBatchOperation<Snapshot>
 // #endregion
 

@@ -2,10 +2,10 @@ import {
   YobtaClientDataOperation,
   YobtaCollectionAnySnapshot,
   YobtaCollectionId,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_DELETE,
-  YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_SHIFT,
+  YOBTA_CHANNEL_DELETE,
+  YOBTA_CHANNEL_RESTORE,
+  YOBTA_CHANNEL_SHIFT,
+  YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -22,7 +22,7 @@ interface YobtaServerLogMergeToChannel {
   }): YobtaServerLogItem[]
 }
 export type YobtaChannelLogIsertEntry = {
-  type: typeof YOBTA_COLLECTION_INSERT
+  type: typeof YOBTA_CHANNEL_INSERT
   snapshotId: YobtaCollectionId
   nextSnapshotId?: YobtaCollectionId
   channel: string
@@ -38,10 +38,10 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
   operation,
 }) => {
   switch (operation.type) {
-    case YOBTA_COLLECTION_INSERT:
-    case YOBTA_COLLECTION_DELETE:
-    case YOBTA_COLLECTION_RESTORE:
-    case YOBTA_COLLECTION_SHIFT:
+    case YOBTA_CHANNEL_INSERT:
+    case YOBTA_CHANNEL_DELETE:
+    case YOBTA_CHANNEL_RESTORE:
+    case YOBTA_CHANNEL_SHIFT:
       break
     default:
       return log
@@ -49,17 +49,17 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
   const shouldPush = !log.some(
     entry =>
       (entry.operationId === operation.id &&
-        operation.type !== YOBTA_COLLECTION_INSERT) ||
-      (entry.type === YOBTA_COLLECTION_INSERT &&
+        operation.type !== YOBTA_CHANNEL_INSERT) ||
+      (entry.type === YOBTA_CHANNEL_INSERT &&
         entry.snapshotId === operation.snapshotId &&
         entry.type === operation.type &&
         entry.channel === operation.channel),
   )
   if (shouldPush) {
     switch (operation.type) {
-      case YOBTA_COLLECTION_INSERT:
+      case YOBTA_CHANNEL_INSERT:
         log.push({
-          type: YOBTA_COLLECTION_INSERT,
+          type: YOBTA_CHANNEL_INSERT,
           operationId: operation.id,
           collection,
           channel: operation.channel,
@@ -69,9 +69,9 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
           merged,
         })
         break
-      case YOBTA_COLLECTION_DELETE:
+      case YOBTA_CHANNEL_DELETE:
         log.push({
-          type: YOBTA_COLLECTION_DELETE,
+          type: YOBTA_CHANNEL_DELETE,
           operationId: operation.id,
           collection,
           channel: operation.channel,
@@ -80,9 +80,9 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
           merged,
         })
         break
-      case YOBTA_COLLECTION_RESTORE:
+      case YOBTA_CHANNEL_RESTORE:
         log.push({
-          type: YOBTA_COLLECTION_RESTORE,
+          type: YOBTA_CHANNEL_RESTORE,
           operationId: operation.id,
           collection,
           channel: operation.channel,
@@ -91,9 +91,9 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
           merged,
         })
         break
-      case YOBTA_COLLECTION_SHIFT:
+      case YOBTA_CHANNEL_SHIFT:
         log.push({
-          type: YOBTA_COLLECTION_SHIFT,
+          type: YOBTA_CHANNEL_SHIFT,
           operationId: operation.id,
           collection,
           channel: operation.channel,

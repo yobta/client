@@ -5,14 +5,14 @@ import {
   YobtaRejectOperation,
   YOBTA_REJECT,
   YOBTA_COLLECTION_UPDATE,
-  YobtaCollectionInsertOperation,
-  YOBTA_COLLECTION_INSERT,
-  YOBTA_COLLECTION_DELETE,
-  YobtaCollectionDeleteOperation,
-  YobtaCollectionRestoreOperation,
-  YOBTA_COLLECTION_RESTORE,
-  YOBTA_COLLECTION_SHIFT,
-  YobtaCollectionShiftOperation,
+  YobtaCollectionCreateOperation,
+  YOBTA_COLLECTION_CREATE,
+  YOBTA_CHANNEL_DELETE,
+  YobtaChannelDeleteOperation,
+  YobtaChannelRestoreOperation,
+  YOBTA_CHANNEL_RESTORE,
+  YOBTA_CHANNEL_SHIFT,
+  YobtaChannelShiftOperation,
 } from '@yobta/protocol'
 
 import {
@@ -46,14 +46,13 @@ it('should call all registered observers with the operation argument', () => {
 })
 
 describe('data operations', () => {
-  const insert: YobtaCollectionInsertOperation<YobtaCollectionAnySnapshot> = {
+  const insert: YobtaCollectionCreateOperation<YobtaCollectionAnySnapshot> = {
     id: 'operation-1',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
-    type: YOBTA_COLLECTION_INSERT,
+    type: YOBTA_COLLECTION_CREATE,
     data: { id: 'snapshot-1' },
-    snapshotId: 'snapshot-1',
   }
   const update: YobtaCollectionUpdateOperation<YobtaCollectionAnySnapshot> = {
     id: 'operation-1',
@@ -61,31 +60,32 @@ describe('data operations', () => {
     committed: 123456789,
     merged: 123456789,
     type: YOBTA_COLLECTION_UPDATE,
-    data: {},
-    snapshotId: 'snapshot-1',
+    data: {
+      id: 'snapshot-1',
+    },
   }
-  const deleteOperation: YobtaCollectionDeleteOperation = {
+  const deleteOperation: YobtaChannelDeleteOperation = {
     id: 'operation-1',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
-    type: YOBTA_COLLECTION_DELETE,
+    type: YOBTA_CHANNEL_DELETE,
     snapshotId: 'snapshot-1',
   }
-  const restoreOperation: YobtaCollectionRestoreOperation = {
+  const restoreOperation: YobtaChannelRestoreOperation = {
     id: 'operation-1',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
-    type: YOBTA_COLLECTION_RESTORE,
+    type: YOBTA_CHANNEL_RESTORE,
     snapshotId: 'snapshot-1',
   }
-  const moveOpration: YobtaCollectionShiftOperation = {
+  const moveOpration: YobtaChannelShiftOperation = {
     id: 'operation-1',
     channel: 'channel-1',
     committed: 123456789,
     merged: 123456789,
-    type: YOBTA_COLLECTION_SHIFT,
+    type: YOBTA_CHANNEL_SHIFT,
     snapshotId: 'snapshot-1',
     nextSnapshotId: 'snapshot-2',
   }
@@ -132,8 +132,9 @@ it('should not resolve if a different operation is received', () => {
     committed: 123456789,
     merged: 123456789,
     type: YOBTA_COLLECTION_UPDATE,
-    data: {},
-    snapshotId: 'snapshot-1',
+    data: {
+      id: 'snapshot-1',
+    },
   })
   notifyOperationObservers({
     id: 'operation-2',
@@ -141,8 +142,9 @@ it('should not resolve if a different operation is received', () => {
     committed: 123456789,
     merged: 123456789,
     type: YOBTA_COLLECTION_UPDATE,
-    data: {},
-    snapshotId: 'snapshot-1',
+    data: {
+      id: 'snapshot-1',
+    },
   })
   expect(promise).resolves.toBeUndefined()
   expect(operationResultObservers.size).toBe(1)
@@ -155,8 +157,9 @@ it('should not resolve if a different operation is rejected', () => {
     committed: 123456789,
     merged: 123456789,
     type: YOBTA_COLLECTION_UPDATE,
-    data: {},
-    snapshotId: 'snapshot-1',
+    data: {
+      id: 'snapshot-1',
+    },
   })
   notifyOperationObservers({
     id: 'operation-3',
