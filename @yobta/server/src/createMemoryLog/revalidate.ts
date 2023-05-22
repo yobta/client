@@ -43,7 +43,7 @@ export const revalidate = <Snapshot extends YobtaCollectionAnySnapshot>({
       [key, value, c, m] as YobtaCollectionTuple<Snapshot>,
   )
   return {
-    id: operationId,
+    id: `r-${snapshotId}`,
     type: YOBTA_COLLECTION_REVALIDATE,
     channel,
     snapshotId,

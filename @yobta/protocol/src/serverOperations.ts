@@ -10,7 +10,7 @@ import {
   YobtaCollectionRevalidateOperation,
   YobtaCollectionUpdateOperation,
 } from './collection.js'
-import { YobtaOperationId } from './unsorted.js'
+import { Prettify, YobtaOperationId } from './unsorted.js'
 
 export const YOBTA_RECEIVED = 'yobta-received'
 export type YobtaReceived = {
@@ -36,11 +36,12 @@ export type YobtaRejectOperation = {
 
 export const YOBTA_BATCH = 'yobta-batch'
 export type YobtaBatchedOperation<Snapshot extends YobtaCollectionAnySnapshot> =
-
+  Prettify<
     | YobtaCollectionRevalidateOperation<Snapshot>
     | YobtaChannelDeleteOperation
     | YobtaChannelRestoreOperation
     | YobtaChannelShiftOperation
+  >
 
 export type YobtaBatchOperation<Snapshot extends YobtaCollectionAnySnapshot> = {
   id: YobtaOperationId

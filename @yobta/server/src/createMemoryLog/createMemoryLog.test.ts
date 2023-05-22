@@ -10,6 +10,7 @@ import {
   YobtaChannelInsertOperation,
   YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
+import { pause } from '@yobta/utils'
 
 import { createMemoryLog } from './createMemoryLog.js'
 
@@ -79,7 +80,7 @@ describe('log read', () => {
     expect(result).toEqual([
       [
         {
-          id: 'op-2',
+          id: 'r-snapshot-id',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'channel',
           snapshotId: 'snapshot-id',
@@ -90,6 +91,15 @@ describe('log read', () => {
             ['id', 'snapshot-id', 1, expect.any(Number)],
             ['one', 'value', 1, expect.any(Number)],
           ],
+        },
+        {
+          id: 'op-2',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
         },
         {
           id: 'op-3',
@@ -141,7 +151,7 @@ describe('log read', () => {
     }
     expect(result3).toEqual([expect.any(Object)])
   })
-  it('supports: update then insert', async () => {
+  it('supports: update, create, insert', async () => {
     const log = createMemoryLog()
     const collection = 'my-collection'
     await log.merge(collection, {
@@ -172,7 +182,7 @@ describe('log read', () => {
       committed: 1,
       merged: 0,
     })
-    const stream = log.find('update-insert-channel', 0, 100)
+    const stream = log.find('update-insert-channel', 0, 1000)
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -180,7 +190,7 @@ describe('log read', () => {
     expect(result).toEqual([
       [
         {
-          id: 'op-2',
+          id: 'r-snapshot-id',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'update-insert-channel',
           snapshotId: 'snapshot-id',
@@ -192,10 +202,19 @@ describe('log read', () => {
             ['two', 'two', 2, expect.any(Number)],
           ],
         },
+        {
+          id: 'op-2',
+          type: 'yobta-channel-insert',
+          channel: 'update-insert-channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+        },
       ],
     ])
   })
-  it('supports: delete then insert', async () => {
+  it('supports: delete, create, insert', async () => {
     const log = createMemoryLog()
     const collection = 'my-collection'
     await log.merge(collection, {
@@ -230,7 +249,7 @@ describe('log read', () => {
     expect(result).toEqual([
       [
         {
-          id: 'op-2',
+          id: 'r-snapshot-id',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'channel',
           snapshotId: 'snapshot-id',
@@ -241,6 +260,15 @@ describe('log read', () => {
             ['id', 'snapshot-id', 1, expect.any(Number)],
             ['one', 'one', 1, expect.any(Number)],
           ],
+        },
+        {
+          id: 'op-2',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
         },
         {
           id: 'op-3',
@@ -296,7 +324,7 @@ describe('log read', () => {
     expect(result).toEqual([
       [
         {
-          id: 'op-2',
+          id: 'r-snapshot-id',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'channel',
           snapshotId: 'snapshot-id',
@@ -307,6 +335,15 @@ describe('log read', () => {
             ['id', 'snapshot-id', 1, expect.any(Number)],
             ['one', 'one', 1, expect.any(Number)],
           ],
+        },
+        {
+          id: 'op-2',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
         },
         {
           id: 'op-3',
@@ -371,7 +408,7 @@ describe('log read', () => {
     expect(result).toEqual([
       [
         {
-          id: 'op-2',
+          id: 'r-snapshot-id',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'channel',
           snapshotId: 'snapshot-id',
@@ -382,6 +419,15 @@ describe('log read', () => {
             ['id', 'snapshot-id', 1, expect.any(Number)],
             ['one', 'one', 1, expect.any(Number)],
           ],
+        },
+        {
+          id: 'op-2',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'snapshot-id',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
         },
         {
           id: 'op-3',
@@ -399,6 +445,178 @@ describe('log read', () => {
           committed: 3,
           merged: expect.any(Number),
           snapshotId: 'next-snapshot-id',
+        },
+      ],
+    ])
+  })
+  it('supports create:a, create:b, insert:a, insert:a, insert:b>a, insert:a, delete:a, insert:a, insert:b>a', async () => {
+    const log = createMemoryLog()
+    const collection = 'my-collection'
+    await log.merge(collection, {
+      id: 'op-1',
+      type: YOBTA_COLLECTION_CREATE,
+      channel: 'channel',
+      data: { id: 'a' },
+      committed: 1,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-2',
+      type: YOBTA_COLLECTION_CREATE,
+      channel: 'channel',
+      data: { id: 'b' },
+      committed: 2,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-3',
+      type: YOBTA_CHANNEL_INSERT,
+      channel: 'channel',
+      snapshotId: 'a',
+      committed: 3,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-4',
+      type: YOBTA_CHANNEL_INSERT,
+      channel: 'channel',
+      snapshotId: 'a',
+      committed: 4,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-5',
+      type: YOBTA_CHANNEL_INSERT,
+      channel: 'channel',
+      snapshotId: 'b',
+      nextSnapshotId: 'a',
+      committed: 5,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-6',
+      type: YOBTA_CHANNEL_INSERT,
+      channel: 'channel',
+      snapshotId: 'a',
+      committed: 6,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-7',
+      type: YOBTA_CHANNEL_DELETE,
+      channel: 'channel',
+      snapshotId: 'a',
+      committed: 7,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-8',
+      type: YOBTA_CHANNEL_INSERT,
+      channel: 'channel',
+      snapshotId: 'a',
+      committed: 8,
+      merged: 0,
+    })
+    await pause(4)
+    await log.merge(collection, {
+      id: 'op-9',
+      type: YOBTA_CHANNEL_INSERT,
+      channel: 'channel',
+      snapshotId: 'b',
+      nextSnapshotId: 'a',
+      committed: 9,
+      merged: 0,
+    })
+    const stream = log.find('channel', 0, 100000)
+    const result = []
+    for await (const chunk of stream) {
+      result.push(chunk)
+    }
+    expect(result).toEqual([
+      [
+        {
+          id: 'r-a',
+          type: 'yobta-collection-revalidate',
+          channel: 'channel',
+          snapshotId: 'a',
+          nextSnapshotId: undefined,
+          committed: 3,
+          merged: expect.any(Number),
+          data: [['id', 'a', 1, expect.any(Number)]],
+        },
+        {
+          id: 'op-3',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'a',
+          committed: 3,
+          merged: expect.any(Number),
+        },
+        {
+          id: 'op-4',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'a',
+          committed: 4,
+          merged: expect.any(Number),
+        },
+        {
+          id: 'r-b',
+          type: 'yobta-collection-revalidate',
+          channel: 'channel',
+          snapshotId: 'b',
+          committed: 5,
+          merged: expect.any(Number),
+          data: [['id', 'b', 2, expect.any(Number)]],
+        },
+        {
+          id: 'op-5',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'b',
+          nextSnapshotId: 'a',
+          committed: 5,
+          merged: expect.any(Number),
+        },
+        {
+          id: 'op-6',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'a',
+          committed: 6,
+          merged: expect.any(Number),
+        },
+        {
+          id: 'op-7',
+          type: 'yobta-channel-delete',
+          channel: 'channel',
+          snapshotId: 'a',
+          committed: 7,
+          merged: expect.any(Number),
+        },
+        {
+          id: 'op-8',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'a',
+          committed: 8,
+          merged: expect.any(Number),
+        },
+        {
+          id: 'op-9',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'b',
+          nextSnapshotId: 'a',
+          committed: 9,
+          merged: expect.any(Number),
         },
       ],
     ])
@@ -462,7 +680,7 @@ describe('log read', () => {
     expect(result).toEqual([
       [
         {
-          id: 'op-2',
+          id: 'r-snapshot-id-1',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'channel',
           snapshotId: 'snapshot-id-1',
@@ -475,7 +693,18 @@ describe('log read', () => {
           ],
         },
         {
-          id: 'op-4',
+          id: 'op-2',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'snapshot-id-1',
+          nextSnapshotId: undefined,
+          committed: 1,
+          merged: expect.any(Number),
+        },
+      ],
+      [
+        {
+          id: 'r-snapshot-id-2',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'channel',
           snapshotId: 'snapshot-id-2',
@@ -487,10 +716,19 @@ describe('log read', () => {
             ['one', 'two', 2, expect.any(Number)],
           ],
         },
+        {
+          id: 'op-4',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'snapshot-id-2',
+          nextSnapshotId: undefined,
+          committed: 2,
+          merged: expect.any(Number),
+        },
       ],
       [
         {
-          id: 'op-6',
+          id: 'r-snapshot-id-3',
           type: YOBTA_COLLECTION_REVALIDATE,
           channel: 'channel',
           snapshotId: 'snapshot-id-3',
@@ -501,6 +739,15 @@ describe('log read', () => {
             ['id', 'snapshot-id-3', 3, expect.any(Number)],
             ['one', 'three', 3, expect.any(Number)],
           ],
+        },
+        {
+          id: 'op-6',
+          type: 'yobta-channel-insert',
+          channel: 'channel',
+          snapshotId: 'snapshot-id-3',
+          nextSnapshotId: undefined,
+          committed: 3,
+          merged: expect.any(Number),
         },
       ],
     ])
@@ -582,7 +829,7 @@ describe('log write', () => {
       merged: 0,
     })
     expect(result).toEqual({
-      id: 'operation-2',
+      id: 'r-snapshot-id',
       channel: 'channel',
       data: [
         ['id', 'snapshot-id', 2, expect.any(Number)],
