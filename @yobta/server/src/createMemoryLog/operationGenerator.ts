@@ -5,6 +5,7 @@ import {
   YobtaBatchedOperation,
   YobtaCollectionAnySnapshot,
   YOBTA_CHANNEL_INSERT,
+  YobtaCollectionId,
 } from '@yobta/protocol'
 
 import { YobtaServerLogItem } from './createMemoryLog.js'
@@ -39,36 +40,31 @@ export async function* operationGenerator<
         typesFilter.has(entry.type),
     )
     .sort((a, b): number => a.committed - b.committed)
-    .map(entry => {
-      switch (entry.type) {
-        case YOBTA_CHANNEL_INSERT: {
-          return revalidate({ log, ...entry, channel })
-        }
-        case YOBTA_CHANNEL_SHIFT: {
-          return {
-            id: entry.operationId,
-            type: YOBTA_CHANNEL_SHIFT,
-            channel,
-            snapshotId: entry.snapshotId,
-            nextSnapshotId: entry.nextSnapshotId,
-            committed: entry.committed,
-            merged: entry.merged,
-          }
-        }
-        default: {
-          return {
-            id: entry.operationId,
-            type: entry.type,
-            channel,
-            snapshotId: entry.snapshotId,
-            nextSnapshotId: entry.nextSnapshotId,
-            committed: entry.committed,
-            merged: entry.merged,
-          }
-        }
-      }
-    }) as YobtaBatchedOperation<Snapshot>[]
-  const chunks = chunkBySize(matchedEntries, chunkSize)
+
+  const snapshotIds = new Set<YobtaCollectionId>()
+  const result: YobtaBatchedOperation<Snapshot>[] = []
+
+  for (const entry of matchedEntries) {
+    if (
+      entry.type === YOBTA_CHANNEL_INSERT &&
+      !snapshotIds.has(entry.snapshotId)
+    ) {
+      result.push(revalidate({ log, ...entry, channel }))
+      snapshotIds.add(entry.snapshotId)
+    }
+    result.push({
+      id: entry.operationId,
+      type: entry.type,
+      channel,
+      snapshotId: entry.snapshotId,
+      nextSnapshotId: entry.nextSnapshotId,
+      committed: entry.committed,
+      merged: entry.merged,
+    } as YobtaBatchedOperation<Snapshot>)
+  }
+
+  const chunks = chunkBySize(result, chunkSize)
+
   for (const chunk of chunks) {
     yield chunk
   }

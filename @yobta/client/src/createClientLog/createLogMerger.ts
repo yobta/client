@@ -64,6 +64,8 @@ export const createLogMerger: YobtaLogMergerFactory =
           case YOBTA_CHANNEL_RESTORE:
             deleted.delete(operation.snapshotId)
             return acc
+          case YOBTA_COLLECTION_CREATE:
+          case YOBTA_COLLECTION_REVALIDATE:
           case YOBTA_COLLECTION_UPDATE:
             return acc
           default:
@@ -71,13 +73,9 @@ export const createLogMerger: YobtaLogMergerFactory =
             return acc
         }
       }, [])
-      .reduce<Snapshot[]>((acc, { type, data, snapshotId, nextSnapshotId }) => {
+      .reduce<Snapshot[]>((acc, { type, snapshotId, nextSnapshotId }) => {
         switch (type) {
-          case YOBTA_COLLECTION_CREATE: {
-            const snapshot = getSnapshot(data.id)
-            return insert(acc, snapshot, nextSnapshotId)
-          }
-          case YOBTA_COLLECTION_REVALIDATE: {
+          case YOBTA_CHANNEL_INSERT: {
             const snapshot = getSnapshot(snapshotId)
             return insert(acc, snapshot, nextSnapshotId)
           }
@@ -91,9 +89,6 @@ export const createLogMerger: YobtaLogMergerFactory =
             }
             const snapshot = getSnapshot(snapshotId)
             return insert(nextAcc, snapshot, nextSnapshotId)
-          }
-          case YOBTA_CHANNEL_INSERT: {
-            return acc
           }
           default: {
             throw new Error(`Unexpected type ${type}`)

@@ -46,15 +46,7 @@ export const mergeCursor: YobtaServerLogMergeToChannel = ({
     default:
       return log
   }
-  const shouldPush = !log.some(
-    entry =>
-      (entry.operationId === operation.id &&
-        operation.type !== YOBTA_CHANNEL_INSERT) ||
-      (entry.type === YOBTA_CHANNEL_INSERT &&
-        entry.snapshotId === operation.snapshotId &&
-        entry.type === operation.type &&
-        entry.channel === operation.channel),
-  )
+  const shouldPush = !log.some(entry => entry.operationId === operation.id)
   if (shouldPush) {
     switch (operation.type) {
       case YOBTA_CHANNEL_INSERT:
