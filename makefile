@@ -1,3 +1,6 @@
+build: clean
+	pnpm --filter {@yobta/*} run build
+
 clean:
 	rm -rf @yobta/**/lib
 	rm -rf @yobta/**/*.tsbuildinfo
@@ -5,13 +8,11 @@ clean:
 	rm -rf dev/**/*.tsbuildinfo
 	rm -f *.tsbuildinfo
 
-build: clean
-	pnpm --filter {@yobta/*} run build
+check: typecheck test lint
 
 watch:
 	pnpm --parallel --filter {@yobta/*} run build:watch
 
-check: typecheck test lint
 
 dev-backend:
 	cd dev/backend && pnpm dev
@@ -46,4 +47,6 @@ test-utils:
 test: build
 	pnpm test
 
-check: typecheck test lint
+
+up:
+	pnpm up
