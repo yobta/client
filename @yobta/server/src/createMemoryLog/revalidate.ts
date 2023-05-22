@@ -13,7 +13,6 @@ import {
 
 export const revalidate = <Snapshot extends YobtaCollectionAnySnapshot>({
   log,
-  operationId,
   collection,
   channel,
   committed,
