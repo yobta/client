@@ -10,9 +10,9 @@ import {
   YOBTA_COLLECTION_UPDATE,
   YOBTA_CHANNEL_INSERT,
   YobtaChannelInsertOperation,
+  YobtaServerLogItem,
 } from '@yobta/protocol'
 
-import { YobtaServerLogItem } from './createMemoryLog.js'
 import { mergeCursor } from './mergeCursor.js'
 
 type Snapshot = {

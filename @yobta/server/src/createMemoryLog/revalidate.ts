@@ -4,12 +4,9 @@ import {
   YobtaCollectionId,
   YobtaCollectionRevalidateOperation,
   YobtaCollectionTuple,
-} from '@yobta/protocol'
-
-import {
   YobtaServerLogItem,
   YobtaServerLogSnapshotEntry,
-} from './createMemoryLog.js'
+} from '@yobta/protocol'
 
 export const revalidate = <Snapshot extends YobtaCollectionAnySnapshot>({
   log,

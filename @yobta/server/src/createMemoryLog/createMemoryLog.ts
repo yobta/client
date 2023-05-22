@@ -1,18 +1,18 @@
 import {
   YobtaCollectionAnySnapshot,
-  YobtaCollectionId,
   YOBTA_COLLECTION_CREATE,
   YOBTA_CHANNEL_DELETE,
   YOBTA_CHANNEL_RESTORE,
   YOBTA_CHANNEL_SHIFT,
-  YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
-  YobtaBatchedOperation,
   YobtaCollectionOperation,
   YOBTA_CHANNEL_INSERT,
   YobtaServerDataOperation,
+  YobtaServerLog,
+  YobtaServerLogStream,
+  YobtaServerLogItem,
 } from '@yobta/protocol'
-import { createObservable, YobtaJsonValue } from '@yobta/stores'
+import { createObservable } from '@yobta/stores'
 import { coerceError } from '@yobta/utils'
 import { Readable } from 'stream'
 
@@ -27,92 +27,6 @@ import { revalidate } from './revalidate.js'
 interface YobtaMemoryLogFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(): YobtaServerLog<Snapshot>
 }
-export type YobtaServerLog<
-  SupportedSnapshotsUnion extends YobtaCollectionAnySnapshot,
-> = {
-  find<Snapshot extends SupportedSnapshotsUnion>(
-    channel: string,
-    merged: number,
-    chunkSize: number,
-  ): YobtaServerLogStream<Snapshot>
-  merge<Snapshot extends SupportedSnapshotsUnion>(
-    collection: string,
-    operation: YobtaCollectionOperation<Snapshot>,
-  ): Promise<YobtaServerDataOperation<Snapshot>>
-  observe<Snapshot extends SupportedSnapshotsUnion>(
-    observer: (operation: YobtaCollectionOperation<Snapshot>) => void,
-  ): VoidFunction
-}
-
-export type YobtaServerLogStream<Snapshot extends YobtaCollectionAnySnapshot> =
-  Readable & AsyncIterable<YobtaBatchedOperation<Snapshot>[]>
-
-export type YobtaServerLogSnapshotEntry = {
-  type: typeof YOBTA_COLLECTION_REVALIDATE
-  operationId: string
-  collection: string
-  channel?: never
-  snapshotId: YobtaCollectionId
-  nextSnapshotId?: never
-  committed: number
-  merged: number
-  key: string
-  value: YobtaJsonValue | undefined
-}
-export type YobtaServerLogChannelInsertEntry = {
-  type: typeof YOBTA_CHANNEL_INSERT
-  operationId: string
-  collection: string
-  channel: string
-  snapshotId: YobtaCollectionId
-  nextSnapshotId?: YobtaCollectionId
-  committed: number
-  merged: number
-  key?: never
-  value?: never
-}
-export type YobtaServerLogChannelDeleteEntry = {
-  type: typeof YOBTA_CHANNEL_DELETE
-  operationId: string
-  collection: string
-  channel: string
-  snapshotId: YobtaCollectionId
-  nextSnapshotId?: never
-  committed: number
-  merged: number
-  key?: never
-  value?: never
-}
-export type YobtaServerLogChannelRestoreEntry = {
-  type: typeof YOBTA_CHANNEL_RESTORE
-  operationId: string
-  collection: string
-  channel: string
-  snapshotId: YobtaCollectionId
-  nextSnapshotId?: never
-  committed: number
-  merged: number
-  key?: never
-  value?: never
-}
-export type YobtaServerLogChannelMoveEntry = {
-  type: typeof YOBTA_CHANNEL_SHIFT
-  operationId: string
-  collection: string
-  channel: string
-  snapshotId: YobtaCollectionId
-  nextSnapshotId?: YobtaCollectionId
-  committed: number
-  merged: number
-  key?: never
-  value?: never
-}
-export type YobtaServerLogItem =
-  | YobtaServerLogSnapshotEntry
-  | YobtaServerLogChannelInsertEntry
-  | YobtaServerLogChannelDeleteEntry
-  | YobtaServerLogChannelRestoreEntry
-  | YobtaServerLogChannelMoveEntry
 // #endregion
 
 export const createMemoryLog: YobtaMemoryLogFactory = <

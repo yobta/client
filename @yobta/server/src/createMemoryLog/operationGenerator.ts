@@ -6,9 +6,9 @@ import {
   YobtaCollectionAnySnapshot,
   YOBTA_CHANNEL_INSERT,
   YobtaCollectionId,
+  YobtaServerLogItem,
 } from '@yobta/protocol'
 
-import { YobtaServerLogItem } from './createMemoryLog.js'
 import { chunkBySize } from './chunkBySize.js'
 import { revalidate } from './revalidate.js'
 

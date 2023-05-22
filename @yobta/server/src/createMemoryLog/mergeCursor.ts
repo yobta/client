@@ -6,10 +6,8 @@ import {
   YOBTA_CHANNEL_RESTORE,
   YOBTA_CHANNEL_SHIFT,
   YOBTA_CHANNEL_INSERT,
+  YobtaServerLogItem,
 } from '@yobta/protocol'
-
-import { YobtaServerLogItem } from './createMemoryLog.js'
-
 // #region types
 interface YobtaServerLogMergeToChannel {
   <

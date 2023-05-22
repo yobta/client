@@ -10,9 +10,9 @@ import {
   YOBTA_CHANNEL_RESTORE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
+  YobtaServerLogItem,
 } from '@yobta/protocol'
 
-import { YobtaServerLogItem } from './createMemoryLog.js'
 import { mergeData } from './mergeData.js'
 
 type Snapshot = {

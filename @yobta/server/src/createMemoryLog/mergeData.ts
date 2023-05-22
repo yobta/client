@@ -4,9 +4,8 @@ import {
   YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
+  YobtaServerLogItem,
 } from '@yobta/protocol'
-
-import { YobtaServerLogItem } from './createMemoryLog.js'
 
 interface YobtaServerLogMergeData {
   <

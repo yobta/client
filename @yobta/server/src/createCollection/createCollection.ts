@@ -3,9 +3,8 @@ import {
   YobtaCollectionOperation,
   YobtaHeaders,
   YobtaServerDataOperation,
+  YobtaServerLog,
 } from '@yobta/protocol'
-
-import { YobtaServerLog } from '../createMemoryLog/createMemoryLog.js'
 
 interface YobtaCollectionFactory {
   <Snapshot extends YobtaCollectionAnySnapshot>(

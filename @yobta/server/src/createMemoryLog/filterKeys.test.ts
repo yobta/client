@@ -8,15 +8,13 @@ import {
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
   YOBTA_CHANNEL_INSERT,
-} from '@yobta/protocol'
-
-import {
   YobtaServerLogChannelDeleteEntry,
   YobtaServerLogChannelInsertEntry,
   YobtaServerLogChannelMoveEntry,
   YobtaServerLogChannelRestoreEntry,
   YobtaServerLogItem,
-} from './createMemoryLog.js'
+} from '@yobta/protocol'
+
 import { filterKeys } from './filterKeys.js'
 
 type Snapshot = {

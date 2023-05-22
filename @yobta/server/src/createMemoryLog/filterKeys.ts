@@ -5,9 +5,8 @@ import {
   YobtaCollectionCreateOperation,
   YobtaCollectionUpdateOperation,
   Prettify,
+  YobtaServerLogItem,
 } from '@yobta/protocol'
-
-import { YobtaServerLogItem } from './createMemoryLog.js'
 
 export type YobtaFilteredOperation<
   Snapshot extends YobtaCollectionAnySnapshot,
