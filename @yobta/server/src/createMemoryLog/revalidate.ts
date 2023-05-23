@@ -5,7 +5,7 @@ import {
   YobtaCollectionRevalidateOperation,
   YobtaCollectionTuple,
   YobtaServerLogItem,
-  YobtaServerLogSnapshotEntry,
+  YobtaServerLogRevalidateEntry,
 } from '@yobta/protocol'
 
 export const revalidate = <Snapshot extends YobtaCollectionAnySnapshot>({
@@ -33,7 +33,7 @@ export const revalidate = <Snapshot extends YobtaCollectionAnySnapshot>({
     )
     .sort(
       (a, b): number => a.committed - b.committed,
-    ) as YobtaServerLogSnapshotEntry[]
+    ) as YobtaServerLogRevalidateEntry[]
   const data = snapshots.map(
     ({ key, value, committed: c, merged: m }) =>
       [key, value, c, m] as YobtaCollectionTuple<Snapshot>,

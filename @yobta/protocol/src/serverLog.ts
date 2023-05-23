@@ -38,7 +38,7 @@ export type YobtaServerLog<
 export type YobtaServerLogStream<Snapshot extends YobtaCollectionAnySnapshot> =
   Readable & AsyncIterable<YobtaBatchedOperation<Snapshot>[]>
 
-export type YobtaServerLogSnapshotEntry = {
+export type YobtaServerLogRevalidateEntry = {
   type: typeof YOBTA_COLLECTION_REVALIDATE
   operationId: string
   collection: string
@@ -99,7 +99,7 @@ export type YobtaServerLogChannelMoveEntry = {
   value?: never
 }
 export type YobtaServerLogItem =
-  | YobtaServerLogSnapshotEntry
+  | YobtaServerLogRevalidateEntry
   | YobtaServerLogChannelInsertEntry
   | YobtaServerLogChannelDeleteEntry
   | YobtaServerLogChannelRestoreEntry
