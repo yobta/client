@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@databases/pg-migrations": "^5.0.2",
+    "@yobta/pg": "workspace:*",
     "@yobta/server": "workspace:*",
     "@yobta/utils": "workspace:*",
     "pino": "^8.8.0",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@types/node": "^18.15.0",
     "@types/ws": "^8.5.4",
+    "dotenv": "^16.0.3",
     "tsm": "^2.3.0",
     "typescript": "^4.9.4"
   }
