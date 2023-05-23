@@ -4,4 +4,6 @@ lib
 *.tsbuildinfo
 dev/next/.next
 
+.env
+
 coverage
