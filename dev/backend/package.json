@@ -4,12 +4,14 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "ts-node-dev -r tsm src/index.ts"
+    "dev": "ts-node-dev -r tsm src/index.ts",
+    "migrate": "pg-migrations apply --directory src/modules/**/migrations"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@databases/pg-migrations": "^5.0.2",
     "@yobta/server": "workspace:*",
     "@yobta/utils": "workspace:*",
     "pino": "^8.8.0",

@@ -32,6 +32,15 @@ i:
 lint:
 	pnpm lint
 
+migrate:
+	cd dev/backend && export $(shell cat dev/backend/.env | xargs) && pnpm run migrate
+
+pg-start:
+	pg_ctl -s restart
+
+pg-stop:
+	pg_ctl -s stop
+
 typecheck:
 	pnpm tsc -p tsconfig.check.json
 
@@ -46,7 +55,6 @@ test-utils:
 
 test: build
 	pnpm test
-
 
 up:
 	pnpm up
