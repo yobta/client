@@ -8,8 +8,8 @@ import {
   YobtaChannelInsertOperation,
 } from './channel.js'
 
-export type YobtaCollectionId = string | number
-export type YobtaCollectionSnapshotKey = string | number
+export type YobtaCollectionId = string
+export type YobtaCollectionSnapshotKey = string
 
 export type YobtaCollectionAnySnapshot = {
   id: YobtaCollectionId
