@@ -1,14 +1,14 @@
 import {
-  YobtaCollectionCreateOperation,
   YOBTA_CHANNEL_DELETE,
-  YOBTA_COLLECTION_CREATE,
+  YOBTA_CHANNEL_INSERT,
   YOBTA_CHANNEL_SHIFT,
   YOBTA_CHANNEL_RESTORE,
+  YOBTA_COLLECTION_CREATE,
   YOBTA_COLLECTION_REVALIDATE,
   YOBTA_COLLECTION_UPDATE,
+  YobtaCollectionCreateOperation,
   YobtaChannelDeleteOperation,
   YobtaChannelInsertOperation,
-  YOBTA_CHANNEL_INSERT,
 } from '@yobta/protocol'
 import { pause } from '@yobta/utils'
 
