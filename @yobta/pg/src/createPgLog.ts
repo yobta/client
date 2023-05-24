@@ -19,7 +19,7 @@ export const createPgLog: PgLogFactory = ({ db }) => {
   return {
     find: ({ collection, channel, merged }) => {
       const query = sql`
-        SELECT * FROM yobta_revalidate_channel(${collection}, ${channel}, ${merged})
+        SELECT * FROM yobta_channel_revalidate(${collection}, ${channel}, ${merged})
       `
       return db.queryNodeStream(query)
     },

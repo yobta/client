@@ -7,8 +7,11 @@ BEGIN
 END
 $$;
 
+-- Drop function if exists
+DROP FUNCTION IF EXISTS yobta_channel_revalidate(character varying,character varying,bigint);
+
 -- Create or replace function
-CREATE OR REPLACE FUNCTION yobta_revalidate_channel(
+CREATE OR REPLACE FUNCTION yobta_channel_revalidate(
   IN p_collection VARCHAR(32),
   IN p_channel VARCHAR(64),
   IN p_merged BIGINT
