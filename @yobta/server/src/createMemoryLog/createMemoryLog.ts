@@ -103,7 +103,6 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
         channel,
         minMerged: merged,
         log,
-        chunkSize: 45664,
       })
       return Readable.from(generator, { objectMode: true })
     },
