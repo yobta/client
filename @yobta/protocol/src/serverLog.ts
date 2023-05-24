@@ -21,11 +21,16 @@ import {
 export type YobtaServerLog<
   SupportedSnapshotsUnion extends YobtaCollectionAnySnapshot,
 > = {
-  find<Snapshot extends SupportedSnapshotsUnion>(
-    channel: string,
-    merged: number,
-    chunkSize: number,
-  ): YobtaServerLogStream<Snapshot>
+  find<Snapshot extends SupportedSnapshotsUnion>(options: {
+    collection: string
+    channel: string
+    merged: number
+  }): YobtaServerLogStream<Snapshot>
+  // find<Snapshot extends SupportedSnapshotsUnion>(
+  //   channel: string,
+  //   merged: number,
+  //   chunkSize: number,
+  // ): YobtaServerLogStream<Snapshot>
   merge<Snapshot extends SupportedSnapshotsUnion>(
     collection: string,
     operation: YobtaCollectionOperation<Snapshot>,
@@ -36,7 +41,7 @@ export type YobtaServerLog<
 }
 
 export type YobtaServerLogStream<Snapshot extends YobtaCollectionAnySnapshot> =
-  Readable & AsyncIterable<YobtaBatchedOperation<Snapshot>[]>
+  Readable & AsyncIterable<YobtaBatchedOperation<Snapshot>>
 
 export type YobtaServerLogRevalidateEntry = {
   type: typeof YOBTA_COLLECTION_REVALIDATE

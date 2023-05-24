@@ -52,3 +52,9 @@ export type YobtaChannelShiftOperation = {
   committed: number
   merged: number
 }
+
+export type YobtaChannelOperation =
+  | YobtaChannelDeleteOperation
+  | YobtaChannelInsertOperation
+  | YobtaChannelRestoreOperation
+  | YobtaChannelShiftOperation

@@ -38,6 +38,7 @@ export const YOBTA_BATCH = 'yobta-batch'
 export type YobtaBatchedOperation<Snapshot extends YobtaCollectionAnySnapshot> =
   Prettify<
     | YobtaCollectionRevalidateOperation<Snapshot>
+    | YobtaChannelInsertOperation
     | YobtaChannelDeleteOperation
     | YobtaChannelRestoreOperation
     | YobtaChannelShiftOperation

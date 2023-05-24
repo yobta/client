@@ -1,5 +1,7 @@
 import { WebSocketServer } from 'ws'
 import { createServer, serverLogger } from '@yobta/server'
+// eslint-disable-next-line import/extensions
+import 'dotenv/config'
 
 import { chunkSize } from './constants.js'
 import './pinoLogger.js'
@@ -14,12 +16,12 @@ const wss = new WebSocketServer({
   perMessageDeflate: {
     zlibDeflateOptions: {
       // See zlib defaults.
-      chunkSize,
+      chunkSize: chunkSize,
       memLevel: 7,
       level: 3,
     },
     zlibInflateOptions: {
-      chunkSize,
+      chunkSize: chunkSize,
     },
     // Other options settable:
     clientNoContextTakeover: true, // Defaults to negotiated value.

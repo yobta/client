@@ -5,12 +5,13 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "ts-node-dev -r tsm src/index.ts",
-    "migrate": "pg-migrations apply --directory src/modules/**/migrations"
+    "migrate": "pg-migrations apply --directory src/migrations"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@databases/pg": "^5.4.1",
     "@databases/pg-migrations": "^5.0.2",
     "@yobta/pg": "workspace:*",
     "@yobta/server": "workspace:*",

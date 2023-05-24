@@ -34,19 +34,6 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
 >() => {
   let log: YobtaServerLogItem[] = []
   const { observe, next } = createObservable()
-  const find = <Snapshot extends SupportedSnapshotsUnion>(
-    channel: string,
-    minMerged: number,
-    chunkSize: number,
-  ): YobtaServerLogStream<Snapshot> => {
-    const generator = operationGenerator<Snapshot>({
-      channel,
-      minMerged,
-      log,
-      chunkSize,
-    })
-    return Readable.from(generator, { objectMode: true })
-  }
   const merge = async <Snapshot extends SupportedSnapshotsUnion>(
     collection: string,
     rawOperation: YobtaCollectionOperation<Snapshot>,
@@ -110,7 +97,16 @@ export const createMemoryLog: YobtaMemoryLogFactory = <
     }
   }
   return {
-    find,
+    find({ channel, merged }) {
+      // TODO: change generator to return one operation at a time
+      const generator = operationGenerator({
+        channel,
+        minMerged: merged,
+        log,
+        chunkSize: 45664,
+      })
+      return Readable.from(generator, { objectMode: true })
+    },
     merge,
     observe,
   }

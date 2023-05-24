@@ -15,6 +15,7 @@ import {
   YOBTA_BATCH,
   Prettify,
   YOBTA_CHANNEL_INSERT,
+  YobtaBatchedOperation,
 } from '@yobta/protocol'
 import { YobtaRouteParams, coerceError } from '@yobta/utils'
 import { nanoid } from 'nanoid'
@@ -24,6 +25,7 @@ import { ServerCallbacks } from '../createServer/createServer.js'
 import { onClientMessage } from '../router/router.js'
 import { serverLogger } from '../serverLogger/serverLogger.js'
 import { notifySibscribers } from '../subscriptonManager/subscriptonManager.js'
+import { BatchStream } from './BatchStream.js'
 
 interface YobtaChannelFactory {
   <Snapshot extends YobtaCollectionAnySnapshot, Route extends string>(
@@ -36,7 +38,7 @@ type YobtaChannelProps<
   Route extends string,
 > = {
   collection: YobtaCollection<Snapshot>
-  chunkSize: number
+  batchSize: number
   route: Route
   access: {
     read(message: {
@@ -68,7 +70,7 @@ export const createChannel: YobtaChannelFactory = <
 >({
   access,
   collection,
-  chunkSize,
+  batchSize,
   route,
 }: YobtaChannelProps<Snapshot, Route>) =>
   onClientMessage<Route, [Message<Snapshot>, ServerCallbacks]>(
@@ -82,11 +84,16 @@ export const createChannel: YobtaChannelFactory = <
         case YOBTA_SUBSCRIBE: {
           await access.read({ params, headers, operation })
           subscribe(clientId, operation)
-          const stream = collection.revalidate(
-            operation.channel,
-            operation.merged,
-            chunkSize,
+          const batchStream = new BatchStream<YobtaBatchedOperation<Snapshot>>(
+            batchSize,
           )
+          const stream = collection
+            .revalidate({
+              collection: collection.name,
+              channel: operation.channel,
+              merged: operation.merged,
+            })
+            .pipe(batchStream)
           let sentCount = 0
           let chunkCount = 0
           try {

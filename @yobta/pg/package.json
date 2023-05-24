@@ -18,6 +18,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@yobta/protocol": "workspace:*"
+    "@yobta/protocol": "workspace:*",
+    "@yobta/stores": "^0.2.5"
+  },
+  "devDependencies": {
+    "@databases/pg": "^5.4.1"
   }
 }

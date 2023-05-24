@@ -1,7 +1,7 @@
 import { createChannel, createCollection } from '@yobta/server'
 
-import { chunkSize } from '../../constants.js'
-import { log } from '../../log.js'
+import { batchSize } from '../../constants.js'
+import { pgLog } from '../../log.js'
 
 type Todo = {
   id: string
@@ -11,14 +11,14 @@ type Todo = {
 }
 
 const collection = createCollection<Todo>({
-  name: 'todos',
-  log,
+  name: 'todo',
+  log: pgLog,
 })
 
 createChannel({
   route: 'all-todos',
   collection,
-  chunkSize,
+  batchSize,
   access: {
     async read() {},
     async write() {},

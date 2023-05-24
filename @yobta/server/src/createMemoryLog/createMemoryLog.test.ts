@@ -31,12 +31,17 @@ describe('log factory', () => {
   })
 })
 
-const chunkSize = 1024
+const batchSize = 1024
 
 describe('log read', () => {
   it('reads an empty log', async () => {
     const log = createMemoryLog()
-    const stream = log.find('channel', 0, chunkSize)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: 0,
+      batchSize,
+    })
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -72,7 +77,12 @@ describe('log read', () => {
     await log.merge('my-collection', op1)
     await log.merge('my-collection', op2)
     await log.merge('my-collection', op3)
-    const stream = log.find('channel', 0, 1024)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: 0,
+      batchSize: 1024,
+    })
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -132,19 +142,35 @@ describe('log read', () => {
     }
     await log.merge('my-collection', createOperation)
     const { merged } = await log.merge('my-collection', insertOperation)
-    const stream1 = log.find('channel', merged, 1024)
+    const stream1 = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged,
+      batchSize: 1024,
+    })
     const result1 = []
     for await (const item of stream1) {
       result1.push(item)
     }
     expect(result1).toEqual([])
-    const stream2 = log.find('channel', merged + 1, 1024)
+    const stream2 = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+      merged: merged + 1,
+      batchSize: 1024,
+    })
     const result2 = []
     for await (const item of stream2) {
       result2.push(item)
     }
     expect(result2).toEqual([])
-    const stream3 = log.find('channel', merged - 1, 1024)
+    const stream3 = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: merged - 1,
+      batchSize: 1024,
+    })
     const result3 = []
     for await (const item of stream3) {
       result3.push(item)
@@ -182,7 +208,12 @@ describe('log read', () => {
       committed: 1,
       merged: 0,
     })
-    const stream = log.find('update-insert-channel', 0, 1000)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'update-insert-channel',
+      merged: 0,
+      batchSize: 1000,
+    })
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -241,7 +272,12 @@ describe('log read', () => {
       committed: 1,
       merged: 0,
     })
-    const stream = log.find('channel', 0, 1024)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: 0,
+      batchSize: 1024,
+    })
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -316,7 +352,12 @@ describe('log read', () => {
       merged: 0,
       snapshotId: 'snapshot-id',
     })
-    const stream = log.find('channel', 0, 1024)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: 0,
+      batchSize: 1024,
+    })
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -400,7 +441,12 @@ describe('log read', () => {
       committed: 1,
       merged: 0,
     })
-    const stream = log.find('channel', 0, 1024)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: 0,
+      batchSize: 1024,
+    })
     const result = []
     for await (const item of stream) {
       result.push(item)
@@ -534,7 +580,12 @@ describe('log read', () => {
       committed: 9,
       merged: 0,
     })
-    const stream = log.find('channel', 0, 100000)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: 0,
+      batchSize: 100000,
+    })
     const result = []
     for await (const chunk of stream) {
       result.push(chunk)
@@ -672,7 +723,12 @@ describe('log read', () => {
       committed: 3,
       merged: 0,
     })
-    const stream = log.find('channel', 0, 480)
+    const stream = log.find({
+      collection: 'collection',
+      channel: 'channel',
+      merged: 0,
+      batchSize: 480,
+    })
     const result = []
     for await (const item of stream) {
       result.push(item)
