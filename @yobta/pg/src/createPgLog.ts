@@ -3,6 +3,7 @@ import {
   YOBTA_CHANNEL_INSERT,
   YOBTA_CHANNEL_RESTORE,
   YOBTA_CHANNEL_SHIFT,
+  YOBTA_COLLECTION_CREATE,
   YobtaChannelOperation,
   YobtaCollectionAnySnapshot,
   YobtaServerLog,
@@ -51,7 +52,14 @@ export const createPgLog: PgLogFactory = ({ db }) => {
             merged: result[0].merged,
           }
           next(mergedOperation)
-          console.log('mergedOperation: ', mergedOperation)
+          return mergedOperation
+        }
+        case YOBTA_COLLECTION_CREATE: {
+          const query = sql`
+            SELECT * FROM yobta_collection_create(${collection}, ${merged}, ${operation})
+          `
+          const result = await db.query(query)
+          const mergedOperation = result[0].yobta_collection_create
           return mergedOperation
         }
         default: {
@@ -60,7 +68,6 @@ export const createPgLog: PgLogFactory = ({ db }) => {
             merged,
           }
           next(mergedOperation)
-          console.log('merge: ', operation)
           return mergedOperation
         }
       }
