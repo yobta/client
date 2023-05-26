@@ -21,13 +21,13 @@ INSERT INTO todo_yobta (id, id_c, id_m, text_c, text_m, completed_c, completed_m
 VALUES ('todo-3', 3, 3, 3, 3, 3, 3, 3, 3);
 
 -- Seed inserts for the `yobta_channel` table
-INSERT INTO yobta_channel (id, type, collection, channel, "snapshotId", "nextSnapshotId", committed, merged)
+INSERT INTO yobta_channel ("operationId", type, collection, channel, "snapshotId", "nextSnapshotId", committed, merged)
 VALUES ('insert-1', 'yobta-channel-insert', 'todo', 'all-todos', 'todo-1', NULL, 1621857600, 1621857700);
 
-INSERT INTO yobta_channel (id, type, collection, channel, "snapshotId", "nextSnapshotId", committed, merged)
+INSERT INTO yobta_channel ("operationId", type, collection, channel, "snapshotId", "nextSnapshotId", committed, merged)
 VALUES ('insert-2', 'yobta-channel-insert', 'todo', 'all-todos', 'todo-2', NULL, 1621934400, 1621934500);
 
-INSERT INTO yobta_channel (id, type, collection, channel, "snapshotId", "nextSnapshotId", committed, merged)
+INSERT INTO yobta_channel ("operationId", type, collection, channel, "snapshotId", "nextSnapshotId", committed, merged)
 VALUES ('insert-3', 'yobta-channel-insert', 'todo', 'all-todos', 'todo-3', 'todo-2', 1622020800, 1622020900);
 
 COMMIT;

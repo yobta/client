@@ -27,7 +27,7 @@ DECLARE
 BEGIN
 	_query := format('
         SELECT 
-            yc.id,
+            yc."operationId",
             yc.type,
             yc.channel,
             yc."snapshotId",
@@ -56,7 +56,7 @@ BEGIN
         END IF;
         IF _record.type = 'yobta-channel-insert' THEN
             revalidate_data := yobta_collection_revalidate(
-                _record.id,
+                _record."operationId",
                 _record.channel,
                 _record."snapshotId",
                 _record.committed,
@@ -76,7 +76,7 @@ BEGIN
             RETURN NEXT;
         END IF;
 
-        id := _record.id;
+        id := _record."operationId";
         type := _record.type;
         channel := _record.channel;
         "snapshotId" := _record."snapshotId";

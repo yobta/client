@@ -19,7 +19,7 @@ END
 $$;
 
 CREATE TABLE IF NOT EXISTS yobta_channel (
-    "id" VARCHAR(32) PRIMARY KEY,
+    "operationId" VARCHAR(32) PRIMARY KEY,
     "type" yobta_channel_type NOT NULL,
     "collection" VARCHAR(32) NOT NULL,
     "channel" VARCHAR(64) NOT NULL,
@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS yobta_channel (
     "committed" BIGINT NOT NULL,
     "merged" BIGINT NOT NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_operation_collection ON yobta_channel ("operationId", "collection");
 
 CREATE INDEX IF NOT EXISTS yobta_channel_collection_channel_merged_idx ON yobta_channel (collection, channel, merged);
 

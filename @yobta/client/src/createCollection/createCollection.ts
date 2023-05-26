@@ -95,7 +95,7 @@ export const createCollection: YobtaCollectionFactory = <
             entries[operation.data.id] = merge(entry, operation)
             ids.add(operation.data.id)
             clientLogger.debug(
-              'Merged: ',
+              'Collection merged: ',
               operation,
               entries[operation.data.id],
             )
@@ -105,11 +105,11 @@ export const createCollection: YobtaCollectionFactory = <
             const entry = getEntry(entries, operation.snapshotId)
             entries[operation.snapshotId] = revalidate(entry, operation)
             ids.add(operation.snapshotId)
-            clientLogger.debug('Merged: ', operation)
+            clientLogger.debug('Collection merged: ', operation)
             break
           }
           default: {
-            clientLogger.debug('Merge skipped: ', operation)
+            clientLogger.debug('Collection merge skipped: ', operation)
             break
           }
         }
@@ -130,7 +130,7 @@ export const createCollection: YobtaCollectionFactory = <
             break
           }
           default: {
-            clientLogger.debug('Commit skipped: ', operation)
+            clientLogger.debug('Collection commit skipped: ', operation)
             break
           }
         }
