@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS yobta_channel (
     "merged" BIGINT NOT NULL
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_operation_collection ON yobta_channel ("operationId", "collection");
 
 CREATE INDEX IF NOT EXISTS yobta_channel_collection_channel_merged_idx ON yobta_channel (collection, channel, merged);
 
