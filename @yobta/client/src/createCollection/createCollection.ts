@@ -66,7 +66,7 @@ export const createCollection: YobtaCollectionFactory = <
 ) => {
   const { observe, next } = createObservable<
     YobtaClientLogOperation<Snapshot>[],
-    never
+    never[]
   >()
   let ready = false
   const entries: YobtaCollectionState<Snapshot> = {}

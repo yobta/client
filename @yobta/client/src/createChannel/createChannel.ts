@@ -54,7 +54,7 @@ export type YobtaChannel<Snapshot extends YobtaCollectionAnySnapshot> =
       to?: number | null,
     ): Readonly<YobtaChannelShiftOperation> | null
   }> &
-    YobtaReadable<Snapshot[], never>
+    YobtaReadable<Snapshot[], never[]>
 
 type YobtaChannelProps<Snapshot extends YobtaCollectionAnySnapshot> = {
   collection: YobtaCollection<Snapshot>
@@ -69,7 +69,7 @@ export const createChannel: YobtaChannelFactory = <
   path: channel,
 }: YobtaChannelProps<Snapshot>) => {
   const log = createClientLog<Snapshot>(channel)
-  const snapshotsStore = createStore<Snapshot[], never>([])
+  const snapshotsStore = createStore<Snapshot[], never[]>([])
   const mergeSnapshots = createLogMerger(collection.get)
   storeEffect(snapshotsStore, () => {
     let unmouted = false
